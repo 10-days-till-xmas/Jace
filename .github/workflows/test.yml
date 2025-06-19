@@ -1,0 +1,45 @@
+name: Test Jace
+on:
+  workflow_run:
+    workflows: ["Build Jace"]
+    types: [completed]
+    
+jobs:
+  test:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target-framework: netcoreapp3.1
+          - os: windows-latest
+            target-framework: net461
+
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+          path: ./build
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 6.0.x
+
+      - name: Run tests
+        run: 
+          dotnet test Jace.Tests/Jace.Tests.csproj \
+            --configuration Release \
+            --no-build \
+            -f ${{ matrix.target-framework }}   \
+            --results-directory ./test-results/${{ matrix.target-framework }}
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.target-framework }}
+          path: ./test-results/${{ matrix.target-framework }}
