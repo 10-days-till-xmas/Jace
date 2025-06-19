@@ -1,7 +1,7 @@
 name: Test Jace
 on:
   workflow_run:
-    workflows: ["Build Jace"]
+    workflows: ["Build"]
     types: [completed]
     
 jobs:
@@ -10,12 +10,8 @@ jobs:
     
     strategy:
       matrix:
-        include:
-          - os: ubuntu-latest
-            target-framework: netcoreapp3.1
-          - os: windows-latest
-            target-framework: net461
-
+        os: [ ubuntu-latest, windows-latest ]
+        
     runs-on: ${{ matrix.os }}
     
     steps:
