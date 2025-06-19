@@ -33,10 +33,11 @@ jobs:
       with:
         dotnet-version: 8.0.x
         
-    - name: Restore & Build
-      run:
-        dotnet restore Jace.sln
-        dotnet build Jace.sln -c Release
+    - name: Restore solution
+      run: dotnet restore Jace.sln
+        
+    - name: Build solution
+      run: dotnet build Jace.sln -c Release
 
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
