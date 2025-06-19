@@ -2,1202 +2,1224 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Text;
-using Jace.Operations;
-using Jace.Execution;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq.Expressions;
+using Jace.Execution;
+using Xunit;
 
-namespace Jace.Tests
+namespace Jace.Tests;
+
+public class CalculationEngineTests
 {
-    [TestClass]
-    public class CalculationEngineTests
+    [Fact]
+    public void TestCalculationFormula1FloatingPointCompiled()
     {
-        [TestMethod]
-        public void TestCalculationFormula1FloatingPointCompiled()
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled);
+        var result = engine.Calculate("2.0+3.0");
+
+        Assert.Equal(5.0, result);
+    }
+
+    [Fact]
+    public void TestCalculationFormula1IntegersCompiled()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled);
+        var result = engine.Calculate("2+3");
+
+        Assert.Equal(5.0, result);
+    }
+
+    [Fact]
+    public void TestCalculateFormula1()
+    {
+        var engine = new CalculationEngine();
+        var result = engine.Calculate("2+3");
+
+        Assert.Equal(5.0, result);
+    }
+
+    [Fact]
+    public void TestCalculateModuloCompiled()
+    {
+        CalculationEngine engine =
+            new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled, false, false, true);
+        double result = engine.Calculate("5 % 3.0");
+
+        Assert.Equal(2.0, result);
+    }
+
+    [Fact]
+    public void TestCalculateModuloInterpreted()
+    {
+        CalculationEngine engine =
+            new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted, false, false, true);
+        double result = engine.Calculate("5 % 3.0");
+
+        Assert.Equal(2.0, result);
+    }
+
+    [Fact]
+    public void TestCalculatePowCompiled()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled);
+        var result = engine.Calculate("2^3.0");
+
+        Assert.Equal(8.0, result);
+    }
+
+    [Fact]
+    public void TestCalculatePowInterpreted()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted);
+        var result = engine.Calculate("2^3.0");
+
+        Assert.Equal(8.0, result);
+    }
+
+    [Fact]
+    public void TestCalculateFormulaWithVariables()
+    {
+        var variables = new Dictionary<string, double>
         {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled);
-            double result = engine.Calculate("2.0+3.0");
+            { "var1", 2.5 },
+            { "var2", 3.4 }
+        };
 
-            Assert.AreEqual(5.0, result);
-        }
+        var engine = new CalculationEngine();
+        var result = engine.Calculate("var1*var2", variables);
 
-        [TestMethod]
-        public void TestCalculationFormula1IntegersCompiled()
+        Assert.Equal(8.5, result);
+    }
+
+    [Fact]
+    public void TestCalculateFormulaWithCaseSensitiveVariables1Compiled()
+    {
+        var variables = new Dictionary<string, double>
         {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled);
-            double result = engine.Calculate("2+3");
-
-            Assert.AreEqual(5.0, result);
-        }
-
-        [TestMethod]
-        public void TestCalculateFormula1()
-        {
-            CalculationEngine engine = new CalculationEngine();
-            double result = engine.Calculate("2+3");
-
-            Assert.AreEqual(5.0, result);
-        }
-
-        [TestMethod]
-        public void TestCalculateModuloCompiled()
-        {
-            CalculationEngine engine =
-                new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled, false, false, true);
-            double result = engine.Calculate("5 % 3.0");
-
-            Assert.AreEqual(2.0, result);
-        }
-
-        [TestMethod]
-        public void TestCalculateModuloInterpreted()
-        {
-            CalculationEngine engine =
-                new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted, false, false, true);
-            double result = engine.Calculate("5 % 3.0");
-
-            Assert.AreEqual(2.0, result);
-        }
-
-        [TestMethod]
-        public void TestCalculatePowCompiled()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled);
-            double result = engine.Calculate("2^3.0");
-
-            Assert.AreEqual(8.0, result);
-        }
-
-        [TestMethod]
-        public void TestCalculatePowInterpreted()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted);
-            double result = engine.Calculate("2^3.0");
-
-            Assert.AreEqual(8.0, result);
-        }
-
-        [TestMethod]
-        public void TestCalculateFormulaWithVariables()
-        {
-            Dictionary<string, double> variables = new Dictionary<string, double>();
-            variables.Add("var1", 2.5);
-            variables.Add("var2", 3.4);
-
-            CalculationEngine engine = new CalculationEngine();
-            double result = engine.Calculate("var1*var2", variables);
-
-            Assert.AreEqual(8.5, result);
-        }
-
-        [TestMethod]
-        public void TestCalculateFormulaWithCaseSensitiveVariables1Compiled()
-        {
-            Dictionary<string, double> variables = new Dictionary<string, double>();
-            variables.Add("VaR1", 2.5);
-            variables.Add("vAr2", 3.4);
-            variables.Add("var1", 1);
-            variables.Add("var2", 1);
+            { "VaR1", 2.5 },
+            { "vAr2", 3.4 },
+            { "var1", 1 },
+            { "var2", 1 }
+        };
 
             CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled, false, false, false);
             double result = engine.Calculate("VaR1*vAr2", variables);
 
-            Assert.AreEqual(8.5, result);
-        }
+        Assert.Equal(8.5, result);
+    }
 
-        [TestMethod]
-        public void TestCalculateFormulaWithCaseSensitiveVariables1Interpreted()
+    [Fact]
+    public void TestCalculateFormulaWithCaseSensitiveVariables1Interpreted()
+    {
+        var variables = new Dictionary<string, double>
         {
-            Dictionary<string, double> variables = new Dictionary<string, double>();
-            variables.Add("VaR1", 2.5);
-            variables.Add("vAr2", 3.4);
-            variables.Add("var1", 1);
-            variables.Add("var2", 1);
+            { "VaR1", 2.5 },
+            { "vAr2", 3.4 },
+            { "var1", 1 },
+            { "var2", 1 }
+        };
+
+        CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted, false, false, false);
+        var result = engine.Calculate("VaR1*vAr2", variables);
+
+        Assert.Equal(8.5, result);
+    }
+
+    [Fact]
+    public void TestCalculateFormulaVariableNotDefinedInterpreted()
+    {
+        var variables = new Dictionary<string, double> { { "var1", 2.5 } };
+
+        Assert.Throws<VariableNotDefinedException>(() =>
+        {
+            new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted)
+                .Calculate("var1*var2", variables);
+        });
+    }
+
+    [Fact]
+    public void TestCalculateFormulaVariableNotDefinedCompiled()
+    {
+        var variables = new Dictionary<string, double> { { "var1", 2.5 } };
+
+        Assert.Throws<VariableNotDefinedException>(() =>
+        {
+            new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled)
+                .Calculate("var1*var2", variables);
+        });
+    }
+
+    [Fact]
+    public void TestCalculateSineFunctionInterpreted()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted);
+        var result = engine.Calculate("sin(14)");
+
+        Assert.Equal(Math.Sin(14.0), result);
+    }
+
+    [Fact]
+    public void TestCalculateSineFunctionCompiled()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled, true, false, true);
+        var result = engine.Calculate("sin(14)");
+
+        Assert.Equal(Math.Sin(14.0), result);
+    }
+
+    [Fact]
+    public void TestCalculateCosineFunctionInterpreted()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted);
+        var result = engine.Calculate("cos(41)");
+
+        Assert.Equal(Math.Cos(41.0), result);
+    }
+
+    [Fact]
+    public void TestCalculateCosineFunctionCompiled()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled, true, false, true);
+        var result = engine.Calculate("cos(41)");
+
+        Assert.Equal(Math.Cos(41.0), result);
+    }
+
+    [Fact]
+    public void TestCalculateLognFunctionInterpreted()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted, true, false, true);
+        var result = engine.Calculate("logn(14, 3)");
+
+        Assert.Equal(Math.Log(14.0, 3.0), result);
+    }
+
+    [Fact]
+    public void TestCalculateLognFunctionCompiled()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled, true, false, true);
+        var result = engine.Calculate("logn(14, 3)");
+
+        Assert.Equal(Math.Log(14.0, 3.0), result);
+    }
+
+    [Fact]
+    public void TestNegativeConstant()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled, true, false, true);
+        var result = engine.Calculate("-100");
+
+        Assert.Equal(-100.0, result);
+    }
+
+    [Fact]
+    public void TestMultiplicationWithNegativeConstant()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled, true, false, true);
+        var result = engine.Calculate("5*-100");
+
+        Assert.Equal(-500.0, result);
+    }
+
+    [Fact]
+    public void TestUnaryMinus1Compiled()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled, true, false, true);
+        var result = engine.Calculate("-(1+2+(3+4))");
+
+        Assert.Equal(-10.0, result);
+    }
+
+    [Fact]
+    public void TestUnaryMinus1Interpreted()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted, true, false, true);
+        var result = engine.Calculate("-(1+2+(3+4))");
+
+        Assert.Equal(-10.0, result);
+    }
+
+    [Fact]
+    public void TestUnaryMinus2Compiled()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled, true, false, true);
+        var result = engine.Calculate("5+(-(1*2))");
+
+        Assert.Equal(3.0, result);
+    }
+
+    [Fact]
+    public void TestUnaryMinus2Interpreted()
+    {
+
+        var engine = new CalculationEngine(new JaceOptions
+        {
+            CultureInfo = CultureInfo.InvariantCulture,
+            ExecutionMode = ExecutionMode.Interpreted,
+            CacheEnabled = true,
+            OptimizerEnabled = false,
+            CaseSensitive = false
+        });
+        var result = engine.Calculate("5+(-(1*2))");
+
+        Assert.Equal(3.0, result);
+    }
+
+    [Fact]
+    public void TestUnaryMinus3Compiled()
+    {
+        
+
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture,
+                                           ExecutionMode.Compiled,
+                                           true,
+                                           false,
+                                           true);
+        var eng = new CalculationEngine(new JaceOptions
+        {
+            CultureInfo = CultureInfo.InvariantCulture,
+            ExecutionMode = ExecutionMode.Compiled,
+            CacheEnabled = true,
+            OptimizerEnabled = false,
+            CaseSensitive = false
+        });
+        var result = engine.Calculate("5*(-(1*2)*3)");
+
+        Assert.Equal(-30.0, result);
+    }
+
+    [Fact]
+    public void TestUnaryMinus3Interpreted()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted, true, false, true);
+        var result = engine.Calculate("5*(-(1*2)*3)");
+
+        Assert.Equal(-30.0, result);
+    }
+
+    [Fact]
+    public void TestUnaryMinus4Compiled()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled, true, false, true);
+        var result = engine.Calculate("5* -(1*2)");
+
+        Assert.Equal(-10.0, result);
+    }
+
+    [Fact]
+    public void TestUnaryMinus4Interpreted()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted, true, false, true);
+        var result = engine.Calculate("5* -(1*2)");
+
+        Assert.Equal(-10.0, result);
+    }
+
+    [Fact]
+    public void TestUnaryMinus5Compiled()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled, true, false, true);
+        var result = engine.Calculate("-(1*2)^3");
+
+        Assert.Equal(-8.0, result);
+    }
+
+    [Fact]
+    public void TestUnaryMinus5Interpreted()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted, true, false, true);
+        var result = engine.Calculate("-(1*2)^3");
+
+        Assert.Equal(-8.0, result);
+    }
+
+    [Fact]
+    public void TestBuild()
+    {
+        var engine = new CalculationEngine();
+        Func<Dictionary<string, double>, double> function = engine.Build("var1+2*(3*age)");
+
+        var variables = new Dictionary<string, double>();
+        variables.Add("var1", 2);
+        variables.Add("age", 4);
+
+        var result = function(variables);
+        Assert.Equal(26.0, result);
+    }
+
+    [Fact]
+    public void TestFormulaBuilder()
+    {
+        var engine = new CalculationEngine();
+        var function = (Func<int, double, double>)engine.Formula("var1+2*(3*age)")
+            .Parameter("var1", DataType.Integer)
+            .Parameter("age", DataType.FloatingPoint)
+            .Result(DataType.FloatingPoint)
+            .Build();
+
+        var result = function(2, 4);
+        Assert.Equal(26.0, result);
+    }
+
+    [Fact]
+    public void TestFormulaBuilderCompiled()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled);
+        var function = (Func<int, double, double>)engine.Formula("var1+2*(3*age)")
+            .Parameter("var1", DataType.Integer)
+            .Parameter("age", DataType.FloatingPoint)
+            .Result(DataType.FloatingPoint)
+            .Build();
+
+        var result = function(2, 4);
+        Assert.Equal(26.0, result);
+    }
+
+    [Fact]
+    public void TestFormulaBuilderConstantInterpreted()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted);
+        engine.AddConstant("age", 18.0);
+
+        var function = (Func<int, double>)engine.Formula("age+var1")
+            .Parameter("var1", DataType.Integer)
+            .Result(DataType.FloatingPoint)
+            .Build();
+
+        var result = function(3);
+        Assert.Equal(21.0, result);
+    }
+
+    [Fact]
+    public void TestFormulaBuilderConstantCompiled()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled);
+        engine.AddConstant("age", 18.0);
+
+        var function = (Func<int, double>)engine.Formula("age+var1")
+            .Parameter("var1", DataType.Integer)
+            .Result(DataType.FloatingPoint)
+            .Build();
+
+        var result = function(3);
+        Assert.Equal(21.0, result);
+    }
+
+    [Fact]
+    public void TestFormulaBuilderInvalidParameterName()
+    {
+        Assert.Throws<ArgumentException>(() =>
+        {
+            var engine = new CalculationEngine();
+            var function = (Func<int, double, double>)engine.Formula("sin+2")
+                .Parameter("sin", DataType.Integer)
+                .Build();
+        });
+    }
+
+    [Fact]
+    public void TestFormulaBuilderDuplicateParameterName()
+    {
+        Assert.Throws<ArgumentException>(() =>
+        {
+            var engine = new CalculationEngine();
+            var function = (Func<int, double, double>)engine.Formula("var1+2")
+                .Parameter("var1", DataType.Integer)
+                .Parameter("var1", DataType.FloatingPoint)
+                .Build();
+        });
+    }
+
+    [Fact]
+    public void TestPiMultiplication()
+    {
+        var engine = new CalculationEngine();
+        var result = engine.Calculate("2 * pI");
+
+        Assert.Equal(2 * Math.PI, result);
+    }
+
+    [Fact]
+    public void TestReservedVariableName()
+    {
+        Assert.Throws<ArgumentException>(() =>
+        {
+            var variables = new Dictionary<string, double>();
+            variables.Add("pi", 2.0);
+
+            var engine = new CalculationEngine();
+            var result = engine.Calculate("2 * pI", variables);
+        });
+    }
+
+    [Fact]
+    public void TestVariableNameCaseSensitivityCompiled()
+    {
+        var variables = new Dictionary<string, double>();
+        variables.Add("blabla", 42.5);
+
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled);
+        var result = engine.Calculate("2 * BlAbLa", variables);
+
+        Assert.Equal(85.0, result);
+    }
+
+    [Fact]
+    public void TestVariableNameCaseSensitivityInterpreted()
+    {
+        var variables = new Dictionary<string, double>();
+        variables.Add("blabla", 42.5);
+
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted);
+        var result = engine.Calculate("2 * BlAbLa", variables);
+
+        Assert.Equal(85.0, result);
+    }
+
+    [Fact]
+    public void TestVariableNameCaseSensitivityNoToLowerCompiled()
+    {
+        var variables = new Dictionary<string, double>();
+        variables.Add("BlAbLa", 42.5);
+
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled, false, false, false);
+        var result = engine.Calculate("2 * BlAbLa", variables);
+
+        Assert.Equal(85.0, result);
+    }
+
+    [Fact]
+    public void TestVariableNameCaseSensitivityNoToLowerInterpreted()
+    {
+        var variables = new Dictionary<string, double>();
+        variables.Add("BlAbLa", 42.5);
 
             CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted, false, false, false);
-            double result = engine.Calculate("VaR1*vAr2", variables);
-
-            Assert.AreEqual(8.5, result);
-        }
-
-        [TestMethod]
-        public void TestCalculateFormulaVariableNotDefinedInterpreted()
-        {
-            Dictionary<string, double> variables = new Dictionary<string, double>();
-            variables.Add("var1", 2.5);
-
-            AssertExtensions.ThrowsException<VariableNotDefinedException>(() =>
-                {
-                    CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted);
-                    double result = engine.Calculate("var1*var2", variables);
-                });
-        }
-
-        [TestMethod]
-        public void TestCalculateFormulaVariableNotDefinedCompiled()
-        {
-            Dictionary<string, double> variables = new Dictionary<string, double>();
-            variables.Add("var1", 2.5);
-
-            AssertExtensions.ThrowsException<VariableNotDefinedException>(() =>
-                {
-                    CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled);
-                    double result = engine.Calculate("var1*var2", variables);
-                });
-        }
-
-        [TestMethod]
-        public void TestCalculateSineFunctionInterpreted()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted);
-            double result = engine.Calculate("sin(14)");
-
-            Assert.AreEqual(Math.Sin(14.0), result);
-        }
-
-        [TestMethod]
-        public void TestCalculateSineFunctionCompiled()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled, true, false, true);
-            double result = engine.Calculate("sin(14)");
-
-            Assert.AreEqual(Math.Sin(14.0), result);
-        }
-
-        [TestMethod]
-        public void TestCalculateCosineFunctionInterpreted()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted);
-            double result = engine.Calculate("cos(41)");
-
-            Assert.AreEqual(Math.Cos(41.0), result);
-        }
-
-        [TestMethod]
-        public void TestCalculateCosineFunctionCompiled()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled, true, false, true);
-            double result = engine.Calculate("cos(41)");
-
-            Assert.AreEqual(Math.Cos(41.0), result);
-        }
-
-        [TestMethod]
-        public void TestCalculateLognFunctionInterpreted()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted, true, false, true);
-            double result = engine.Calculate("logn(14, 3)");
-
-            Assert.AreEqual(Math.Log(14.0, 3.0), result);
-        }
-
-        [TestMethod]
-        public void TestCalculateLognFunctionCompiled()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled, true, false, true);
-            double result = engine.Calculate("logn(14, 3)");
-
-            Assert.AreEqual(Math.Log(14.0, 3.0), result);
-        }
-
-        [TestMethod]
-        public void TestNegativeConstant()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled, true, false, true);
-            double result = engine.Calculate("-100");
-
-            Assert.AreEqual(-100.0, result);
-        }
-
-        [TestMethod]
-        public void TestMultiplicationWithNegativeConstant()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled, true, false, true);
-            double result = engine.Calculate("5*-100");
-
-            Assert.AreEqual(-500.0, result);
-        }
-
-        [TestMethod]
-        public void TestUnaryMinus1Compiled()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled, true, false, true);
-            double result = engine.Calculate("-(1+2+(3+4))");
-
-            Assert.AreEqual(-10.0, result);
-        }
-
-        [TestMethod]
-        public void TestUnaryMinus1Interpreted()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted, true, false, true);
-            double result = engine.Calculate("-(1+2+(3+4))");
-
-            Assert.AreEqual(-10.0, result);
-        }
-
-        [TestMethod]
-        public void TestUnaryMinus2Compiled()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled, true, false, true);
-            double result = engine.Calculate("5+(-(1*2))");
-
-            Assert.AreEqual(3.0, result);
-        }
-
-        [TestMethod]
-        public void TestUnaryMinus2Interpreted()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted, true, false, true);
-            double result = engine.Calculate("5+(-(1*2))");
-
-            Assert.AreEqual(3.0, result);
-        }
-
-        [TestMethod]
-        public void TestUnaryMinus3Compiled()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled, true, false, true);
-            double result = engine.Calculate("5*(-(1*2)*3)");
-
-            Assert.AreEqual(-30.0, result);
-        }
-
-        [TestMethod]
-        public void TestUnaryMinus3Interpreted()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted, true, false, true);
-            double result = engine.Calculate("5*(-(1*2)*3)");
-
-            Assert.AreEqual(-30.0, result);
-        }
-
-        [TestMethod]
-        public void TestUnaryMinus4Compiled()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled, true, false, true);
-            double result = engine.Calculate("5* -(1*2)");
-
-            Assert.AreEqual(-10.0, result);
-        }
-
-        [TestMethod]
-        public void TestUnaryMinus4Interpreted()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted, true, false, true);
-            double result = engine.Calculate("5* -(1*2)");
-
-            Assert.AreEqual(-10.0, result);
-        }
-
-        [TestMethod]
-        public void TestUnaryMinus5Compiled()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled, true, false, true);
-            double result = engine.Calculate("-(1*2)^3");
-
-            Assert.AreEqual(-8.0, result);
-        }
-
-        [TestMethod]
-        public void TestUnaryMinus5Interpreted()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted, true, false, true);
-            double result = engine.Calculate("-(1*2)^3");
-
-            Assert.AreEqual(-8.0, result);
-        }
-
-        [TestMethod]
-        public void TestBuild()
-        {
-            CalculationEngine engine = new CalculationEngine();
-            Func<Dictionary<string, double>, double> function = engine.Build("var1+2*(3*age)");
-
-            Dictionary<string, double> variables = new Dictionary<string, double>();
-            variables.Add("var1", 2);
-            variables.Add("age", 4);
-
-            double result = function(variables);
-            Assert.AreEqual(26.0, result);
-        }
-
-        [TestMethod]
-        public void TestFormulaBuilder()
-        {
-            CalculationEngine engine = new CalculationEngine();
-            Func<int, double, double> function = (Func<int, double, double>)engine.Formula("var1+2*(3*age)")
-                .Parameter("var1", DataType.Integer)
-                .Parameter("age", DataType.FloatingPoint)
-                .Result(DataType.FloatingPoint)
-                .Build();
-
-            double result = function(2, 4);
-            Assert.AreEqual(26.0, result);
-        }
-
-        [TestMethod]
-        public void TestFormulaBuilderCompiled()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled);
-            Func<int, double, double> function = (Func<int, double, double>)engine.Formula("var1+2*(3*age)")
-                .Parameter("var1", DataType.Integer)
-                .Parameter("age", DataType.FloatingPoint)
-                .Result(DataType.FloatingPoint)
-                .Build();
-
-            double result = function(2, 4);
-            Assert.AreEqual(26.0, result);
-        }
-
-        [TestMethod]
-        public void TestFormulaBuilderConstantInterpreted()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted);
-            engine.AddConstant("age", 18.0);
-
-            Func<int, double> function = (Func<int, double>)engine.Formula("age+var1")
-                .Parameter("var1", DataType.Integer)
-                .Result(DataType.FloatingPoint)
-                .Build();
-
-            double result = function(3);
-            Assert.AreEqual(21.0, result);
-        }
-
-        [TestMethod]
-        public void TestFormulaBuilderConstantCompiled()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled);
-            engine.AddConstant("age", 18.0);
-
-            Func<int, double> function = (Func<int, double>)engine.Formula("age+var1")
-                .Parameter("var1", DataType.Integer)
-                .Result(DataType.FloatingPoint)
-                .Build();
-
-            double result = function(3);
-            Assert.AreEqual(21.0, result);
-        }
-
-        [TestMethod]
-        public void TestFormulaBuilderInvalidParameterName()
-        {
-            AssertExtensions.ThrowsException<ArgumentException>(() =>
-                {
-                    CalculationEngine engine = new CalculationEngine();
-                    Func<int, double, double> function = (Func<int, double, double>)engine.Formula("sin+2")
-                        .Parameter("sin", DataType.Integer)
-                        .Build();
-                });
-        }
-
-        [TestMethod]
-        public void TestFormulaBuilderDuplicateParameterName()
-        {
-            AssertExtensions.ThrowsException<ArgumentException>(() =>
-                {
-                    CalculationEngine engine = new CalculationEngine();
-                    Func<int, double, double> function = (Func<int, double, double>)engine.Formula("var1+2")
-                        .Parameter("var1", DataType.Integer)
-                        .Parameter("var1", DataType.FloatingPoint)
-                        .Build();
-                });
-        }
-
-        [TestMethod]
-        public void TestPiMultiplication()
-        {
-            CalculationEngine engine = new CalculationEngine();
-            double result = engine.Calculate("2 * pI");
-
-            Assert.AreEqual(2 * Math.PI, result);
-        }
-
-        [TestMethod]
-        public void TestReservedVariableName()
-        {
-            AssertExtensions.ThrowsException<ArgumentException>(() =>
-            {
-                Dictionary<string, double> variables = new Dictionary<string, double>();
-                variables.Add("pi", 2.0);
-
-                CalculationEngine engine = new CalculationEngine();
-                double result = engine.Calculate("2 * pI", variables);
-            });
-        }
-
-        [TestMethod]
-        public void TestVariableNameCaseSensitivityCompiled()
-        {
-            Dictionary<string, double> variables = new Dictionary<string, double>();
-            variables.Add("blabla", 42.5);
-
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled);
             double result = engine.Calculate("2 * BlAbLa", variables);
 
-            Assert.AreEqual(85.0, result);
+        Assert.Equal(85.0, result);
+    }
+
+    [Fact]
+    public void TestCustomFunctionInterpreted()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture,
+            ExecutionMode.Interpreted, false, false, false);
+        engine.AddFunction("test", (a, b) => a + b);
+
+        var result = engine.Calculate("test(2,3)");
+        Assert.Equal(5.0, result);
+    }
+
+    [Fact]
+    public void TestCustomFunctionCompiled()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture,
+            ExecutionMode.Compiled, false, false, false);
+        engine.AddFunction("test", (a, b) => a + b);
+
+        var result = engine.Calculate("test(2,3)");
+        Assert.Equal(5.0, result);
+    }
+
+    [Fact]
+    public void TestComplicatedPrecedence1()
+    {
+        var engine = new CalculationEngine();
+
+        var result = engine.Calculate("1+2-3*4/5+6-7*8/9+0");
+        Assert.Equal(0.378, Math.Round(result, 3));
+    }
+
+    [Fact]
+    public void TestComplicatedPrecedence2()
+    {
+        var engine = new CalculationEngine();
+
+        var result = engine.Calculate("1+2-3*4/sqrt(25)+6-7*8/9+0");
+        Assert.Equal(0.378, Math.Round(result, 3));
+    }
+
+    [Fact]
+    public void TestExpressionArguments1()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture);
+
+        var result = engine.Calculate("ifless(0.57, (3000-500)/(1500-500), 10, 20)");
+        Assert.Equal(10, result);
+    }
+
+    [Fact]
+    public void TestExpressionArguments2()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture);
+
+        var result = engine.Calculate("if(0.57 < (3000-500)/(1500-500), 10, 20)");
+        Assert.Equal(10, result);
+    }
+
+    [Fact]
+    public void TestNestedFunctions()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture);
+
+        var result = engine.Calculate("max(sin(67), cos(67))");
+        Assert.Equal(-0.517769799789505, Math.Round(result, 15));
+    }
+
+    [Fact]
+    public void TestVariableCaseFuncInterpreted()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted);
+        Func<Dictionary<string, double>, double> formula = engine.Build("var1+2/(3*otherVariablE)");
+
+        var variables = new Dictionary<string, double>();
+        variables.Add("var1", 2);
+        variables.Add("otherVariable", 4.2);
+
+        var result = formula(variables);
+    }
+
+    [Fact]
+    public void TestVariableCaseFuncCompiled()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled);
+        Func<Dictionary<string, double>, double> formula = engine.Build("var1+2/(3*otherVariablE)");
+
+        var variables = new Dictionary<string, double>();
+        variables.Add("var1", 2);
+        variables.Add("otherVariable", 4.2);
+
+        var result = formula(variables);
+    }
+
+    [Fact]
+    public void TestVariableCaseNonFunc()
+    {
+        var engine = new CalculationEngine();
+
+        var variables = new Dictionary<string, double>();
+        variables.Add("var1", 2);
+        variables.Add("otherVariable", 4.2);
+
+        var result = engine.Calculate("var1+2/(3*otherVariablE)", variables);
+    }
+
+    [Fact]
+    public void TestLessThanInterpreted()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted);
+
+        var variables = new Dictionary<string, double>();
+        variables.Add("var1", 2);
+        variables.Add("var2", 4.2);
+
+        var result = engine.Calculate("var1 < var2", variables);
+        Assert.Equal(1.0, result);
+    }
+
+    [Fact]
+    public void TestLessThanCompiled()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled);
+
+        var variables = new Dictionary<string, double>();
+        variables.Add("var1", 2);
+        variables.Add("var2", 4.2);
+
+        var result = engine.Calculate("var1 < var2", variables);
+        Assert.Equal(1.0, result);
+    }
+
+    [Fact]
+    public void TestLessOrEqualThan1Interpreted()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted);
+
+        var variables = new Dictionary<string, double>();
+        variables.Add("var1", 2);
+        variables.Add("var2", 2);
+
+        var result = engine.Calculate("var1 <= var2", variables);
+        Assert.Equal(1.0, result);
+    }
+
+    [Fact]
+    public void TestLessOrEqualThan1Compiled()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled);
+
+        var variables = new Dictionary<string, double>();
+        variables.Add("var1", 2);
+        variables.Add("var2", 2);
+
+        var result = engine.Calculate("var1 <= var2", variables);
+        Assert.Equal(1.0, result);
+    }
+
+    [Fact]
+    public void TestLessOrEqualThan2Interpreted()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted);
+
+        var variables = new Dictionary<string, double>();
+        variables.Add("var1", 2);
+        variables.Add("var2", 2);
+
+        var result = engine.Calculate("var1 ≤ var2", variables);
+        Assert.Equal(1.0, result);
+    }
+
+    [Fact]
+    public void TestLessOrEqualThan2Compiled()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled);
+
+        var variables = new Dictionary<string, double>();
+        variables.Add("var1", 2);
+        variables.Add("var2", 2);
+
+        var result = engine.Calculate("var1 ≤ var2", variables);
+        Assert.Equal(1.0, result);
+    }
+
+    [Fact]
+    public void TestGreaterThan1Interpreted()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted);
+
+        var variables = new Dictionary<string, double>();
+        variables.Add("var1", 2);
+        variables.Add("var2", 3);
+
+        var result = engine.Calculate("var1 > var2", variables);
+        Assert.Equal(0.0, result);
+    }
+
+    [Fact]
+    public void TestGreaterThan1Compiled()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled);
+
+        var variables = new Dictionary<string, double>();
+        variables.Add("var1", 2);
+        variables.Add("var2", 3);
+
+        var result = engine.Calculate("var1 > var2", variables);
+        Assert.Equal(0.0, result);
+    }
+
+    [Fact]
+    public void TestGreaterOrEqualThan1Interpreted()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted);
+
+        var variables = new Dictionary<string, double>();
+        variables.Add("var1", 2);
+        variables.Add("var2", 2);
+
+        var result = engine.Calculate("var1 >= var2", variables);
+        Assert.Equal(1.0, result);
+    }
+
+    [Fact]
+    public void TestGreaterOrEqualThan1Compiled()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled);
+
+        var variables = new Dictionary<string, double>();
+        variables.Add("var1", 2);
+        variables.Add("var2", 2);
+
+        var result = engine.Calculate("var1 >= var2", variables);
+        Assert.Equal(1.0, result);
+    }
+
+    [Fact]
+    public void TestNotEqual1Interpreted()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted);
+
+        var variables = new Dictionary<string, double>();
+        variables.Add("var1", 2);
+        variables.Add("var2", 2);
+
+        var result = engine.Calculate("var1 != 2", variables);
+        Assert.Equal(0.0, result);
+    }
+
+    [Fact]
+    public void TestNotEqual2Interpreted()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted);
+
+        var variables = new Dictionary<string, double>();
+        variables.Add("var1", 2);
+        variables.Add("var2", 2);
+
+        var result = engine.Calculate("var1 ≠ 2", variables);
+        Assert.Equal(0.0, result);
+    }
+
+    [Fact]
+    public void TestNotEqual2Compiled()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled);
+
+        var variables = new Dictionary<string, double>();
+        variables.Add("var1", 2);
+        variables.Add("var2", 2);
+
+        var result = engine.Calculate("var1 ≠ 2", variables);
+        Assert.Equal(0.0, result);
+    }
+
+    [Fact]
+    public void TestEqualInterpreted()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted);
+
+        var variables = new Dictionary<string, double>();
+        variables.Add("var1", 2);
+        variables.Add("var2", 2);
+
+        var result = engine.Calculate("var1 == 2", variables);
+        Assert.Equal(1.0, result);
+    }
+
+    [Fact]
+    public void TestEqualCompiled()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled);
+
+        var variables = new Dictionary<string, double>();
+        variables.Add("var1", 2);
+        variables.Add("var2", 2);
+
+        var result = engine.Calculate("var1 == 2", variables);
+        Assert.Equal(1.0, result);
+    }
+
+    public void TestVariableUnderscoreInterpreted()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted);
+
+        var variables = new Dictionary<string, double>();
+        variables.Add("var_var_1", 1);
+        variables.Add("var_var_2", 2);
+
+        var result = engine.Calculate("var_var_1 + var_var_2", variables);
+        Assert.Equal(3.0, result);
+    }
+
+    [Fact]
+    public void TestVariableUnderscoreCompiled()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled);
+
+        var variables = new Dictionary<string, double>();
+        variables.Add("var_var_1", 1);
+        variables.Add("var_var_2", 2);
+
+        var result = engine.Calculate("var_var_1 + var_var_2", variables);
+        Assert.Equal(3.0, result);
+    }
+
+    [Fact]
+    public void TestCustomFunctionFunc11Interpreted()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture,
+            ExecutionMode.Interpreted, false, false, false);
+        engine.AddFunction("test", (a, b, c, d, e, f, g, h, i, j, k) => a + b + c + d + e + f + g + h + i + j + k);
+        var result = engine.Calculate("test(1,2,3,4,5,6,7,8,9,10,11)");
+        var expected = (11 * (11 + 1)) / 2.0;
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void TestCustomFunctionFunc11Compiled()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture,
+            ExecutionMode.Compiled, false, false, false);
+        engine.AddFunction("test", (a, b, c, d, e, f, g, h, i, j, k) => a + b + c + d + e + f + g + h + i + j + k);
+        var result = engine.Calculate("test(1,2,3,4,5,6,7,8,9,10,11)");
+        var expected = (11 * (11 + 1)) / 2.0;
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void TestCustomFunctionDynamicFuncInterpreted()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture,
+            ExecutionMode.Interpreted, false, false, false);
+
+        double DoSomething(params double[] a)
+        {
+            return a.Sum();
         }
 
-        [TestMethod]
-        public void TestVariableNameCaseSensitivityInterpreted()
+        engine.AddFunction("test", DoSomething);
+        var result = engine.Calculate("test(1,2,3,4,5,6,7,8,9,10,11)");
+        var expected = (11 * (11 + 1)) / 2.0;
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void TestCustomFunctionDynamicFuncCompiled()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture,
+            ExecutionMode.Compiled, false, false, false);
+
+        double DoSomething(params double[] a)
         {
-            Dictionary<string, double> variables = new Dictionary<string, double>();
-            variables.Add("blabla", 42.5);
-
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted);
-            double result = engine.Calculate("2 * BlAbLa", variables);
-
-            Assert.AreEqual(85.0, result);
+            return a.Sum();
         }
 
-        [TestMethod]
-        public void TestVariableNameCaseSensitivityNoToLowerCompiled()
+        engine.AddFunction("test", DoSomething);
+        var result = engine.Calculate("test(1,2,3,4,5,6,7,8,9,10,11)");
+        var expected = (11 * (11 + 1)) / 2.0;
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void TestCustomFunctionDynamicFuncNestedInterpreted()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture,
+            ExecutionMode.Interpreted, false, false, false);
+
+        double DoSomething(params double[] a)
         {
-            Dictionary<string, double> variables = new Dictionary<string, double>();
-            variables.Add("BlAbLa", 42.5);
-
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled, false, false, false);
-            double result = engine.Calculate("2 * BlAbLa", variables);
-
-            Assert.AreEqual(85.0, result);
+            return a.Sum();
         }
 
-        [TestMethod]
-        public void TestVariableNameCaseSensitivityNoToLowerInterpreted()
+        engine.AddFunction("test", DoSomething);
+        var result = engine.Calculate("test(1,2,3,test(4,5,6)) + test(7,8,9,10,11)");
+        var expected = (11 * (11 + 1)) / 2.0;
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void TestCustomFunctionDynamicFuncNestedDynamicCompiled()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture,
+            ExecutionMode.Compiled, false, false, false);
+
+        double DoSomething(params double[] a)
         {
-            Dictionary<string, double> variables = new Dictionary<string, double>();
-            variables.Add("BlAbLa", 42.5);
-
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted, false, false, false);
-            double result = engine.Calculate("2 * BlAbLa", variables);
-
-            Assert.AreEqual(85.0, result);
+            return a.Sum();
         }
 
-        [TestMethod]
-        public void TestCustomFunctionInterpreted()
+        engine.AddFunction("test", DoSomething);
+        var result = engine.Calculate("test(1,2,3,test(4,5,6)) + test(7,8,9,10,11)");
+        var expected = (11 * (11 + 1)) / 2.0;
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void TestAndCompiled()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled, true, false, true);
+        var result = engine.Calculate("(1 && 0)");
+        Assert.Equal(0, result);
+    }
+
+    [Fact]
+    public void TestAndInterpreted()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted, true, false, true);
+        var result = engine.Calculate("(1 && 0)");
+        Assert.Equal(0, result);
+    }
+
+    [Fact]
+    public void TestOr1Compiled()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled, true, false, true);
+        var result = engine.Calculate("(1 || 0)");
+        Assert.Equal(1, result);
+    }
+
+    [Fact]
+    public void TestOr1Interpreted()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted, true, false, true);
+        var result = engine.Calculate("(1 || 0)");
+        Assert.Equal(1, result);
+    }
+
+    [Fact]
+    public void TestOr2Compiled()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled, true, false, true);
+        var result = engine.Calculate("(0 || 0)");
+        Assert.Equal(0, result);
+    }
+
+    [Fact]
+    public void TestOr2Interpreted()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted, true, false, true);
+        var result = engine.Calculate("(0 || 0)");
+        Assert.Equal(0, result);
+    }
+
+    [Fact]
+    public void TestMedian1Compiled()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled, true, false, true);
+        var result = engine.Calculate("median(3,1,5,4,2)");
+        Assert.Equal(3, result);
+    }
+
+    [Fact]
+    public void TestMedian1Interpreted()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted, true, false, true);
+        var result = engine.Calculate("median(3,1,5,4,2)");
+        Assert.Equal(3, result);
+    }
+
+    [Fact]
+    public void TestMedian2Compiled()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled, true, false, true);
+        var result = engine.Calculate("median(3,1,5,4)");
+        Assert.Equal(3, result);
+    }
+
+    [Fact]
+    public void TestMedian2Interpreted()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted, true, false, true);
+        var result = engine.Calculate("median(3,1,5,4)");
+        Assert.Equal(3, result);
+    }
+
+    [Fact]
+    public void TestCalculationFormulaBuildingWithConstants1Compiled()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled);
+        var fn = engine.Build("a+b+c", new Dictionary<string, double> { { "a", 1 } });
+        var result = fn(new Dictionary<string, double> { { "b", 2 }, { "c", 2 } });
+        Assert.Equal(5.0, result);
+    }
+
+    [Fact]
+    public void TestCalculationFormulaBuildingWithConstants1Interpreted()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted);
+        var fn = engine.Build("a+b+c", new Dictionary<string, double> { { "a", 1 } });
+        var result = fn(new Dictionary<string, double> { { "b", 2 }, { "c", 2 } });
+        Assert.Equal(5.0, result);
+    }
+
+    [Fact]
+    public void TestCalculationFormulaBuildingWithConstants2Compiled()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled);
+
+        var formula = (Func<double, double, double>)engine.Formula("a+b+c")
+            .Parameter("b", DataType.FloatingPoint)
+            .Parameter("c", DataType.FloatingPoint)
+            .Constant("a", 1)
+            .Result(DataType.FloatingPoint)
+            .Build();
+
+        var result = formula(2.0, 2.0);
+        Assert.Equal(5.0, result);
+    }
+
+    [Fact]
+    public void TestCalculationFormulaBuildingWithConstants2Interpreted()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted);
+
+        var formula = (Func<double, double, double>)engine.Formula("a+b+c")
+            .Parameter("b", DataType.FloatingPoint)
+            .Parameter("c", DataType.FloatingPoint)
+            .Constant("a", 1)
+            .Result(DataType.FloatingPoint)
+            .Build();
+
+        var result = formula(2.0, 2.0);
+        Assert.Equal(5.0, result);
+    }
+
+    [Fact]
+    public void TestCalculationFormulaBuildingWithConstants3Compiled()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled, true, true, false);
+
+        var formula = (Func<double, double>)engine.Formula("a+A")
+            .Parameter("A", DataType.FloatingPoint)
+            .Constant("a", 1)
+            .Result(DataType.FloatingPoint)
+            .Build();
+
+        var result = formula(2.0);
+        Assert.Equal(3.0, result);
+    }
+
+    [Fact]
+    public void TestCalculationFormulaBuildingWithConstants3Interpreted()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted, true, true, false);
+
+        var formula = (Func<double, double>)engine.Formula("a+A")
+            .Parameter("A", DataType.FloatingPoint)
+            .Constant("a", 1)
+            .Result(DataType.FloatingPoint)
+            .Build();
+
+        var result = formula(2.0);
+        Assert.Equal(3.0, result);
+    }
+
+    [Fact]
+    public void TestCalculationFormulaBuildingWithConstantsCache1()
+    {
+        var engine = new CalculationEngine(new JaceOptions { CacheEnabled = true });
+
+        var fn = engine.Build("a+b+c", new Dictionary<string, double> { { "a", 1 } });
+        var result = fn(new Dictionary<string, double> { { "b", 2 }, { "c", 2 } });
+        Assert.Equal(5.0, result);
+
+        Assert.Throws<VariableNotDefinedException>(() =>
         {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture,
-                ExecutionMode.Interpreted, false, false, false);
-            engine.AddFunction("test", (a, b) => a + b);
-
-            double result = engine.Calculate("test(2,3)");
-            Assert.AreEqual(5.0, result);
-        }
-
-        [TestMethod]
-        public void TestCustomFunctionCompiled()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture,
-                ExecutionMode.Compiled, false, false, false);
-            engine.AddFunction("test", (a, b) => a + b);
-
-            double result = engine.Calculate("test(2,3)");
-            Assert.AreEqual(5.0, result);
-        }
-
-        [TestMethod]
-        public void TestComplicatedPrecedence1()
-        {
-            CalculationEngine engine = new CalculationEngine();
-
-            double result = engine.Calculate("1+2-3*4/5+6-7*8/9+0");
-            Assert.AreEqual(0.378, Math.Round(result, 3));
-        }
-
-        [TestMethod]
-        public void TestComplicatedPrecedence2()
-        {
-            CalculationEngine engine = new CalculationEngine();
-
-            double result = engine.Calculate("1+2-3*4/sqrt(25)+6-7*8/9+0");
-            Assert.AreEqual(0.378, Math.Round(result, 3));
-        }
-
-        [TestMethod]
-        public void TestExpressionArguments1()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture);
-
-            double result = engine.Calculate("ifless(0.57, (3000-500)/(1500-500), 10, 20)");
-            Assert.AreEqual(10, result);
-        }
-
-        [TestMethod]
-        public void TestExpressionArguments2()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture);
-
-            double result = engine.Calculate("if(0.57 < (3000-500)/(1500-500), 10, 20)");
-            Assert.AreEqual(10, result);
-        }
-
-        [TestMethod]
-        public void TestNestedFunctions()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture);
-
-            double result = engine.Calculate("max(sin(67), cos(67))");
-            Assert.AreEqual(-0.517769799789505, Math.Round(result, 15));
-        }
-
-        [TestMethod]
-        public void TestVariableCaseFuncInterpreted()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted);
-            Func<Dictionary<string, double>, double> formula = engine.Build("var1+2/(3*otherVariablE)");
-
-            Dictionary<string, double> variables = new Dictionary<string, double>();
-            variables.Add("var1", 2);
-            variables.Add("otherVariable", 4.2);
-
-            double result = formula(variables);
-        }
-
-        [TestMethod]
-        public void TestVariableCaseFuncCompiled()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled);
-            Func<Dictionary<string, double>, double> formula = engine.Build("var1+2/(3*otherVariablE)");
-
-            Dictionary<string, double> variables = new Dictionary<string, double>();
-            variables.Add("var1", 2);
-            variables.Add("otherVariable", 4.2);
-
-            double result = formula(variables);
-        }
-
-        [TestMethod]
-        public void TestVariableCaseNonFunc()
-        {
-            CalculationEngine engine = new CalculationEngine();
-
-            Dictionary<string, double> variables = new Dictionary<string, double>();
-            variables.Add("var1", 2);
-            variables.Add("otherVariable", 4.2);
-
-            double result = engine.Calculate("var1+2/(3*otherVariablE)", variables);
-        }
-
-        [TestMethod]
-        public void TestLessThanInterpreted()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted);
-
-            Dictionary<string, double> variables = new Dictionary<string, double>();
-            variables.Add("var1", 2);
-            variables.Add("var2", 4.2);
-
-            double result = engine.Calculate("var1 < var2", variables);
-            Assert.AreEqual(1.0, result);
-        }
-
-        [TestMethod]
-        public void TestLessThanCompiled()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled);
-
-            Dictionary<string, double> variables = new Dictionary<string, double>();
-            variables.Add("var1", 2);
-            variables.Add("var2", 4.2);
-
-            double result = engine.Calculate("var1 < var2", variables);
-            Assert.AreEqual(1.0, result);
-        }
-
-        [TestMethod]
-        public void TestLessOrEqualThan1Interpreted()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted);
-
-            Dictionary<string, double> variables = new Dictionary<string, double>();
-            variables.Add("var1", 2);
-            variables.Add("var2", 2);
-
-            double result = engine.Calculate("var1 <= var2", variables);
-            Assert.AreEqual(1.0, result);
-        }
-
-        [TestMethod]
-        public void TestLessOrEqualThan1Compiled()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled);
-
-            Dictionary<string, double> variables = new Dictionary<string, double>();
-            variables.Add("var1", 2);
-            variables.Add("var2", 2);
-
-            double result = engine.Calculate("var1 <= var2", variables);
-            Assert.AreEqual(1.0, result);
-        }
-
-        [TestMethod]
-        public void TestLessOrEqualThan2Interpreted()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted);
-
-            Dictionary<string, double> variables = new Dictionary<string, double>();
-            variables.Add("var1", 2);
-            variables.Add("var2", 2);
-
-            double result = engine.Calculate("var1 ≤ var2", variables);
-            Assert.AreEqual(1.0, result);
-        }
-
-        [TestMethod]
-        public void TestLessOrEqualThan2Compiled()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled);
-
-            Dictionary<string, double> variables = new Dictionary<string, double>();
-            variables.Add("var1", 2);
-            variables.Add("var2", 2);
-
-            double result = engine.Calculate("var1 ≤ var2", variables);
-            Assert.AreEqual(1.0, result);
-        }
-
-        [TestMethod]
-        public void TestGreaterThan1Interpreted()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted);
-
-            Dictionary<string, double> variables = new Dictionary<string, double>();
-            variables.Add("var1", 2);
-            variables.Add("var2", 3);
-
-            double result = engine.Calculate("var1 > var2", variables);
-            Assert.AreEqual(0.0, result);
-        }
-
-        [TestMethod]
-        public void TestGreaterThan1Compiled()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled);
-
-            Dictionary<string, double> variables = new Dictionary<string, double>();
-            variables.Add("var1", 2);
-            variables.Add("var2", 3);
-
-            double result = engine.Calculate("var1 > var2", variables);
-            Assert.AreEqual(0.0, result);
-        }
-
-        [TestMethod]
-        public void TestGreaterOrEqualThan1Interpreted()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted);
-
-            Dictionary<string, double> variables = new Dictionary<string, double>();
-            variables.Add("var1", 2);
-            variables.Add("var2", 2);
-
-            double result = engine.Calculate("var1 >= var2", variables);
-            Assert.AreEqual(1.0, result);
-        }
-
-        [TestMethod]
-        public void TestGreaterOrEqualThan1Compiled()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled);
-
-            Dictionary<string, double> variables = new Dictionary<string, double>();
-            variables.Add("var1", 2);
-            variables.Add("var2", 2);
-
-            double result = engine.Calculate("var1 >= var2", variables);
-            Assert.AreEqual(1.0, result);
-        }
-
-        [TestMethod]
-        public void TestNotEqual1Interpreted()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted);
-
-            Dictionary<string, double> variables = new Dictionary<string, double>();
-            variables.Add("var1", 2);
-            variables.Add("var2", 2);
-
-            double result = engine.Calculate("var1 != 2", variables);
-            Assert.AreEqual(0.0, result);
-        }
-
-        [TestMethod]
-        public void TestNotEqual2Interpreted()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted);
-
-            Dictionary<string, double> variables = new Dictionary<string, double>();
-            variables.Add("var1", 2);
-            variables.Add("var2", 2);
-
-            double result = engine.Calculate("var1 ≠ 2", variables);
-            Assert.AreEqual(0.0, result);
-        }
-
-        [TestMethod]
-        public void TestNotEqual2Compiled()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled);
-
-            Dictionary<string, double> variables = new Dictionary<string, double>();
-            variables.Add("var1", 2);
-            variables.Add("var2", 2);
-
-            double result = engine.Calculate("var1 ≠ 2", variables);
-            Assert.AreEqual(0.0, result);
-        }
-
-        [TestMethod]
-        public void TestEqualInterpreted()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted);
-
-            Dictionary<string, double> variables = new Dictionary<string, double>();
-            variables.Add("var1", 2);
-            variables.Add("var2", 2);
-
-            double result = engine.Calculate("var1 == 2", variables);
-            Assert.AreEqual(1.0, result);
-        }
-
-        [TestMethod]
-        public void TestEqualCompiled()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled);
-
-            Dictionary<string, double> variables = new Dictionary<string, double>();
-            variables.Add("var1", 2);
-            variables.Add("var2", 2);
-
-            double result = engine.Calculate("var1 == 2", variables);
-            Assert.AreEqual(1.0, result);
-        }
-
-        public void TestVariableUnderscoreInterpreted()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted);
-
-            Dictionary<string, double> variables = new Dictionary<string, double>();
-            variables.Add("var_var_1", 1);
-            variables.Add("var_var_2", 2);
-
-            double result = engine.Calculate("var_var_1 + var_var_2", variables);
-            Assert.AreEqual(3.0, result);
-        }
-
-        [TestMethod]
-        public void TestVariableUnderscoreCompiled()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled);
-
-            Dictionary<string, double> variables = new Dictionary<string, double>();
-            variables.Add("var_var_1", 1);
-            variables.Add("var_var_2", 2);
-
-            double result = engine.Calculate("var_var_1 + var_var_2", variables);
-            Assert.AreEqual(3.0, result);
-        }
-
-        [TestMethod]
-        public void TestCustomFunctionFunc11Interpreted()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture,
-                ExecutionMode.Interpreted, false, false, false);
-            engine.AddFunction("test", (a, b, c, d, e, f, g, h, i, j, k) => a + b + c + d + e + f + g + h + i + j + k);
-            double result = engine.Calculate("test(1,2,3,4,5,6,7,8,9,10,11)");
-            double expected = (11 * (11 + 1)) / 2.0;
-            Assert.AreEqual(expected, result);
-        }
-
-        [TestMethod]
-        public void TestCustomFunctionFunc11Compiled()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture,
-                ExecutionMode.Compiled, false, false, false);
-            engine.AddFunction("test", (a, b, c, d, e, f, g, h, i, j, k) => a + b + c + d + e + f + g + h + i + j + k);
-            double result = engine.Calculate("test(1,2,3,4,5,6,7,8,9,10,11)");
-            double expected = (11 * (11 + 1)) / 2.0;
-            Assert.AreEqual(expected, result);
-        }
-
-        [TestMethod]
-        public void TestCustomFunctionDynamicFuncInterpreted()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture,
-                ExecutionMode.Interpreted, false, false, false);
-
-            double DoSomething(params double[] a)
-            {
-                return a.Sum();
-            }
-
-            engine.AddFunction("test", DoSomething);
-            double result = engine.Calculate("test(1,2,3,4,5,6,7,8,9,10,11)");
-            double expected = (11 * (11 + 1)) / 2.0;
-            Assert.AreEqual(expected, result);
-        }
-
-        [TestMethod]
-        public void TestCustomFunctionDynamicFuncCompiled()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture,
-                ExecutionMode.Compiled, false, false, false);
-
-            double DoSomething(params double[] a)
-            {
-                return a.Sum();
-            }
-
-            engine.AddFunction("test", DoSomething);
-            double result = engine.Calculate("test(1,2,3,4,5,6,7,8,9,10,11)");
-            double expected = (11 * (11 + 1)) / 2.0;
-            Assert.AreEqual(expected, result);
-        }
-
-        [TestMethod]
-        public void TestCustomFunctionDynamicFuncNestedInterpreted()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture,
-                ExecutionMode.Interpreted, false, false, false);
-
-            double DoSomething(params double[] a)
-            {
-                return a.Sum();
-            }
-
-            engine.AddFunction("test", DoSomething);
-            double result = engine.Calculate("test(1,2,3,test(4,5,6)) + test(7,8,9,10,11)");
-            double expected = (11 * (11 + 1)) / 2.0;
-            Assert.AreEqual(expected, result);
-        }
-
-        [TestMethod]
-        public void TestCustomFunctionDynamicFuncNestedDynamicCompiled()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture,
-                ExecutionMode.Compiled, false, false, false);
-
-            double DoSomething(params double[] a)
-            {
-                return a.Sum();
-            }
-
-            engine.AddFunction("test", DoSomething);
-            double result = engine.Calculate("test(1,2,3,test(4,5,6)) + test(7,8,9,10,11)");
-            double expected = (11 * (11 + 1)) / 2.0;
-            Assert.AreEqual(expected, result);
-        }
-
-        [TestMethod]
-        public void TestAndCompiled()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled, true, false, true);
-            double result = engine.Calculate("(1 && 0)");
-            Assert.AreEqual(0, result);
-        }
-
-        [TestMethod]
-        public void TestAndInterpreted()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted, true, false, true);
-            double result = engine.Calculate("(1 && 0)");
-            Assert.AreEqual(0, result);
-        }
-
-        [TestMethod]
-        public void TestOr1Compiled()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled, true, false, true);
-            double result = engine.Calculate("(1 || 0)");
-            Assert.AreEqual(1, result);
-        }
-
-        [TestMethod]
-        public void TestOr1Interpreted()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted, true, false, true);
-            double result = engine.Calculate("(1 || 0)");
-            Assert.AreEqual(1, result);
-        }
-
-        [TestMethod]
-        public void TestOr2Compiled()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled, true, false, true);
-            double result = engine.Calculate("(0 || 0)");
-            Assert.AreEqual(0, result);
-        }
-
-        [TestMethod]
-        public void TestOr2Interpreted()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted, true, false, true);
-            double result = engine.Calculate("(0 || 0)");
-            Assert.AreEqual(0, result);
-        }
-
-        [TestMethod]
-        public void TestMedian1Compiled()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled, true, false, true);
-            double result = engine.Calculate("median(3,1,5,4,2)");
-            Assert.AreEqual(3, result);
-        }
-
-        [TestMethod]
-        public void TestMedian1Interpreted()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted, true, false, true);
-            double result = engine.Calculate("median(3,1,5,4,2)");
-            Assert.AreEqual(3, result);
-        }
-
-        [TestMethod]
-        public void TestMedian2Compiled()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled, true, false, true);
-            double result = engine.Calculate("median(3,1,5,4)");
-            Assert.AreEqual(3, result);
-        }
-
-        [TestMethod]
-        public void TestMedian2Interpreted()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted, true, false, true);
-            double result = engine.Calculate("median(3,1,5,4)");
-            Assert.AreEqual(3, result);
-        }
-
-        [TestMethod]
-        public void TestCalculationFormulaBuildingWithConstants1Compiled()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled);
-            var fn = engine.Build("a+b+c", new Dictionary<string, double> { { "a", 1 } });
-            double result = fn(new Dictionary<string, double> { { "b", 2 }, { "c", 2 } });
-            Assert.AreEqual(5.0, result);
-        }
-
-        [TestMethod]
-        public void TestCalculationFormulaBuildingWithConstants1Interpreted()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted);
-            var fn = engine.Build("a+b+c", new Dictionary<string, double> { { "a", 1 } });
-            double result = fn(new Dictionary<string, double> { { "b", 2 }, { "c", 2 } });
-            Assert.AreEqual(5.0, result);
-        }
-
-        [TestMethod]
-        public void TestCalculationFormulaBuildingWithConstants2Compiled()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled);
-
-            Func<double, double, double> formula = (Func<double, double, double>)engine.Formula("a+b+c")
-                .Parameter("b", DataType.FloatingPoint)
-                .Parameter("c", DataType.FloatingPoint)
-                .Constant("a", 1)
-                .Result(DataType.FloatingPoint)
-                .Build();
-
-            double result = formula(2.0, 2.0);
-            Assert.AreEqual(5.0, result);
-        }
-
-        [TestMethod]
-        public void TestCalculationFormulaBuildingWithConstants2Interpreted()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted);
-
-            Func<double, double, double> formula = (Func<double, double, double>)engine.Formula("a+b+c")
-                .Parameter("b", DataType.FloatingPoint)
-                .Parameter("c", DataType.FloatingPoint)
-                .Constant("a", 1)
-                .Result(DataType.FloatingPoint)
-                .Build();
-
-            double result = formula(2.0, 2.0);
-            Assert.AreEqual(5.0, result);
-        }
-
-        [TestMethod]
-        public void TestCalculationFormulaBuildingWithConstants3Compiled()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled, true, true, false);
-
-            Func<double, double> formula = (Func<double, double>)engine.Formula("a+A")
-                .Parameter("A", DataType.FloatingPoint)
-                .Constant("a", 1)
-                .Result(DataType.FloatingPoint)
-                .Build();
-
-            double result = formula(2.0);
-            Assert.AreEqual(3.0, result);
-        }
-
-        [TestMethod]
-        public void TestCalculationFormulaBuildingWithConstants3Interpreted()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted, true, true, false);
-
-            Func<double, double> formula = (Func<double, double>)engine.Formula("a+A")
-                .Parameter("A", DataType.FloatingPoint)
-                .Constant("a", 1)
-                .Result(DataType.FloatingPoint)
-                .Build();
-
-            double result = formula(2.0);
-            Assert.AreEqual(3.0, result);
-        }
-
-        [TestMethod]
-        public void TestCalculationFormulaBuildingWithConstantsCache1()
-        {
-            CalculationEngine engine = new CalculationEngine(new JaceOptions { CacheEnabled = true });
-
-            var fn = engine.Build("a+b+c", new Dictionary<string, double> { { "a", 1 } });
-            double result = fn(new Dictionary<string, double> { { "b", 2 }, { "c", 2 } });
-            Assert.AreEqual(5.0, result);
-
-            AssertExtensions.ThrowsException<VariableNotDefinedException>(() =>
-            {
-                var fn1 = engine.Build("a+b+c");
-                double result1 = fn1(new Dictionary<string, double> { { "b", 3 }, { "c", 3 } });
-            });
-        }
-
-        [TestMethod]
-        public void TestCalculationFormulaBuildingWithConstantsCache2()
-        {
-            CalculationEngine engine = new CalculationEngine(new JaceOptions { CacheEnabled = true });
-            var fn = engine.Build("a+b+c");
-            double result = fn(new Dictionary<string, double> { { "a", 1 }, { "b", 2 }, { "c", 2 } });
-            Assert.AreEqual(5.0, result);
-
-
-            var fn1 = engine.Build("a+b+c", new Dictionary<string, double> { { "a", 2 } });
-            double result1 = fn1(new Dictionary<string, double> { { "b", 2 }, { "c", 2 } });
-            Assert.AreEqual(6.0, result1);
-        }
-
-
-        [TestMethod]
-        public void TestCalculationFormulaBuildingWithConstantsCache3()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted, true, true, false);
-
-            Func<double, double> formula = (Func<double, double>)engine.Formula("a+A")
-                .Parameter("A", DataType.FloatingPoint)
-                .Constant("a", 1)
-                .Result(DataType.FloatingPoint)
-                .Build();
-
-            double result = formula(2.0);
-            Assert.AreEqual(3.0, result);
-
-            Func<double, double, double> formula1 = (Func<double, double, double>)engine.Formula("a+A")
+            var fn1 = engine.Build("a+b+c");
+            var result1 = fn1(new Dictionary<string, double> { { "b", 3 }, { "c", 3 } });
+        });
+    }
+
+    [Fact]
+    public void TestCalculationFormulaBuildingWithConstantsCache2()
+    {
+        var engine = new CalculationEngine(new JaceOptions { CacheEnabled = true });
+        var fn = engine.Build("a+b+c");
+        var result = fn(new Dictionary<string, double> { { "a", 1 }, { "b", 2 }, { "c", 2 } });
+        Assert.Equal(5.0, result);
+
+
+        var fn1 = engine.Build("a+b+c", new Dictionary<string, double> { { "a", 2 } });
+        var result1 = fn1(new Dictionary<string, double> { { "b", 2 }, { "c", 2 } });
+        Assert.Equal(6.0, result1);
+    }
+
+
+    [Fact]
+    public void TestCalculationFormulaBuildingWithConstantsCache3()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted, true, true, false);
+
+        var formula = (Func<double, double>)engine.Formula("a+A")
+            .Parameter("A", DataType.FloatingPoint)
+            .Constant("a", 1)
+            .Result(DataType.FloatingPoint)
+            .Build();
+
+        var result = formula(2.0);
+        Assert.Equal(3.0, result);
+
+        var formula1 = (Func<double, double, double>)engine.Formula("a+A")
             .Parameter("A", DataType.FloatingPoint)
             .Parameter("a", DataType.FloatingPoint)
             .Result(DataType.FloatingPoint)
             .Build();
 
-            double result1 = formula1(2.0, 2.0);
-            Assert.AreEqual(4.0, result1);
-        }
+        var result1 = formula1(2.0, 2.0);
+        Assert.Equal(4.0, result1);
+    }
 
 
-        [TestMethod]
-        public void TestCalculationFormulaBuildingWithConstantsCache4()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled, true, true, false);
+    [Fact]
+    public void TestCalculationFormulaBuildingWithConstantsCache4()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled, true, true, false);
 
-            Func<double, double> formula = (Func<double, double>)engine.Formula("a+A")
-                .Parameter("A", DataType.FloatingPoint)
-                .Constant("a", 1)
-                .Result(DataType.FloatingPoint)
-                .Build();
+        var formula = (Func<double, double>)engine.Formula("a+A")
+            .Parameter("A", DataType.FloatingPoint)
+            .Constant("a", 1)
+            .Result(DataType.FloatingPoint)
+            .Build();
 
-            double result = formula(2.0);
-            Assert.AreEqual(3.0, result);
+        var result = formula(2.0);
+        Assert.Equal(3.0, result);
 
-            Func<double, double, double> formula1 = (Func<double, double, double>)engine.Formula("a+A")
-                .Parameter("A", DataType.FloatingPoint)
-                .Parameter("a", DataType.FloatingPoint)
-                .Result(DataType.FloatingPoint)
-                .Build();
+        var formula1 = (Func<double, double, double>)engine.Formula("a+A")
+            .Parameter("A", DataType.FloatingPoint)
+            .Parameter("a", DataType.FloatingPoint)
+            .Result(DataType.FloatingPoint)
+            .Build();
 
-            double result1 = formula1(2.0, 2.0);
-            Assert.AreEqual(4.0, result1);
-        }
+        var result1 = formula1(2.0, 2.0);
+        Assert.Equal(4.0, result1);
+    }
 
-        [TestMethod]
-        public void TestCalculationFormulaBuildingWithConstantsCache5()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled);
-            var fn = engine.Build("a+b+c", new Dictionary<string, double> { { "a", 1 } });
-            double result = fn(new Dictionary<string, double> { { "b", 2 }, { "c", 2 } });
-            Assert.AreEqual(5.0, result);
+    [Fact]
+    public void TestCalculationFormulaBuildingWithConstantsCache5()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled);
+        var fn = engine.Build("a+b+c", new Dictionary<string, double> { { "a", 1 } });
+        var result = fn(new Dictionary<string, double> { { "b", 2 }, { "c", 2 } });
+        Assert.Equal(5.0, result);
 
-            var fn1 = engine.Build("a+b+c", new Dictionary<string, double> { { "a", 2 } });
-            double result1 = fn1(new Dictionary<string, double> { { "b", 2 }, { "c", 2 } });
-            Assert.AreEqual(6.0, result1);
-        }
+        var fn1 = engine.Build("a+b+c", new Dictionary<string, double> { { "a", 2 } });
+        var result1 = fn1(new Dictionary<string, double> { { "b", 2 }, { "c", 2 } });
+        Assert.Equal(6.0, result1);
+    }
 
-        [TestMethod]
-        public void TestCalculationFormulaBuildingWithConstantsCache6()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted);
-            var fn = engine.Build("a+b+c", new Dictionary<string, double> { { "a", 1 } });
-            double result = fn(new Dictionary<string, double> { { "b", 2 }, { "c", 2 } });
-            Assert.AreEqual(5.0, result);
+    [Fact]
+    public void TestCalculationFormulaBuildingWithConstantsCache6()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted);
+        var fn = engine.Build("a+b+c", new Dictionary<string, double> { { "a", 1 } });
+        var result = fn(new Dictionary<string, double> { { "b", 2 }, { "c", 2 } });
+        Assert.Equal(5.0, result);
 
-            var fn1 = engine.Build("a+b+c", new Dictionary<string, double> { { "a", 2 } });
-            double result1 = fn1(new Dictionary<string, double> { { "b", 2 }, { "c", 2 } });
-            Assert.AreEqual(6.0, result1);
-        }
+        var fn1 = engine.Build("a+b+c", new Dictionary<string, double> { { "a", 2 } });
+        var result1 = fn1(new Dictionary<string, double> { { "b", 2 }, { "c", 2 } });
+        Assert.Equal(6.0, result1);
+    }
 
-        [TestMethod]
-        public void TestCalculationFormulaBuildingWithConstantsCache7()
-        {
-            CalculationEngine engine = new CalculationEngine(new JaceOptions { CacheEnabled = true });
+    [Fact]
+    public void TestCalculationFormulaBuildingWithConstantsCache7()
+    {
+        var engine = new CalculationEngine(new JaceOptions { CacheEnabled = true });
 
-            var fn = engine.Build("a+b+c");
-            double result = fn(new Dictionary<string, double> { { "a", 1 }, { "b", 2 }, { "c", 2 } });
-            Assert.AreEqual(5.0, result);
+        var fn = engine.Build("a+b+c");
+        var result = fn(new Dictionary<string, double> { { "a", 1 }, { "b", 2 }, { "c", 2 } });
+        Assert.Equal(5.0, result);
 
 
-            var fn1 = engine.Build("a+b+c", new Dictionary<string, double> { { "a", 2 } });
-            double result1 = fn1(new Dictionary<string, double> { { "b", 3 }, { "c", 3 } });
-            Assert.AreEqual(8.0, result1);
-        }
+        var fn1 = engine.Build("a+b+c", new Dictionary<string, double> { { "a", 2 } });
+        var result1 = fn1(new Dictionary<string, double> { { "b", 3 }, { "c", 3 } });
+        Assert.Equal(8.0, result1);
+    }
 
-        [TestMethod]
-        public void TestCalculationCompiledExpressionCompiled()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled, true, true, false);
+    [Fact]
+    public void TestCalculationCompiledExpressionCompiled()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Compiled, true, true, false);
 
-            Expression<Func<double, double, double>> expression = (a, b) => a + b;
-            expression.Compile();
+        Expression<Func<double, double, double>> expression = (a, b) => a + b;
+        expression.Compile();
 
-            engine.AddFunction("test", expression.Compile());
+        engine.AddFunction("test", expression.Compile());
 
-            double result = engine.Calculate("test(2, 3)");
-            Assert.AreEqual(5.0, result);
-        }
+        var result = engine.Calculate("test(2, 3)");
+        Assert.Equal(5.0, result);
+    }
 
-        [TestMethod]
-        public void TestCalculationCompiledExpressionInterpreted()
-        {
-            CalculationEngine engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted, true, true, false);
+    [Fact]
+    public void TestCalculationCompiledExpressionInterpreted()
+    {
+        var engine = new CalculationEngine(CultureInfo.InvariantCulture, ExecutionMode.Interpreted, true, true, false);
 
-            Expression<Func<double, double, double>> expression = (a, b) => a + b;
-            expression.Compile();
+        Expression<Func<double, double, double>> expression = (a, b) => a + b;
+        expression.Compile();
 
-            engine.AddFunction("test", expression.Compile());
+        engine.AddFunction("test", expression.Compile());
 
-            double result = engine.Calculate("test(2, 3)");
-            Assert.AreEqual(5.0, result);
-        }
+        var result = engine.Calculate("test(2, 3)");
+        Assert.Equal(5.0, result);
     }
 }
