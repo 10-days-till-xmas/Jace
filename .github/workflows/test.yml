@@ -15,22 +15,15 @@ jobs:
     runs-on: ${{ matrix.os }}
     
     steps:
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: build-artifacts
-          path: ./build
-
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 6.0.x
+          dotnet-version: 8.0.x
 
-      - name: Run tests
+      - name: Build and run tests
         run: 
           dotnet test Jace.Tests/Jace.Tests.csproj \
             --configuration Release \
-            --no-build \
             -f ${{ matrix.target-framework }}   \
             --results-directory ./test-results/${{ matrix.target-framework }}
 
