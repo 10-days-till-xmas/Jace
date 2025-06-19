@@ -1,0 +1,46 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: Build
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        configuration: [Debug, Release]
+
+    env:
+      Solution_Name: Jace.sln
+      Test_Project_Path: Jace.Tests\Jace.Tests.csproj
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Install .NET SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+        
+    - name: Restore & Build
+      run:
+        dotnet restore Jace.sln -p:Configuration=$env:Configuration
+        dotnet build Jace.sln -c $env:Configuration --no-restore
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: build-artifacts
+        path: |
+          Jace.Core/bin/Release/${{ matrix.target-framework }}
+          Jace.Tests/bin/Release/${{ matrix.target-framework }}
+          Jace.Benchmark/bin/Release/${{ matrix.target-framework }}
