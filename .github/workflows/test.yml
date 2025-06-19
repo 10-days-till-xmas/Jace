@@ -11,6 +11,7 @@ jobs:
     strategy:
       matrix:
         os: [ ubuntu-latest, windows-latest ]
+        target-framework: [ net461 ]
         
     runs-on: ${{ matrix.os }}
     
@@ -22,9 +23,8 @@ jobs:
 
       - name: Build and run tests
         run: 
-          dotnet test Jace.Tests/Jace.Tests.csproj \
-            --configuration Release \
-            -f ${{ matrix.target-framework }}   \
+          dotnet test Jace.Tests/Jace.Tests.csproj 
+            -f ${{ matrix.target-framework }} 
             --results-directory ./test-results/${{ matrix.target-framework }}
 
       - name: Upload test results
