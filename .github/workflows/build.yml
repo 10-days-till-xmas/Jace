@@ -13,11 +13,13 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
     strategy:
+      fail-fast: false
       matrix:
-        configuration: [Debug, Release]
+        os: [ ubuntu-latest, windows-latest ]
 
+    runs-on: ${{ matrix.os }}
+    
     env:
       Solution_Name: Jace.sln
       Test_Project_Path: Jace.Tests\Jace.Tests.csproj
@@ -33,14 +35,12 @@ jobs:
         
     - name: Restore & Build
       run:
-        dotnet restore Jace.sln -p:Configuration=$env:Configuration
-        dotnet build Jace.sln -c $env:Configuration --no-restore
+        dotnet restore Jace.sln
+        dotnet build Jace.sln -c Release
 
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
-        name: build-artifacts
-        path: |
-          Jace.Core/bin/Release/${{ matrix.target-framework }}
-          Jace.Tests/bin/Release/${{ matrix.target-framework }}
-          Jace.Benchmark/bin/Release/${{ matrix.target-framework }}
+        name: build-artifacts-${{ matrix.os }}
+        path: '**/bin/Release/'
+        
