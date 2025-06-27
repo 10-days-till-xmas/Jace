@@ -2,16 +2,34 @@
 
   <PropertyGroup>
     <Title>Jace.Tests</Title>
-    <TargetFramework>net461</TargetFramework>
-    <OutputType>Library</OutputType>
+    <TargetFrameworks>net6.0;net9.0</TargetFrameworks>
+    <LangVersion>13.0</LangVersion>
+    <IsPackable>false</IsPackable>
+    
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Unofficial.Microsoft.VisualStudio.QualityTools.UnitTestFramework" Version="10.0.0" />
-  </ItemGroup>
-
+  
   <ItemGroup>
     <ProjectReference Include="..\Jace\Jace.csproj" />
   </ItemGroup>
-
+  
+  <Choose>
+  <When Condition="'$(TargetFramework)' == 'net6.0'">
+    <ItemGroup>
+      <PackageReference Include="xunit" Version="2.8.0" />
+      <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+      <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
+    </ItemGroup>
+  </When>
+  <Otherwise>
+    <PropertyGroup>
+      <OutputType>Exe</OutputType>
+    </PropertyGroup>
+    
+    <ItemGroup>
+      <PackageReference Include="xunit.v3" Version="2.0.3" />
+      <PackageReference Include="xunit.runner.visualstudio" Version="3.1.1" />
+      <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    </ItemGroup>
+  </Otherwise>
+  </Choose>
 </Project>

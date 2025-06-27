@@ -10,3 +10,4 @@ packages/*
 *.userprefs
 .vs/
 project.lock.json
+/Jace.sln.DotSettings.user
