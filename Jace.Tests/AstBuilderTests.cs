@@ -94,8 +94,6 @@ public class AstBuilderTests
             new() { Value = 2, TokenType = TokenType.Integer }
         });
 
-        Assert.Equal(typeof(Division), operation.GetType());
-
         var division = (Division)operation;
 
         Assert.Equal(new IntegerConstant(10), division.Dividend);
@@ -222,6 +220,7 @@ public class AstBuilderTests
         });
 
         var sineFunction = (Function)operation;
+
         Assert.Equal(new IntegerConstant(2), sineFunction.Arguments.Single());
     }
 

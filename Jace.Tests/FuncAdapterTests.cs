@@ -13,13 +13,16 @@ public class FuncAdapterTests
     {
         var adapter = new FuncAdapter();
 
-        var parameters = new List<ParameterInfo>()
+        var parameters = new List<ParameterInfo>
         {
             new() { Name = "test1", DataType = DataType.Integer },
             new() { Name = "test2", DataType = DataType.FloatingPoint }
         };
 
-        double TestFunc(IDictionary<string, double> dictionary) => dictionary["test1"] + dictionary["test2"];
+        double TestFunc(IDictionary<string, double> dictionary)
+        {
+            return dictionary["test1"] + dictionary["test2"];
+        }
 
         var wrappedFunction = (Func<int, double, double>)adapter.Wrap(parameters, TestFunc);
 
@@ -27,12 +30,13 @@ public class FuncAdapterTests
     }
 
     [Fact]
-    public void TestFuncAdapterWrapAndGC()
+    public void TestFuncAdapterWrapAndGC() // TODO: Verify whether this actually tests anything
     {
-        // TODO: Verify whether this actually tests anything
-        var adapter = new FuncAdapter();
         
-        var parameters = new List<ParameterInfo> { 
+        var adapter = new FuncAdapter();
+
+        var parameters = new List<ParameterInfo>
+        {
             new() { Name = "test1", DataType = DataType.Integer },
             new() { Name = "test2", DataType = DataType.FloatingPoint }
         };
@@ -42,11 +46,11 @@ public class FuncAdapterTests
         var wrappedFunction = (Func<int, double, double>)adapter.Wrap(parameters, TestFunc);
         // ReSharper disable once RedundantAssignment
         adapter = null;
-        
+
         GC.Collect();
         GC.WaitForPendingFinalizers();
         GC.Collect();
-        
+
         Assert.Equal(3.0, wrappedFunction(1, 2.0));
     }
 
@@ -55,14 +59,16 @@ public class FuncAdapterTests
     {
         var adapter = new FuncAdapter();
 
-        var parameters = new List<ParameterInfo> { 
+        var parameters = new List<ParameterInfo>
+        {
             new() { Name = "test1", DataType = DataType.Integer },
             new() { Name = "test2", DataType = DataType.Integer },
             new() { Name = "test3", DataType = DataType.Integer },
             new() { Name = "test4", DataType = DataType.Integer }
         };
 
-        var wrappedFunction = (Func<int, int, int, int, double>)adapter.Wrap(parameters, dictionary => dictionary["test4"]);
+        var wrappedFunction =
+            (Func<int, int, int, int, double>)adapter.Wrap(parameters, dictionary => dictionary["test4"]);
 
         Assert.Equal(8.0, wrappedFunction(2, 4, 6, 8));
     }

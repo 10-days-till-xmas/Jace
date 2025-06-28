@@ -41,7 +41,7 @@ namespace Jace.Execution
 
         public double Execute(Operation operation,
             IFunctionRegistry functionRegistry,
-            IConstantRegistry constantRegistry, 
+            IConstantRegistry constantRegistry,
             IDictionary<string, double> variables)
         {
             if (operation == null)

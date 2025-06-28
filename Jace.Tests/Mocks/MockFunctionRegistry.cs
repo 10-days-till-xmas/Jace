@@ -1,24 +1,18 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Jace.Execution;
 
 namespace Jace.Tests.Mocks
 {
-    public class MockFunctionRegistry : IFunctionRegistry
+    public class MockFunctionRegistry(IEnumerable<string> functionNames) : IFunctionRegistry
     {
-        private HashSet<string> functionNames;
+        private HashSet<string> functionNames = [..functionNames];
 
         public MockFunctionRegistry()
-            : this(new string[] { "sin", "cos", "csc", "sec", "asin", "acos", "tan", "cot", "atan", "acot", "loge", "log10", "logn", "sqrt", "abs" })
+            : this(["sin", "cos", "csc", "sec", "asin", "acos", "tan", "cot", "atan", "acot", "loge", "log10", "logn", "sqrt", "abs"
+            ])
         {
-        }
-
-        public MockFunctionRegistry(IEnumerable<string> functionNames)
-        {
-            this.functionNames = new HashSet<string>(functionNames);
         }
 
         public IEnumerator<FunctionInfo> GetEnumerator()
