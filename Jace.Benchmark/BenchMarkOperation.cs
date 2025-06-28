@@ -1,15 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Jace.Benchmark
+namespace Jace.Benchmark;
+
+public class BenchMarkOperation
 {
-    public class BenchMarkOperation
-    {
-        public string Formula { get; set; }
-        public BenchmarkMode Mode { get; set; }
-        public Func<CalculationEngine, string, TimeSpan>  BenchMarkDelegate { get; set; }
-    }
+    public string Formula { get; init; }
+    public BenchmarkMode Mode { get; init; }
+    public Func<CalculationEngine, string, TimeSpan>  BenchMarkDelegate { get; init; }
 }

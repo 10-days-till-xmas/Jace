@@ -1,106 +1,94 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Text;
 
-namespace Jace.Benchmark
+namespace Jace.Benchmark;
+
+public class FunctionGenerator(CultureInfo cultureInfo)
 {
-    public class FunctionGenerator
+    private const int NumberOfVariables = 3;
+
+    private readonly Random random = new();
+
+    public FunctionGenerator()
+        : this(CultureInfo.CurrentCulture)
     {
-        private const int NumberOfVariables = 3;
+    }
 
-        private readonly CultureInfo cultureInfo;
-        private readonly Random random;
+    public string Next()
+    {
+        var variables = new Queue<string>();
+        for (var i = 0; i < NumberOfVariables; i++)
+            variables.Enqueue("var" + (i + 1));
 
-        public FunctionGenerator()
-            : this(CultureInfo.CurrentCulture)
+        var sb = new StringBuilder();
+        Generate(sb, variables);
+
+        return sb.ToString();
+    }
+
+    private void Generate(StringBuilder result, Queue<string> variables)
+    {
+        while (true)
         {
-        }
+            var value = random.NextDouble();
 
-        public FunctionGenerator(CultureInfo cultureInfo)
-        {
-            this.cultureInfo = cultureInfo;
-            this.random = new Random();
-        }
-
-        public string Next()
-        {
-            Queue<string> variables = new Queue<string>();
-            for (int i = 0; i < NumberOfVariables; i++)
-                variables.Enqueue("var" + (i + 1));
-
-            StringBuilder sb = new StringBuilder();
-            Generate(sb, variables);
-
-            return sb.ToString();
-        }
-
-        private void Generate(StringBuilder result, Queue<string> variables)
-        {
-            double value = random.NextDouble();
-
-            if (value < 0.35)
+            switch (value)
             {
-                result.Append(variables.Dequeue());
-                result.Append(GetRandomOperator());
-
-                if(variables.Count > 0)
-                    Generate(result, variables);
-                else
-                    result.Append(GetRandomValue());
-            }
-            else if (value < 0.8)
-            {
-                result.Append(GetRandomValue());
-                result.Append(GetRandomOperator());
-
-                if (variables.Count > 0)
-                    Generate(result, variables);
-                else
-                    result.Append(GetRandomValue());
-            }
-            else
-            {
-                if (variables.Count > 0)
-                {
-                    result.Append('(');
-                    Generate(result, variables);
-                    result.Append(')');
+                case < 0.35:
+                    result.Append(variables.Dequeue());
                     result.Append(GetRandomOperator());
 
                     if (variables.Count > 0)
-                        Generate(result, variables);
-                    else
-                        result.Append(GetRandomValue());
-                }
-                else
+                        continue;
+                    break;
+                case < 0.8:
                     result.Append(GetRandomValue());
+                    result.Append(GetRandomOperator());
+
+                    if (variables.Count > 0)
+                        continue;
+                    break;
+                default:
+                    if (variables.Count > 0)
+                    {
+                        result.Append('(');
+                        Generate(result, variables);
+                        result.Append(')');
+                        result.Append(GetRandomOperator());
+
+                        if (variables.Count > 0)
+                            continue;
+                    }
+                    break;
             }
+            result.Append(GetRandomValue());
+            break;
         }
+    }
 
-        private char GetRandomOperator()
+    private char GetRandomOperator()
+    {
+        var value = random.NextDouble();
+
+        return value switch
         {
-            double value = random.NextDouble();
+            < 0.2 => '+',
+            < 0.4 => '*',
+            < 0.6 => '/',
+            < 0.8 => '^',
+            _ => '-'
+        };
+    }
 
-            if (value < 0.2)
-                return '+';
-            else if (value < 0.4)
-                return '*';
-            else if (value < 0.6)
-                return '/';
-            else //if (value < 0.8) TODO add support for '^'
-                return '-';
-        }
+    private string GetRandomValue()
+    {
+        var value = random.NextDouble();
 
-        private string GetRandomValue()
-        {
-            double value = random.NextDouble();
-
-            if (value < 0.6)
-                return random.Next().ToString(cultureInfo);
-            else
-                return (random.Next() * random.NextDouble()).ToString(cultureInfo);
-        }
+        return (value < 0.6
+            ? random.Next()
+            : (random.Next() * random.NextDouble()))
+            .ToString(cultureInfo);
     }
 }
