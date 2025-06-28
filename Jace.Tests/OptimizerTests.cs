@@ -1,13 +1,12 @@
-﻿using Jace.Execution;
-using Jace.Operations;
-using Jace.Tokenizer;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using Jace.Execution;
+using Jace.Operations;
+using Jace.Tokenizer;
 using Xunit;
 
 namespace Jace.Tests;
-
 
 public class OptimizerTests
 {
@@ -20,7 +19,7 @@ public class OptimizerTests
         IList<Token> tokens = tokenReader.Read("test(var1, (2+3) * 500)");
 
         IFunctionRegistry functionRegistry = new FunctionRegistry(true);
-        functionRegistry.RegisterFunction("test", (Func<double, double, double>)((a, b) =>  a + b));
+        functionRegistry.RegisterFunction("test", (Func<double, double, double>)((a, b) => a + b));
 
         var astBuilder = new AstBuilder(functionRegistry, true);
         var operation = astBuilder.Build(tokens);

@@ -1,53 +1,71 @@
-﻿using Jace.Execution;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
+using Jace.Execution;
 
-namespace Jace.Tests.Mocks
+namespace Jace.Tests.Mocks;
+// I'm not sure how this'll be tested. TODO: Add tests for MockConstantRegistry
+public class MockConstantRegistry(bool caseSensitive, Dictionary<string, ConstantInfo> constants) : IConstantRegistry
 {
-    public class MockConstantRegistry : IConstantRegistry
+    public MockConstantRegistry(bool caseSensitive = false)
+        : this(caseSensitive, new Dictionary<string, ConstantInfo>
+        {
+            {"pi", new ConstantInfo("pi", Math.PI, false)},
+            {"e", new ConstantInfo("e", Math.E, false)}
+        })
     {
-        private readonly HashSet<string> constantNames;
+    }
 
-        public MockConstantRegistry()
-            : this(new string[] { "e", "pi" })
-        {
-        }
+    public ConstantInfo GetConstantInfo(string constantName)
+    {
+        return constants[ConvertConstantName(constantName)];
+    }
 
-        public MockConstantRegistry(IEnumerable<string> constantNames)
-        {
-            this.constantNames = new HashSet<string>(constantNames);
-        }
+    public IEnumerator<ConstantInfo> GetEnumerator()
+    {
+        return constants.Select(c=> c.Value).GetEnumerator();  
+    }
 
-        public ConstantInfo GetConstantInfo(string constantName)
-        {
-            throw new NotImplementedException();
-        }
+    public bool IsConstantName(string constantName)
+    {
+        return constants.ContainsKey(ConvertConstantName(constantName));
+    }
 
-        public IEnumerator<ConstantInfo> GetEnumerator()
-        {
-            throw new NotImplementedException();
-        }
+    public void RegisterConstant(string constantName, double value)
+    {
+        RegisterConstant(constantName, value, false);
+    }
 
-        public bool IsConstantName(string constantName)
-        {
-            throw new NotImplementedException();
-        }
+    public void RegisterConstant(string constantName, double value, bool isOverWritable)
+    {
+        if(string.IsNullOrEmpty(constantName))
+            throw new ArgumentNullException(nameof(constantName));
 
-        public void RegisterConstant(string constantName, double value)
-        {
-            throw new NotImplementedException();
-        }
+        constantName = ConvertConstantName(constantName);
 
-        public void RegisterConstant(string constantName, double value, bool isOverWritable)
+        var constantInfo = new ConstantInfo(constantName, value, isOverWritable);
+        
+        if (IsConstantName(constantName))
         {
-            throw new NotImplementedException();
+            if (GetConstantInfo(constantName).IsOverWritable)
+                constants[constantName] = constantInfo;
+            else
+                throw new Exception($"The constant \"{constantName}\" cannot be overwritten.");
         }
+        else
+        {
+            constants.Add(constantName, constantInfo);
+        }
+    }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            throw new NotImplementedException();
-        }
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator(); 
+    }
+    
+    private string ConvertConstantName(string constantName)
+    {
+        return caseSensitive ? constantName : constantName.ToLower();
     }
 }

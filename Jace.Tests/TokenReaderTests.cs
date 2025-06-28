@@ -42,15 +42,15 @@ public class TokenReaderTests
         Assert.Equal(42, tokens[1].Value);
         Assert.Equal(1, tokens[1].StartPosition);
         Assert.Equal(2, tokens[1].Length);
-            
+
         Assert.Equal('+', tokens[2].Value);
         Assert.Equal(3, tokens[2].StartPosition);
         Assert.Equal(1, tokens[2].Length);
-            
+
         Assert.Equal(31, tokens[3].Value);
         Assert.Equal(4, tokens[3].StartPosition);
         Assert.Equal(2, tokens[3].Length);
-            
+
         Assert.Equal(')', tokens[4].Value);
         Assert.Equal(6, tokens[4].StartPosition);
         Assert.Equal(1, tokens[4].Length);
@@ -88,7 +88,7 @@ public class TokenReaderTests
         var tokens = reader.Read("(42+ 8) *2");
 
         Assert.Equal(7, tokens.Count);
-            
+
         Assert.Equal('(', tokens[0].Value);
         Assert.Equal(0, tokens[0].StartPosition);
         Assert.Equal(1, tokens[0].Length);
@@ -129,7 +129,7 @@ public class TokenReaderTests
         Assert.Equal('(', tokens[0].Value);
         Assert.Equal(0, tokens[0].StartPosition);
         Assert.Equal(1, tokens[0].Length);
-            
+
         Assert.Equal(42.87, tokens[1].Value);
         Assert.Equal(1, tokens[1].StartPosition);
         Assert.Equal(5, tokens[1].Length);
@@ -172,7 +172,7 @@ public class TokenReaderTests
     public void TestTokenReader7()
     {
         var reader = new TokenReader(CultureInfo.InvariantCulture);
-        
+
         var tokens = reader.Read("varb");
 
         Assert.Single(tokens);
@@ -189,7 +189,7 @@ public class TokenReaderTests
         var tokens = reader.Read("varb(");
 
         Assert.Equal(2, tokens.Count);
-            
+
         Assert.Equal("varb", tokens[0].Value);
         Assert.Equal(0, tokens[0].StartPosition);
         Assert.Equal(4, tokens[0].Length);
@@ -461,7 +461,7 @@ public class TokenReaderTests
         var tokens = reader.Read("2.11E-3");
 
         Assert.Single(tokens);
-            
+
         Assert.Equal(2.11E-3, tokens[0].Value);
         Assert.Equal(0, tokens[0].StartPosition);
         Assert.Equal(7, tokens[0].Length);
@@ -537,9 +537,9 @@ public class TokenReaderTests
     {
         var reader = new TokenReader(CultureInfo.InvariantCulture);
         var tokens = reader.Read("e");
-        
+
         Assert.Single(tokens);
-        
+
         Assert.Equal("e", tokens[0].Value);
         Assert.Equal(0, tokens[0].StartPosition);
         Assert.Equal(1, tokens[0].Length);

@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
-using Jace.Operations;
+﻿using System;
+using System.Collections.Generic;
 using Jace.Execution;
+using Jace.Operations;
 using Jace.Tests.Mocks;
 using Xunit;
 
 namespace Jace.Tests;
+
 public class BasicInterpreterTests
 {
     [Fact]
@@ -35,8 +37,8 @@ public class BasicInterpreterTests
                 DataType.Integer,
                 new IntegerConstant(6),
                 new Multiplication(
-                    DataType.Integer, 
-                    new IntegerConstant(2), 
+                    DataType.Integer,
+                    new IntegerConstant(2),
                     new IntegerConstant(4))), functionRegistry, constantRegistry);
 
         Assert.Equal(14.0, result);
@@ -63,7 +65,7 @@ public class BasicInterpreterTests
                     DataType.FloatingPoint,
                     new IntegerConstant(2),
                     new Multiplication(
-                        DataType.FloatingPoint, 
+                        DataType.FloatingPoint,
                         new IntegerConstant(3),
                         new Variable("age")))), functionRegistry, constantRegistry, variables);
 
