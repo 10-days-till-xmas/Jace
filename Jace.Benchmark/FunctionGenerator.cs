@@ -28,6 +28,16 @@ public class FunctionGenerator(CultureInfo cultureInfo)
         return sb.ToString();
     }
 
+    public IEnumerable<string> Next(int count)
+    {
+        for (var i = 0; i < count; i++) yield return Next();
+    }
+
+    public static IEnumerable<string> GenerateMany(int count)
+    {
+        return new FunctionGenerator().Next(count);
+    }
+
     private void Generate(StringBuilder result, Queue<string> variables)
     {
         while (true)
@@ -61,8 +71,10 @@ public class FunctionGenerator(CultureInfo cultureInfo)
                         if (variables.Count > 0)
                             continue;
                     }
+
                     break;
             }
+
             result.Append(GetRandomValue());
             break;
         }
@@ -87,8 +99,8 @@ public class FunctionGenerator(CultureInfo cultureInfo)
         var value = random.NextDouble();
 
         return (value < 0.6
-            ? random.Next()
-            : (random.Next() * random.NextDouble()))
+                ? random.Next()
+                : random.Next() * random.NextDouble())
             .ToString(cultureInfo);
     }
 }

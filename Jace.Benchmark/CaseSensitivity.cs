@@ -1,8 +1,11 @@
-﻿namespace Jace.Benchmark;
+﻿using System;
 
+namespace Jace.Benchmark;
+
+[Flags]
 public enum CaseSensitivity
 {
-    All,
-    CaseSensitive,
-    CaseInSensitive
+    CaseSensitive = 1,
+    CaseInSensitive = 2,
+    All = CaseSensitive | CaseInSensitive
 }

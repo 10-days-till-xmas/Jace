@@ -1,10 +1,13 @@
-﻿namespace Jace.Benchmark;
+﻿using System;
 
+namespace Jace.Benchmark;
+
+[Flags]
 public enum BenchmarkMode
 {
-    All,
-    Static,
-    Simple,
-    SimpleFunction,
-    Random
+    Static = 1,
+    Simple = 2,
+    SimpleFunction = 4,
+    Random = 8,
+    All = Static | Simple | SimpleFunction | Random
 }
