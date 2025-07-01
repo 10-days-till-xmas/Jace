@@ -34,8 +34,8 @@ public class ConstantRegistryTests
     {
         var registry = new ConstantRegistry(false);
 
-        registry.RegisterConstant("test", 42.0, false);
+        registry.RegisterConstant("test", 42.0, isReadOnly: true);
 
-        Assert.Throws<Exception>(() => registry.RegisterConstant("test", 26.3, false));
+        Assert.Throws<InvalidOperationException>(() => registry.RegisterConstant("test", 26.3, isReadOnly: true));
     }
 }

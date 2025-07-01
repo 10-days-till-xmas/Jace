@@ -421,8 +421,8 @@ namespace Jace
 
         private void RegisterDefaultConstants()
         {
-            ConstantRegistry.RegisterConstant("e", Math.E, false);
-            ConstantRegistry.RegisterConstant("pi", Math.PI, false);
+            ConstantRegistry.RegisterConstant("e", Math.E, true);
+            ConstantRegistry.RegisterConstant("pi", Math.PI, true);
         }
 
         /// <summary>
@@ -472,7 +472,7 @@ namespace Jace
         {
             foreach (string variableName in variables.Keys)
             {
-                if(ConstantRegistry.IsConstantName(variableName) && !ConstantRegistry.GetConstantInfo(variableName).IsOverWritable)
+                if(ConstantRegistry.IsConstantName(variableName) && ConstantRegistry.GetConstantInfo(variableName).IsReadOnly)
                     throw new ArgumentException(string.Format("The name \"{0}\" is a reservered variable name that cannot be overwritten.", variableName), "variables");
 
                 if (FunctionRegistry.IsFunctionName(variableName))

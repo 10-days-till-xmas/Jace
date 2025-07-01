@@ -48,10 +48,9 @@ public class MockConstantRegistry(bool caseSensitive, Dictionary<string, Constan
         
         if (IsConstantName(constantName))
         {
-            if (GetConstantInfo(constantName).IsOverWritable)
-                constants[constantName] = constantInfo;
-            else
+            if (GetConstantInfo(constantName).IsReadOnly)
                 throw new Exception($"The constant \"{constantName}\" cannot be overwritten.");
+            constants[constantName] = constantInfo;
         }
         else
         {
