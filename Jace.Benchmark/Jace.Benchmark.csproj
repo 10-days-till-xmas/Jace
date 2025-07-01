@@ -6,16 +6,17 @@
     <TargetFramework>net9.0-windows</TargetFramework>
     <LangVersion>13.0</LangVersion>
     <OutputType>Exe</OutputType>
-    <UseWPF>true</UseWPF>
-    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
+    <IncludeSatelliteAssemblies>false</IncludeSatelliteAssemblies>
   </PropertyGroup>
-
+  
   <ItemGroup>
     <ProjectReference Include="..\Jace\Jace.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.15.2" />
+    <PackageReference Include="BenchmarkDotNet.Annotations" Version="0.15.2" />
+    <PackageReference Include="BenchmarkDotNet.Diagnostics.dotTrace" Version="0.15.2" />
     <PackageReference Include="EPPlus" Version="4.5.3.2" />
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta5.25306.1" />
   </ItemGroup>
