@@ -1,87 +1,39 @@
 ﻿using Jace.Execution;
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Text;
 
-namespace Jace
+namespace Jace;
+
+public record JaceOptions
 {
-    public class JaceOptions
-    {
-        internal const int DefaultCacheMaximumSize = 500;
-        internal const int DefaultCacheReductionSize = 50;
+    private const int DefaultCacheMaximumSize = 500;
+    private const int DefaultCacheReductionSize = 50;
 
-        public JaceOptions()
-        {
-            CultureInfo = CultureInfo.CurrentCulture;
-            ExecutionMode = ExecutionMode.Compiled;
-            CacheEnabled = true;
-            OptimizerEnabled = true;
-            CaseSensitive = false;
-            DefaultFunctions = true;
-            DefaultConstants = true;
-            CacheMaximumSize = DefaultCacheMaximumSize;
-            CacheReductionSize = DefaultCacheReductionSize;
-        }
+    public static JaceOptions Default => new();
 
-        /// <summary>
-        /// The <see cref="CultureInfo"/> required for correctly reading floating poin numbers.
-        /// </summary>
-        public CultureInfo CultureInfo { get; set; }
+    /// The <see cref="CultureInfo"/> required for correctly reading floating point numbers.
+    public CultureInfo CultureInfo { get; set; } = CultureInfo.CurrentCulture;
 
-        /// <summary>
-        /// The execution mode that must be used for formula execution.
-        /// </summary>
-        public ExecutionMode ExecutionMode { get; set; }
-
-        /// <summary>
-        /// Enable or disable caching of mathematical formulas.
-        /// </summary>
-        public bool CacheEnabled { get; set; }
-
-        /// <summary>
-        /// Configure the maximum cache size for mathematical formulas.
-        /// </summary>
-        public int CacheMaximumSize { get; set; }
-
-        /// <summary>
-        /// Configure the cache reduction size for mathematical formulas.
-        /// </summary>
-        public int CacheReductionSize { get; set; }
-
-        /// <summary>
-        /// Enable or disable optimizing of formulas.
-        /// </summary>
-        public bool OptimizerEnabled { get; set; }
-
-        /// <summary>
-        /// Enable or disable converting to lower case. This parameter is the inverse of <see cref="CaseSensitive"/>.
-        /// </summary>
-        [Obsolete]
-        public bool AdjustVariableCase { 
-            get
-            {
-                return !CaseSensitive;
-            }
-            set
-            {
-                CaseSensitive = !value;
-            }
-        }
-
-        /// <summary>
-        /// Enable case sensitive or case insensitive processing mode.
-        /// </summary>
-        public bool CaseSensitive { get;  set; }
-
-        /// <summary>
-        /// Enable or disable the default functions.
-        /// </summary>
-        public bool DefaultFunctions { get; set; }
-
-        /// <summary>
-        /// Enable or disable the default constants.
-        /// </summary>
-        public bool DefaultConstants { get; set; }
-    }
+    /// The execution mode that must be used for formula execution.
+    public ExecutionMode ExecutionMode { get; set; } = ExecutionMode.Compiled;
+    
+    /// Enable or disable caching of mathematical formulas.
+    public bool CacheEnabled { get; set; } = true;
+    
+    /// Configure the maximum cache size for mathematical formulas.
+    public int CacheMaximumSize { get; set; } = DefaultCacheMaximumSize;
+    
+    /// Configure the cache reduction size for mathematical formulas.
+    public int CacheReductionSize { get; set; } = DefaultCacheReductionSize;
+    
+    /// Enable or disable optimizing of formulas.
+    public bool OptimizerEnabled { get; set; } = true;
+    
+    /// Enable case-sensitive or case-insensitive processing mode.
+    public bool CaseSensitive { get;  set; } = false;
+    
+    /// Enable or disable the default functions.
+    public bool DefaultFunctions { get; set; } = true;
+    
+    /// Enable or disable the default constants.
+    public bool DefaultConstants { get; set; } = true;
 }
