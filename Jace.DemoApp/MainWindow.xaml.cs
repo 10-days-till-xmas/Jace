@@ -2,276 +2,176 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using Jace.Execution;
 using Jace.Operations;
 using Jace.Tokenizer;
 
-namespace Jace.DemoApp
+namespace Jace.DemoApp;
+
+/// <summary>
+///     Interaction logic for MainWindow.xaml
+/// </summary>
+public partial class MainWindow : Window
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
-    public partial class MainWindow : Window
+    public MainWindow()
     {
-        public MainWindow()
+        InitializeComponent();
+    }
+
+    private void calculateButton_Click(object sender, RoutedEventArgs e)
+    {
+        try
         {
-            InitializeComponent();
-        }
+            ClearScreen();
 
-        private void calculateButton_Click(object sender, RoutedEventArgs e)
-        {
-            try
+            var formula = formulaTextBox.Text;
+
+            var reader = new TokenReader(CultureInfo.InvariantCulture);
+            var tokens = reader.Read(formula);
+
+            ShowTokens(tokens);
+
+            IFunctionRegistry functionRegistry = new FunctionRegistry(false);
+
+            var astBuilder = new AstBuilder(functionRegistry, false);
+            var operation = astBuilder.Build(tokens);
+
+            ShowAbstractSyntaxTree(operation);
+
+            var variables = new Dictionary<string, double>();
+            foreach (var variable in GetVariables(operation))
             {
-                ClearScreen();
-
-                string formula = formulaTextBox.Text;
-
-                TokenReader reader = new TokenReader(CultureInfo.InvariantCulture);
-                List<Token> tokens = reader.Read(formula);
-
-                ShowTokens(tokens);
-
-                IFunctionRegistry functionRegistry = new FunctionRegistry(false);
-
-                AstBuilder astBuilder = new AstBuilder(functionRegistry, false);
-                Operation operation = astBuilder.Build(tokens);
-
-                ShowAbstractSyntaxTree(operation);
-
-                Dictionary<string, double> variables = new Dictionary<string, double>();
-                foreach (Variable variable in GetVariables(operation))
-                {
-                    double value = AskValueOfVariable(variable);
-                    variables.Add(variable.Name, value);
-                }
-
-                IExecutor executor = new Interpreter();
-                double result = executor.Execute(operation, null, null, variables);
-
-                resultTextBox.Text = "" + result;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        private void ClearScreen()
-        {
-            tokensTextBox.Text = "";
-            astTreeView.Items.Clear();
-            resultTextBox.Text = "";
-        }
-
-        private void ShowTokens(List<Token> tokens)
-        { 
-            string result = "[ ";
-
-            for(int i = 0; i < tokens.Count; i++)
-            {
-                object token = tokens[i].Value;
-
-                if (token.GetType() == typeof(string))
-                    result += "\"" + token + "\"";
-                else if (token.GetType() == typeof(char))
-                    result += "'" + token + "'";
-                else if (token.GetType() == typeof(double) || token.GetType() == typeof(int))
-                    result += token;
-
-                if (i < (tokens.Count - 1))
-                    result += ", ";
+                var value = AskValueOfVariable(variable);
+                variables.Add(variable.Name, value);
             }
 
-            result += " ]";
+            var executor = new Interpreter();
+            var result = executor.Execute(operation, null, null, variables);
 
-            tokensTextBox.Text = result;
+            resultTextBox.Text = result.ToString(CultureInfo.CurrentCulture);
         }
-
-        private void ShowAbstractSyntaxTree(Operation operation)
+        catch (Exception ex)
         {
-            astTreeView.Items.Clear();
-
-            TreeViewItem item = CreateTreeViewItem(operation);
-            astTreeView.Items.Add(item);
+            MessageBox.Show($"{ex.GetType()}: {ex.Message} \n{ex.StackTrace}",
+                "Error",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
         }
+    }
 
-        private TreeViewItem CreateTreeViewItem(Operation operation)
-        {
-            TreeViewItem item = new TreeViewItem();
-            item.Header = GetLabelText(operation);
+    private void ClearScreen()
+    {
+        tokensTextBox.Text = string.Empty;
+        astTreeView.Items.Clear();
+        resultTextBox.Text = string.Empty;
+    }
 
-            if (operation.GetType() == typeof(Multiplication))
+    private void ShowTokens(List<Token> tokens)
+    {
+        tokensTextBox.Text =
+            "[ "
+            + string.Join(", ", tokens.Select(token => token.Value switch
             {
-                Multiplication multiplication = (Multiplication)operation;
+                string str => $"\"{str}\"",
+                char => $"'{token.Value}'",
+                int or double => token.Value.ToString(),
+                _ => "Invalid Token"
+            }))
+            + " ]";
+    }
 
+    private void ShowAbstractSyntaxTree(Operation operation)
+    {
+        astTreeView.Items.Clear();
+        astTreeView.Items.Add(CreateTreeViewItem(operation));
+    }
+
+    private static TreeViewItem CreateTreeViewItem(Operation operation)
+    {
+        var item = new TreeViewItem
+        {
+            Header = GetLabelText(operation)
+        };
+
+        switch (operation)
+        {
+            case Multiplication multiplication:
                 item.Items.Add(CreateTreeViewItem(multiplication.Argument1));
                 item.Items.Add(CreateTreeViewItem(multiplication.Argument2));
-            }
-            else if (operation.GetType() == typeof(Addition))
-            {
-                Addition addition = (Addition)operation;
-
+                break;
+            case Addition addition:
                 item.Items.Add(CreateTreeViewItem(addition.Argument1));
                 item.Items.Add(CreateTreeViewItem(addition.Argument2));
-            }
-            else if (operation.GetType() == typeof(Subtraction))
-            {
-                Subtraction addition = (Subtraction)operation;
-
-                item.Items.Add(CreateTreeViewItem(addition.Argument1));
-                item.Items.Add(CreateTreeViewItem(addition.Argument2));
-            }
-            else if (operation.GetType() == typeof(Division))
-            {
-                Division division = (Division)operation;
-
+                break;
+            case Subtraction subtraction:
+                item.Items.Add(CreateTreeViewItem(subtraction.Argument1));
+                item.Items.Add(CreateTreeViewItem(subtraction.Argument2));
+                break;
+            case Division division:
                 item.Items.Add(CreateTreeViewItem(division.Dividend));
                 item.Items.Add(CreateTreeViewItem(division.Divisor));
-            }
-            else if (operation.GetType() == typeof(Exponentiation))
-            {
-                Exponentiation exponentiation = (Exponentiation)operation;
-
+                break;
+            case Exponentiation exponentiation:
                 item.Items.Add(CreateTreeViewItem(exponentiation.Base));
                 item.Items.Add(CreateTreeViewItem(exponentiation.Exponent));
-            }
-            else if (operation.GetType() == typeof(Function))
+                break;
+            case Function function:
             {
-                Function function = (Function)operation;
-
-                foreach (Operation argument in function.Arguments)
+                foreach (var argument in function.Arguments)
                     item.Items.Add(CreateTreeViewItem(argument));
+                break;
             }
-
-            return item;
         }
 
-        private string GetLabelText(Operation operation)
+        return item;
+    }
+
+    private static string GetLabelText(Operation operation)
+    {
+        var name = operation.GetType().Name;
+        var dataType = operation.DataType.ToString();
+
+        var value = operation switch
         {
-            Type operationType = operation.GetType();
+            IntegerConstant integerConstant => "(" + integerConstant.Value + ")",
+            FloatingPointConstant floatingPointConstant => "(" + floatingPointConstant.Value + ")",
+            Variable variable => "(" + variable.Name + ")",
+            Function function => "(" + function.FunctionName + ")",
+            _ => string.Empty
+        };
 
-            string name = operationType.Name;
-            string dataType = "" + operation.DataType;
-            string value = "";
+        return FormattableString.Invariant($"{name}<{dataType}>{value}");
+    }
 
-            IntegerConstant integerConstant = operation as IntegerConstant;
-            if (integerConstant != null)
+    private static List<Variable> GetVariables(Operation operation)
+    {
+        if (!operation.DependsOnVariables) return [];
+
+        return operation.DependsOnVariables
+            ? operation switch
             {
-                value = "(" + integerConstant.Value + ")";
+                Variable variable => [variable],
+                Addition addition => [..GetVariables(addition.Argument1), ..GetVariables(addition.Argument2)],
+                Multiplication multiplication =>
+                    [..GetVariables(multiplication.Argument1), ..GetVariables(multiplication.Argument2)],
+                Subtraction substraction =>
+                    [..GetVariables(substraction.Argument1), ..GetVariables(substraction.Argument2)],
+                Division division => [..GetVariables(division.Dividend), ..GetVariables(division.Divisor)],
+                Exponentiation exponentiation =>
+                    [..GetVariables(exponentiation.Base), ..GetVariables(exponentiation.Exponent)],
+                Function function => [..function.Arguments.SelectMany(GetVariables)],
+                _ => []
             }
-            else
-            {
-                FloatingPointConstant floatingPointConstant = operation as FloatingPointConstant;
-                if (floatingPointConstant != null)
-                {
-                    value = "(" + floatingPointConstant.Value + ")";
-                }
-                else
-                {
-                    Variable variable = operation as Variable;
-                    if (variable != null)
-                    {
-                        value = "(" + variable.Name + ")";
-                    }
-                    else
-                    {
-                        Function function = operation as Function;
-                        if (function != null)
-                        {
-                            value = "(" + function.FunctionName + ")";
-                        }
-                    }
-                }
-            }
+            : [];
+    }
 
-            return string.Format(CultureInfo.InvariantCulture, "{0}<{1}>{2}", name, dataType, value);
-        }
+    private static double AskValueOfVariable(Variable variable)
+    {
+        var dialog = new InputDialog(variable.Name);
+        dialog.ShowDialog();
 
-        private string GetDataTypeName(Type dataType)
-        {
-            switch (dataType.FullName)
-            {
-                case "System.Int32":
-                    return "int";
-                case "System.Double":
-                    return "double";
-                default:
-                    return dataType.Name;
-            }
-        }
-
-        private IEnumerable<Variable> GetVariables(Operation operation)
-        {
-            List<Variable> variables = new List<Variable>();
-            GetVariables(operation, variables);
-            return variables;
-        }
-
-        private void GetVariables(Operation operation, List<Variable> variables)
-        {
-            if (operation.DependsOnVariables)
-            {
-                if (operation.GetType() == typeof(Variable))
-                {
-                    variables.Add((Variable)operation);
-                }
-                else if (operation.GetType() == typeof(Addition))
-                {
-                    Addition addition = (Addition)operation;
-                    GetVariables(addition.Argument1, variables);
-                    GetVariables(addition.Argument2, variables);
-                }
-                else if (operation.GetType() == typeof(Multiplication))
-                {
-                    Multiplication multiplication = (Multiplication)operation;
-                    GetVariables(multiplication.Argument1, variables);
-                    GetVariables(multiplication.Argument2, variables);
-                }
-                else if (operation.GetType() == typeof(Subtraction))
-                {
-                    Subtraction substraction = (Subtraction)operation;
-                    GetVariables(substraction.Argument1, variables);
-                    GetVariables(substraction.Argument2, variables);
-                }
-                else if (operation.GetType() == typeof(Division))
-                {
-                    Division division = (Division)operation;
-                    GetVariables(division.Dividend, variables);
-                    GetVariables(division.Divisor, variables);
-                }
-                else if (operation.GetType() == typeof(Exponentiation))
-                {
-                    Exponentiation exponentiation = (Exponentiation)operation;
-                    GetVariables(exponentiation.Base, variables);
-                    GetVariables(exponentiation.Exponent, variables);
-                }
-                else if (operation.GetType() == typeof(Function))
-                {
-                    Function function = (Function)operation;
-                    foreach (Operation argument in function.Arguments)
-                    {
-                        GetVariables(argument, variables);
-                    }
-                }
-            }
-        }
-
-        private double AskValueOfVariable(Variable variable)
-        {
-            InputDialog dialog = new InputDialog(variable.Name);
-            dialog.ShowDialog();
-
-            return dialog.Value;
-        }
+        return dialog.Value;
     }
 }

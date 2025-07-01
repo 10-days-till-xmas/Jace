@@ -1,44 +1,35 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
+﻿using System.Windows;
 
-namespace Jace.DemoApp
+namespace Jace.DemoApp;
+
+/// <summary>
+///     Interaction logic for InputDialog.xaml
+/// </summary>
+public partial class InputDialog : Window
 {
-    /// <summary>
-    /// Interaction logic for InputDialog.xaml
-    /// </summary>
-    public partial class InputDialog : Window
+    public InputDialog(string variableName)
     {
-        public InputDialog(string variableName)
-        {
-            InitializeComponent();
-            questionLabel.Content = string.Format("Please provide a value for variable \"{0}\":", variableName);
-        }
+        InitializeComponent();
+        questionLabel.Content = $"Please provide a value for variable \"{variableName}\":";
+    }
 
-        public double Value 
+    public double Value { get; private set; }
+
+    private void OK_Click(object sender, RoutedEventArgs e)
+    {
+        while (true)
         {
-            get
+            if (double.TryParse(valueTextBox.Text, out var result))
             {
-                double result;
-                if (double.TryParse(valueTextBox.Text, out result))
-                    return result;
-                else
-                    return 0.0;
+                Value = result;
+                Close();
+                return;
             }
-        }
 
-        private void OK_Click(object sender, RoutedEventArgs e)
-        {
-            this.Close();
+            MessageBox.Show($"Not a valid number: \"{valueTextBox.Text}\"",
+                "Error",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
         }
     }
 }
