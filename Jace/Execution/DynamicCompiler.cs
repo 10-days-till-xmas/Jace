@@ -270,7 +270,7 @@ namespace Jace.Execution
                 ParameterExpression functionInfoVariable = Expression.Variable(typeof(FunctionInfo));
 
                 Expression funcInstance;
-                if (!functionInfo.IsOverWritable)
+                if (functionInfo.IsReadOnly)
                 {
                     funcInstance = Expression.Convert(
                         Expression.Property(

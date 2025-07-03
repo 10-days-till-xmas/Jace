@@ -95,7 +95,7 @@ namespace Jace.Execution
                 throw new Exception(message);
             }
 
-            FunctionInfo functionInfo = new FunctionInfo(functionName, numberOfParameters, isIdempotent, isOverWritable, isDynamicFunc, function);
+            var functionInfo = new FunctionInfo(functionName, numberOfParameters, isIdempotent, !isOverWritable, isDynamicFunc, function);
 
             if (functions.ContainsKey(functionName))
                 functions[functionName] = functionInfo;

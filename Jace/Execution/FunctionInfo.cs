@@ -1,32 +1,24 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace Jace.Execution
+namespace Jace.Execution;
+
+public record FunctionInfo(
+    string FunctionName,
+    int NumberOfParameters,
+    bool IsIdempotent,
+    bool IsReadOnly,
+    bool IsDynamicFunc,
+    Delegate Function)
 {
-    public class FunctionInfo
-    {
-        public FunctionInfo(string functionName, int numberOfParameters, bool isIdempotent, bool isOverWritable, bool isDynamicFunc, Delegate function)
-        {
-            this.FunctionName = functionName;
-            this.NumberOfParameters = numberOfParameters;
-            this.IsIdempotent = isIdempotent;
-            this.IsOverWritable = isOverWritable;
-            this.IsDynamicFunc = isDynamicFunc;
-            this.Function = function;
-        }
+    public string FunctionName { get; } = FunctionName;
 
-        public string FunctionName { get; private set; }
-        
-        public int NumberOfParameters { get; private set; }
+    public int NumberOfParameters { get; } = NumberOfParameters;
 
-        public bool IsOverWritable { get; set; }
+    public bool IsReadOnly { get; } = IsReadOnly;
 
-        public bool IsIdempotent { get; set; }
+    public bool IsIdempotent { get; } = IsIdempotent;
 
-        public bool IsDynamicFunc { get; private set; }
+    public bool IsDynamicFunc { get; } = IsDynamicFunc;
 
-        public Delegate Function { get; private set; }
-    }
+    public Delegate Function { get; } = Function;
 }
