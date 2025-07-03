@@ -66,25 +66,26 @@ namespace Jace
                         resultStack.Push(new FloatingPointConstant((double)token.Value));
                         break;
                     case TokenType.Text:
-                        if (functionRegistry.IsFunctionName((string)token.Value))
+                        var tokenText = (string)token.Value;
+                        
+                        if (functionRegistry.IsFunctionName(tokenText))
                         {
                             operatorStack.Push(token);
                             parameterCount.Push(1);
                         }
                         else
                         {
-                            string tokenValue = (string)token.Value;
-                            if (localConstantRegistry.IsConstantName(tokenValue))
+                            if (localConstantRegistry.Contains(tokenText))
                             {
-                                resultStack.Push(new FloatingPointConstant(localConstantRegistry.GetConstantInfo(tokenValue).Value));
+                                resultStack.Push(new FloatingPointConstant(localConstantRegistry[tokenText].Value));
                             }
                             else
                             {
                                 if (!caseSensitive)
                                 {
-                                    tokenValue = tokenValue.ToLowerFast();
+                                    tokenText = tokenText.ToLowerFast();
                                 }
-                                resultStack.Push(new Variable(tokenValue));
+                                resultStack.Push(new Variable(tokenText));
                             }
                         }
                         break;

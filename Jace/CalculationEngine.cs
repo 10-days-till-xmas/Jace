@@ -470,13 +470,15 @@ namespace Jace
         /// <param name="variables">The colletion of variables that must be verified.</param>
         internal void VerifyVariableNames(IDictionary<string, double> variables)
         {
-            foreach (string variableName in variables.Keys)
+            foreach (var variableName in variables.Keys)
             {
-                if(ConstantRegistry.IsConstantName(variableName) && ConstantRegistry.GetConstantInfo(variableName).IsReadOnly)
-                    throw new ArgumentException(string.Format("The name \"{0}\" is a reservered variable name that cannot be overwritten.", variableName), "variables");
+                if(ConstantRegistry.Contains(variableName) && ConstantRegistry[variableName].IsReadOnly)
+                    throw new ArgumentException(
+                        $"The name \"{variableName}\" is a reserved variable name that cannot be overwritten.", nameof(variables));
 
                 if (FunctionRegistry.IsFunctionName(variableName))
-                    throw new ArgumentException(string.Format("The name \"{0}\" is a function name. Parameters cannot have this name.", variableName), "variables");
+                    throw new ArgumentException(
+                        $"The name \"{variableName}\" is a function name. Parameters cannot have this name.", nameof(variables));
             }
         }
     }

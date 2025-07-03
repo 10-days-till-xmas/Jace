@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Jace.Execution;
 using Jace.Operations;
 using Jace.Tests.Mocks;
@@ -9,17 +8,17 @@ namespace Jace.Tests;
 
 public class BasicInterpreterTests
 {
+    private static IConstantRegistry ConstantRegistry => MockConstantRegistry.GetPresetConstantRegistry();
+    private static IFunctionRegistry FunctionRegistry => new MockFunctionRegistry();
+    
     [Fact]
     public void TestBasicInterpreterSubstraction()
     {
-        IFunctionRegistry functionRegistry = new MockFunctionRegistry();
-        IConstantRegistry constantRegistry = new MockConstantRegistry();
-
         IExecutor executor = new Interpreter();
         var result = executor.Execute(new Subtraction(
             DataType.Integer,
             new IntegerConstant(6),
-            new IntegerConstant(9)), functionRegistry, constantRegistry);
+            new IntegerConstant(9)), FunctionRegistry, ConstantRegistry);
 
         Assert.Equal(-3.0, result);
     }
@@ -27,9 +26,6 @@ public class BasicInterpreterTests
     [Fact]
     public void TestBasicInterpreter1()
     {
-        IFunctionRegistry functionRegistry = new MockFunctionRegistry();
-        IConstantRegistry constantRegistry = new MockConstantRegistry();
-
         IExecutor executor = new Interpreter();
         // 6 + (2 * 4)
         var result = executor.Execute(
@@ -39,7 +35,7 @@ public class BasicInterpreterTests
                 new Multiplication(
                     DataType.Integer,
                     new IntegerConstant(2),
-                    new IntegerConstant(4))), functionRegistry, constantRegistry);
+                    new IntegerConstant(4))), FunctionRegistry, ConstantRegistry);
 
         Assert.Equal(14.0, result);
     }
@@ -47,9 +43,6 @@ public class BasicInterpreterTests
     [Fact]
     public void TestBasicInterpreterWithVariables()
     {
-        IFunctionRegistry functionRegistry = new MockFunctionRegistry();
-        IConstantRegistry constantRegistry = new MockConstantRegistry();
-
         var variables = new Dictionary<string, double>
         {
             { "var1", 2 },
@@ -67,7 +60,7 @@ public class BasicInterpreterTests
                     new Multiplication(
                         DataType.FloatingPoint,
                         new IntegerConstant(3),
-                        new Variable("age")))), functionRegistry, constantRegistry, variables);
+                        new Variable("age")))), FunctionRegistry, ConstantRegistry, variables);
 
         Assert.Equal(26.0, result);
     }

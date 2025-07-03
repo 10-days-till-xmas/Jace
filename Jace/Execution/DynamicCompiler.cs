@@ -317,8 +317,8 @@ namespace Jace.Execution
             {
                 if (context.Variables.TryGetValue(variableName, out double result))
                     return result;
-                else if (context.ConstantRegistry.IsConstantName(variableName))
-                    return context.ConstantRegistry.GetConstantInfo(variableName).Value;
+                else if (context.ConstantRegistry.Contains(variableName))
+                    return context.ConstantRegistry[variableName].Value;
                 else
                     throw new VariableNotDefinedException($"The variable \"{variableName}\" used is not defined.");
             }

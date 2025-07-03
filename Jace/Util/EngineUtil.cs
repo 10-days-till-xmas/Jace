@@ -10,27 +10,23 @@ namespace Jace.Util
     /// </summary>
     internal  static class EngineUtil
     {
-        static internal IDictionary<string, double> ConvertVariableNamesToLowerCase(IDictionary<string, double> variables)
+        // TODO: Use Dictionary<string, T>(StringComparer.OrdinalIgnoreCase) instead of these method
+        internal static IDictionary<string, double> ConvertVariableNamesToLowerCase(IDictionary<string, double> variables)
         {
-            Dictionary<string, double> temp = new Dictionary<string, double>();
-            foreach (KeyValuePair<string, double> keyValuePair in variables)
-            {
-                temp.Add(keyValuePair.Key.ToLowerFast(), keyValuePair.Value);
-            }
-
-            return temp;
+            return variables.ToDictionary(keyValuePair => keyValuePair.Key.ToLowerFast(), keyValuePair => keyValuePair.Value);
         }
 
         // This is a fast ToLower for strings that are in ASCII
-        static internal string ToLowerFast(this string text)
+        internal static string ToLowerFast(this string text)
         {
-            StringBuilder buffer = new StringBuilder(text.Length);
+            var buffer = new StringBuilder(text.Length);
 
-            for(int i = 0; i < text.Length; i++)
+            // ReSharper disable once ForCanBeConvertedToForeach
+            for(var i = 0; i < text.Length; i++)
             {
-                char c = text[i];
+                var c = text[i];
 
-                if (c >= 'A' && c <= 'Z')
+                if (c is >= 'A' and <= 'Z') // 'A' <= c <= 'Z'
                 {
                     buffer.Append((char)(c + 32));
                 }

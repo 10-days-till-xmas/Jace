@@ -5,66 +5,14 @@ using System.Linq;
 using Jace.Execution;
 
 namespace Jace.Tests.Mocks;
-// I'm not sure how this'll be tested. TODO: Add tests for MockConstantRegistry
-public class MockConstantRegistry(bool caseSensitive, Dictionary<string, ConstantInfo> constants) : IConstantRegistry
+// I'm not sure how this'll be tested. TODO: Add tests for MockConstantRegistry (verify that it can use the constants pi and e?)
+public static class MockConstantRegistry
 {
-    public MockConstantRegistry(bool caseSensitive = false)
-        : this(caseSensitive, new Dictionary<string, ConstantInfo>
-        {
-            {"pi", new ConstantInfo("pi", Math.PI, false)},
-            {"e", new ConstantInfo("e", Math.E, false)}
-        })
+    public static ConstantRegistry GetPresetConstantRegistry()
     {
-    }
-
-    public ConstantInfo GetConstantInfo(string constantName)
-    {
-        return constants[ConvertConstantName(constantName)];
-    }
-
-    public IEnumerator<ConstantInfo> GetEnumerator()
-    {
-        return constants.Select(c=> c.Value).GetEnumerator();  
-    }
-
-    public bool IsConstantName(string constantName)
-    {
-        return constants.ContainsKey(ConvertConstantName(constantName));
-    }
-
-    public void RegisterConstant(string constantName, double value)
-    {
-        RegisterConstant(constantName, value, false);
-    }
-
-    public void RegisterConstant(string constantName, double value, bool isOverWritable)
-    {
-        if(string.IsNullOrEmpty(constantName))
-            throw new ArgumentNullException(nameof(constantName));
-
-        constantName = ConvertConstantName(constantName);
-
-        var constantInfo = new ConstantInfo(constantName, value, isOverWritable);
-        
-        if (IsConstantName(constantName))
-        {
-            if (GetConstantInfo(constantName).IsReadOnly)
-                throw new Exception($"The constant \"{constantName}\" cannot be overwritten.");
-            constants[constantName] = constantInfo;
-        }
-        else
-        {
-            constants.Add(constantName, constantInfo);
-        }
-    }
-
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return GetEnumerator(); 
-    }
-    
-    private string ConvertConstantName(string constantName)
-    {
-        return caseSensitive ? constantName : constantName.ToLower();
+        var registry = new ConstantRegistry(false);
+        registry.RegisterConstant("pi", Math.PI, true);
+        registry.RegisterConstant("e", Math.E, true);
+        return registry;
     }
 }
