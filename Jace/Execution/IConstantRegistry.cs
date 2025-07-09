@@ -29,7 +29,7 @@ public interface IConstantRegistry : IEnumerable<ConstantInfo>
     /// if the name is found; otherwise, the default value for <see cref="ConstantInfo"/>.</param>
     /// <returns>True if the constant was found in the registry; otherwise, false.</returns>
     [PublicAPI]
-    bool TryGetConstantInfo(string constantName, out ConstantInfo constantInfo);
+    bool TryGetConstantInfo(string constantName, out ConstantInfo? constantInfo);
     
     /// <summary>
     /// Registers a new constant in the registry or updates an existing one if it's overwritable.
@@ -39,11 +39,4 @@ public interface IConstantRegistry : IEnumerable<ConstantInfo>
     /// <param name="isReadOnly">Indicates whether this constant can be overwritten or not. Defaults to false.</param>
     [PublicAPI]
     void RegisterConstant(string constantName, double value, bool isReadOnly = false);
-
-    /// <summary>
-    /// Registers multiple constants in the registry.
-    /// </summary>
-    /// <param name="constantInfos">An array of constants to be registered, including their names, values, and read-only status.</param>
-    [PublicAPI]
-    void RegisterConstants(params ConstantInfo[] constantInfos);
 }

@@ -166,7 +166,7 @@ namespace Jace
 
             // Add the reserved variables to the dictionary
             foreach (ConstantInfo constant in ConstantRegistry)
-                variables.Add(constant.ConstantName, constant.Value);
+                variables.Add(constant.Name, constant.Value);
 
             if (IsInFormulaCache(formulaText, null, out var function))
             {
@@ -218,159 +218,35 @@ namespace Jace
         public Func<IDictionary<string, double>, double> Build(string formulaText, IDictionary<string, double> constants)
         {
             if (string.IsNullOrEmpty(formulaText))
-                throw new ArgumentNullException("formulaText");
-
-
-            ConstantRegistry compiledConstants = new ConstantRegistry(caseSensitive);
-            if (constants != null)
+                throw new ArgumentNullException(nameof(formulaText));
+            
+            var compiledConstants = new ConstantRegistry(caseSensitive);
+            
+            foreach (var constant in constants)
             {
-                foreach (var constant in constants)
-                {
-                    compiledConstants.RegisterConstant(constant.Key, constant.Value);
-                }
+                compiledConstants.RegisterConstant(constant.Key, constant.Value);
             }
 
-            if (IsInFormulaCache(formulaText, compiledConstants, out var result))
-            {
-                return result;
-            }
-            else
-            {
-                Operation operation = BuildAbstractSyntaxTree(formulaText, compiledConstants);
-                return BuildFormula(formulaText, compiledConstants,  operation);
-            }
+            return IsInFormulaCache(formulaText, compiledConstants, out var result)
+                ? result
+                : BuildFormula(formulaText, compiledConstants,
+                    BuildAbstractSyntaxTree(formulaText, compiledConstants));
         }
 
         /// <summary>
         /// Add a function to the calculation engine.
         /// </summary>
         /// <param name="functionName">The name of the function. This name can be used in mathematical formulas.</param>
-        /// <param name="function">The implemenation of the function.</param>
+        /// <param name="function">The implementation of the function.</param>
         /// <param name="isIdempotent">Does the function provide the same result when it is executed multiple times.</param>
-        public void AddFunction(string functionName, Func<double> function, bool isIdempotent = true)
+        public void AddFunction<T>(string functionName, T function, bool isIdempotent = true) where T : Delegate
         {
-            FunctionRegistry.RegisterFunction(functionName, function, isIdempotent, true);
+            FunctionRegistry.RegisterFunction(functionName, function, isIdempotent);
         }
-
-        /// <summary>
-        /// Add a function to the calculation engine.
-        /// </summary>
-        /// <param name="functionName">The name of the function. This name can be used in mathematical formulas.</param>
-        /// <param name="function">The implemenation of the function.</param>
-        /// <param name="isIdempotent">Does the function provide the same result when it is executed multiple times.</param>
-        public void AddFunction(string functionName, Func<double, double> function, bool isIdempotent = true)
-        {
-            FunctionRegistry.RegisterFunction(functionName, function, isIdempotent, true); 
-        }
-
-        /// <summary>
-        /// Add a function to the calculation engine.
-        /// </summary>
-        /// <param name="functionName">The name of the function. This name can be used in mathematical formulas.</param>
-        /// <param name="function">The implemenation of the function.</param>
-        /// <param name="isIdempotent">Does the function provide the same result when it is executed multiple times.</param>
-        public void AddFunction(string functionName, Func<double, double, double> function, bool isIdempotent = true)
-        {
-            FunctionRegistry.RegisterFunction(functionName, function, isIdempotent, true);
-        }
-
-        /// <summary>
-        /// Add a function to the calculation engine.
-        /// </summary>
-        /// <param name="functionName">The name of the function. This name can be used in mathematical formulas.</param>
-        /// <param name="function">The implemenation of the function.</param>
-        /// <param name="isIdempotent">Does the function provide the same result when it is executed multiple times.</param>
-        public void AddFunction(string functionName, Func<double, double, double, double> function, bool isIdempotent = true)
-        {
-            FunctionRegistry.RegisterFunction(functionName, function, isIdempotent, true);
-        }
-
-        /// <summary>
-        /// Add a function to the calculation engine.
-        /// </summary>
-        /// <param name="functionName">The name of the function. This name can be used in mathematical formulas.</param>
-        /// <param name="function">The implemenation of the function.</param>
-        /// <param name="isIdempotent">Does the function provide the same result when it is executed multiple times.</param>
-        public void AddFunction(string functionName, Func<double, double, double, double, double> function, bool isIdempotent = true)
-        {
-            FunctionRegistry.RegisterFunction(functionName, function, isIdempotent, true);
-        }
-
-        /// <summary>
-        /// Add a function to the calculation engine.
-        /// </summary>
-        /// <param name="functionName">The name of the function. This name can be used in mathematical formulas.</param>
-        /// <param name="function">The implemenation of the function.</param>
-        /// <param name="isIdempotent">Does the function provide the same result when it is executed multiple times.</param>
-        public void AddFunction(string functionName, Func<double, double, double, double, double, double> function, bool isIdempotent = true)
-        {
-            FunctionRegistry.RegisterFunction(functionName, function, isIdempotent, true);
-        }
-
-        /// <summary>
-        /// Add a function to the calculation engine.
-        /// </summary>
-        /// <param name="functionName">The name of the function. This name can be used in mathematical formulas.</param>
-        /// <param name="function">The implemenation of the function.</param>
-        /// <param name="isIdempotent">Does the function provide the same result when it is executed multiple times.</param>
-        public void AddFunction(string functionName, Func<double, double, double, double, double, double, double> function, bool isIdempotent = true)
-        {
-            FunctionRegistry.RegisterFunction(functionName, function, isIdempotent, true);
-        }
-
-        public void AddFunction(string functionName, Func<double, double, double, double, double, double, double, double> function, bool isIdempotent = true)
-        {
-            FunctionRegistry.RegisterFunction(functionName, function, isIdempotent, true);
-        }
-
-        public void AddFunction(string functionName, Func<double, double, double, double, double, double, double, double, double> function, bool isIdempotent = true)
-        {
-            FunctionRegistry.RegisterFunction(functionName, function, isIdempotent, true);
-        }
-
-        public void AddFunction(string functionName, Func<double, double, double, double, double, double, double, double, double, double> function, bool isIdempotent = true)
-        {
-            FunctionRegistry.RegisterFunction(functionName, function, isIdempotent, true);
-        }
-
-        public void AddFunction(string functionName, Func<double, double, double, double, double, double, double, double, double, double, double> function, bool isIdempotent = true)
-        {
-            FunctionRegistry.RegisterFunction(functionName, function, isIdempotent, true);
-        }
-
-        public void AddFunction(string functionName, Func<double, double, double, double, double, double, double, double, double, double, double, double> function, bool isIdempotent = true)
-        {
-            FunctionRegistry.RegisterFunction(functionName, function, isIdempotent, true);
-        }
-
-        public void AddFunction(string functionName, Func<double, double, double, double, double, double, double, double, double, double, double, double, double> function, bool isIdempotent = true)
-        {
-            FunctionRegistry.RegisterFunction(functionName, function, isIdempotent, true);
-        }
-
-        public void AddFunction(string functionName, Func<double, double, double, double, double, double, double, double, double, double, double, double, double, double> function, bool isIdempotent = true)
-        {
-            FunctionRegistry.RegisterFunction(functionName, function, isIdempotent, true);
-        }
-
-        public void AddFunction(string functionName, Func<double, double, double, double, double, double, double, double, double, double, double, double, double, double, double> function, bool isIdempotent = true)
-        {
-            FunctionRegistry.RegisterFunction(functionName, function, isIdempotent, true);
-        }
-
-        public void AddFunction(string functionName, Func<double, double, double, double, double, double, double, double, double, double, double, double, double, double, double, double> function, bool isIdempotent = true)
-        {
-            FunctionRegistry.RegisterFunction(functionName, function, isIdempotent, true);
-        }
-
-        public void AddFunction(string functionName, Func<double, double, double, double, double, double, double, double, double, double, double, double, double, double, double, double, double> function, bool isIdempotent = true)
-        {
-            FunctionRegistry.RegisterFunction(functionName, function, isIdempotent, true);
-        }
-
+        
         public void AddFunction(string functionName, DynamicFunc<double, double> functionDelegate, bool isIdempotent = true)
         {
-            FunctionRegistry.RegisterFunction(functionName, functionDelegate, isIdempotent, true);
+            FunctionRegistry.RegisterFunction(functionName, functionDelegate, isIdempotent);
         }
 
         /// <summary>
@@ -380,49 +256,61 @@ namespace Jace
         /// <param name="value">The value of the constant.</param>
         public void AddConstant(string constantName, double value)
         {
-            ConstantRegistry.RegisterConstant(constantName, value);
+            ConstantRegistry[constantName] = new ConstantInfo(constantName, value);
         }
 
         private void RegisterDefaultFunctions()
         {
-            FunctionRegistry.RegisterFunction("sin", (Func<double, double>)Math.Sin, true, false);
-            FunctionRegistry.RegisterFunction("cos", (Func<double, double>)Math.Cos, true, false);
-            FunctionRegistry.RegisterFunction("csc", (Func<double, double>)MathUtil.Csc, true, false);
-            FunctionRegistry.RegisterFunction("sec", (Func<double, double>)MathUtil.Sec, true, false);
-            FunctionRegistry.RegisterFunction("asin", (Func<double, double>)Math.Asin, true, false);
-            FunctionRegistry.RegisterFunction("acos", (Func<double, double>)Math.Acos, true, false);
-            FunctionRegistry.RegisterFunction("tan", (Func<double, double>)Math.Tan, true, false);
-            FunctionRegistry.RegisterFunction("cot", (Func<double, double>)MathUtil.Cot, true, false);
-            FunctionRegistry.RegisterFunction("atan", (Func<double, double>)Math.Atan, true, false);
-            FunctionRegistry.RegisterFunction("acot", (Func<double, double>)MathUtil.Acot, true, false);
-            FunctionRegistry.RegisterFunction("loge", (Func<double, double>)Math.Log, true, false);
-            FunctionRegistry.RegisterFunction("log10", (Func<double, double>)Math.Log10, true, false);
-            FunctionRegistry.RegisterFunction("logn", (Func<double, double, double>)((a, b) => Math.Log(a, b)), true, false);
-            FunctionRegistry.RegisterFunction("sqrt", (Func<double, double>)Math.Sqrt, true, false);
-            FunctionRegistry.RegisterFunction("abs", (Func<double, double>)Math.Abs, true, false);
-            FunctionRegistry.RegisterFunction("if", (Func<double, double, double, double>)((a, b, c) => (a != 0.0 ? b : c)), true, false);
-            FunctionRegistry.RegisterFunction("ifless", (Func<double, double, double, double, double>)((a, b, c, d) => (a < b ? c : d)), true, false);
-            FunctionRegistry.RegisterFunction("ifmore", (Func<double, double, double, double, double>)((a, b, c, d) => (a > b ? c : d)), true, false);
-            FunctionRegistry.RegisterFunction("ifequal", (Func<double, double, double, double, double>)((a, b, c, d) => (a == b ? c : d)), true, false);
-            FunctionRegistry.RegisterFunction("ceiling", (Func<double, double>)Math.Ceiling, true, false);
-            FunctionRegistry.RegisterFunction("floor", (Func<double, double>)Math.Floor, true, false);
-            FunctionRegistry.RegisterFunction("truncate", (Func<double, double>)Math.Truncate, true, false);
-            FunctionRegistry.RegisterFunction("round", (Func<double, double>)Math.Round, true, false);
+            (string Name, Delegate Function)[] defaultFunctions =
+            [
+                ("sin", (Func<double, double>)Math.Sin),
+                ("cos", (Func<double, double>)Math.Cos),
+                ("csc", (Func<double, double>)MathUtil.Csc),
+                ("sec", (Func<double, double>)MathUtil.Sec),
+                ("asin", (Func<double, double>)Math.Asin),
+                ("acos", (Func<double, double>)Math.Acos),
+                ("tan", (Func<double, double>)Math.Tan),
+                ("cot", (Func<double, double>)MathUtil.Cot),
+                ("atan", (Func<double, double>)Math.Atan),
+                ("acot", (Func<double, double>)MathUtil.Acot),
+                ("loge", (Func<double, double>)Math.Log),
+                ("log10", (Func<double, double>)Math.Log10),
+                ("logn", (Func<double, double, double>)(Math.Log)),
+                ("sqrt", (Func<double, double>)Math.Sqrt),
+                ("abs", (Func<double, double>)Math.Abs),
+                ("if", (Func<double, double, double, double>)((a, b, c) => a != 0.0 ? b : c)),
+                ("ifless", (Func<double, double, double, double, double>)((a, b, c, d) => a < b ? c : d)),
+                ("ifmore", (Func<double, double, double, double, double>)((a, b, c, d) => a > b ? c : d)),
+                ("ifequal", (Func<double, double, double, double, double>)((a, b, c, d) => a == b ? c : d)), // TODO: implement tolerance
+                ("ceiling", (Func<double, double>)Math.Ceiling),
+                ("floor", (Func<double, double>)Math.Floor),
+                ("truncate", (Func<double, double>)Math.Truncate),
+                ("round", (Func<double, double>)Math.Round)
+            ];
+            foreach (var (name, function) in defaultFunctions)
+            {
+                FunctionRegistry.RegisterFunction(name, function, true, true);
+            }
 
-            // Dynamic based arguments Functions
-            FunctionRegistry.RegisterFunction("max",  (DynamicFunc<double, double>)((a) => a.Max()), true, false);
-            FunctionRegistry.RegisterFunction("min", (DynamicFunc<double, double>)((a) => a.Min()), true, false);
-            FunctionRegistry.RegisterFunction("avg", (DynamicFunc<double, double>)((a) => a.Average()), true, false);
-            FunctionRegistry.RegisterFunction("median", (DynamicFunc<double, double>)((a) => MathExtended.Median(a)), true, false);
-
+            (string Name, Delegate Function)[] defaultDynamicFunctions =
+            [
+                ("max", (DynamicFunc<double, double>)((a) => a.Max())),
+                ("min", (DynamicFunc<double, double>)((a) => a.Min())),
+                ("avg", (DynamicFunc<double, double>)((a) => a.Average())),
+                ("median", (DynamicFunc<double, double>)((a) => a.Median()))
+            ];
+            foreach (var (name, function) in defaultDynamicFunctions)
+            {
+                FunctionRegistry.RegisterFunction(name, function, true, true);
+            }
             // Non Idempotent Functions
-            FunctionRegistry.RegisterFunction("random", (Func<double>)random.NextDouble, false, false);
+            FunctionRegistry.RegisterFunction("random", (Func<double>)random.NextDouble, false, true);
         }
 
         private void RegisterDefaultConstants()
         {
-            ConstantRegistry.RegisterConstant("e", Math.E, true);
-            ConstantRegistry.RegisterConstant("pi", Math.PI, true);
+            ConstantRegistry["e"] = new ConstantInfo("e", Math.E, true);
+            ConstantRegistry["pi"] = new ConstantInfo("pi", Math.PI, true);
         }
 
         /// <summary>
@@ -459,7 +347,7 @@ namespace Jace
 
         private string GenerateFormulaCacheKey(string formulaText, ConstantRegistry compiledConstants)
         {
-            return (compiledConstants != null && compiledConstants.Any()) ? $"{formulaText}@{String.Join(",", compiledConstants?.Select(x => $"{x.ConstantName}:{x.Value}"))}" : formulaText;
+            return (compiledConstants != null && compiledConstants.Any()) ? $"{formulaText}@{String.Join(",", compiledConstants?.Select(x => $"{x.Name}:{x.Value}"))}" : formulaText;
         }
 
         /// <summary>
@@ -476,7 +364,7 @@ namespace Jace
                     throw new ArgumentException(
                         $"The name \"{variableName}\" is a reserved variable name that cannot be overwritten.", nameof(variables));
 
-                if (FunctionRegistry.IsFunctionName(variableName))
+                if (FunctionRegistry.Contains(variableName))
                     throw new ArgumentException(
                         $"The name \"{variableName}\" is a function name. Parameters cannot have this name.", nameof(variables));
             }

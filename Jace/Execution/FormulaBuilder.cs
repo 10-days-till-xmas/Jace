@@ -47,7 +47,7 @@ namespace Jace.Execution
             if (string.IsNullOrEmpty(name))
                 throw new ArgumentNullException("name");
 
-            if (engine.FunctionRegistry.IsFunctionName(name))
+            if (engine.FunctionRegistry.Contains(name))
                 throw new ArgumentException(string.Format("The name \"{0}\" is a function name. Parameters cannot have this name.", name), "name");
 
             if (parameters.Any(p => p.Name == name))
@@ -122,7 +122,7 @@ namespace Jace.Execution
 
                 // Add the reserved variables to the dictionary
                 foreach (ConstantInfo constant in engine.ConstantRegistry)
-                    variables.Add(constant.ConstantName, constant.Value);
+                    variables.Add(constant.Name, constant.Value);
 
                 return formula(variables);
             });

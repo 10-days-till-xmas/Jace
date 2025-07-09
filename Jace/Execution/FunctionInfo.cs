@@ -3,18 +3,14 @@
 namespace Jace.Execution;
 
 public record FunctionInfo(
-    string FunctionName,
+    string Name,
     int NumberOfParameters,
     bool IsIdempotent,
     bool IsReadOnly,
     bool IsDynamicFunc,
-    Delegate Function)
+    Delegate Function) : InfoItemBase(Name, IsReadOnly)
 {
-    public string FunctionName { get; } = FunctionName;
-
     public int NumberOfParameters { get; } = NumberOfParameters;
-
-    public bool IsReadOnly { get; } = IsReadOnly;
 
     public bool IsIdempotent { get; } = IsIdempotent;
 

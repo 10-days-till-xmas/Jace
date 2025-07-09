@@ -7,7 +7,7 @@ namespace Jace.Tests.Mocks
 {
     public class MockFunctionRegistry(IEnumerable<string> functionNames) : IFunctionRegistry
     {
-        private HashSet<string> functionNames = [..functionNames];
+        private readonly HashSet<string> functionNames = [..functionNames];
 
         public MockFunctionRegistry()
             : this(["sin", "cos", "csc", "sec", "asin", "acos", "tan", "cot", "atan", "acot", "loge", "log10", "logn", "sqrt", "abs"
@@ -22,7 +22,7 @@ namespace Jace.Tests.Mocks
 
         public FunctionInfo GetFunctionInfo(string functionName)
         {
-            return new FunctionInfo(functionName, 1, true, false, false, null);
+            return new FunctionInfo(functionName, 1, true, false, false, null!);
         }
 
         public bool IsFunctionName(string functionName)
@@ -30,29 +30,30 @@ namespace Jace.Tests.Mocks
             return functionNames.Contains(functionName);
         }
 
-        public void RegisterFunction(string functionName, Delegate function)
+        public FunctionInfo this[string functionName]
+        {
+            get => functionNames.Contains(functionName) ? GetFunctionInfo(functionName) : throw new KeyNotFoundException($"Function '{functionName}' not found in the registry.");
+            set => throw new NotImplementedException();
+        }
+
+        public bool Contains(string functionName)
+        {
+            return functionNames.Contains(functionName);
+        }
+
+        public bool TryGetFunctionInfo(string functionName, out FunctionInfo functionInfo)
         {
             throw new NotImplementedException();
         }
 
-        public void RegisterFunction(string functionName, Delegate function, bool isIdempotent, bool isOverWritable)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void RegisterFunction(string functionName, int numberOfParameters)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void RegisterFunction(string functionName, Delegate function, int numberOfParameters)
+        public void RegisterFunction(string functionName, Delegate function, bool isIdempotent = true, bool isReadOnly = false)
         {
             throw new NotImplementedException();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return this.GetEnumerator();
+            return GetEnumerator();
         }
     }
 }

@@ -1,43 +1,36 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Text;
 
-namespace Jace.Util
+namespace Jace.Util;
+
+public static class TypeExtensions
 {
-    public static class TypeExtensions
+    /// <summary>
+    /// Throws an exception if the function type is not valid.
+    /// </summary>
+    /// <remarks>
+    /// For Jace, only functions of type <see cref="System.Func{T,T}"/> or <see cref="Jace.DynamicFunc{T, T}"/>
+    /// where <c>T</c> and <c>TResult</c> are <see cref="double"/> are supported.
+    /// </remarks>
+    /// <param name="function"></param>
+    /// <exception cref="ArgumentException">Thrown if the function is invalid</exception>
+    internal static void AssertIsValidFunctionType(this Delegate function)
     {
-        /// <summary>
-        /// Get constructor for a given type matching with the parameter types provided.
-        /// </summary>
-        /// <param name="type">The type for witch a matching constructor must be found.</param>
-        /// <param name="parameters">The types of the parameters of the constructor.</param>
-        /// <returns>The matching constructor.</returns>
-        public static ConstructorInfo GetConstructor(this Type type, Type[] parameters)
+        const string SystemFuncPrefix = $"{nameof(System)}.{nameof(Func<double>)}";
+        const string DynamicFuncName = $"{nameof(Jace)}.{nameof(DynamicFunc<double, double>)}";
+        if (function is DynamicFunc<double, double>)
+            return;
+        var functionType = function.GetType();
+        
+        if (functionType.GenericTypeArguments.Any(arg => arg != typeof(double))) 
+            throw new ArgumentException("Only doubles are supported as function arguments.", nameof(function));
+        
+        var funcTypeName = functionType.FullName;
+        
+        if (!funcTypeName!.StartsWith(SystemFuncPrefix))
         {
-            IEnumerable<ConstructorInfo> constructors =
-                type.GetTypeInfo().DeclaredConstructors.Where(c => c.GetParameters().Length == parameters.Length);
-
-            foreach (ConstructorInfo constructor in constructors)
-            {
-                bool parametersMatch = true;
-
-                ParameterInfo[] constructorParameters = constructor.GetParameters();
-                for (int i = 0; i < parameters.Length; i++)
-                {
-                    if (parameters[i] != constructorParameters[i].ParameterType)
-                    {
-                        parametersMatch = false;
-                        break;
-                    }
-                }
-
-                if (parametersMatch)
-                    return constructor;
-            }
-
-            throw new Exception("No constructor was found matching with the provided parameters.");
+            throw new ArgumentException(
+                $"Only {SystemFuncPrefix} and {DynamicFuncName} delegates are permitted.", nameof(function));
         }
     }
 }

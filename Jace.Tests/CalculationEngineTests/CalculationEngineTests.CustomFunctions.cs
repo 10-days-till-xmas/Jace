@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using System.Linq;
 using Xunit;
 
@@ -20,7 +21,8 @@ public partial class CalculationEngineTests
                 OptimizerEnabled = false,
                 CaseSensitive = true
             });
-            engine.AddFunction("test", (a, b) => a + b);
+            Delegate customFunction = (Func<double, double, double>)((a, b) => a + b);
+            engine.AddFunction("test", customFunction);
 
             var result = engine.Calculate("test(2,3)");
             Assert.Equal(5.0, result);

@@ -236,7 +236,7 @@ namespace Jace.Execution
             {
                 Function function = (Function)operation;
 
-                FunctionInfo functionInfo = functionRegistry.GetFunctionInfo(function.FunctionName);
+                FunctionInfo functionInfo = functionRegistry[function.FunctionName];
                 Type funcType;
                 Type[] parameterTypes;
                 Expression[] arguments;
@@ -274,9 +274,9 @@ namespace Jace.Execution
                 {
                     funcInstance = Expression.Convert(
                         Expression.Property(
-                            Expression.Call(
+                            Expression.Property(
                                 getFunctionRegistry,
-                                typeof(IFunctionRegistry).GetRuntimeMethod("GetFunctionInfo", new Type[] { typeof(string) }),
+                                typeof(IFunctionRegistry).GetProperty("Item")!,
                                 Expression.Constant(function.FunctionName)),
                             "Function"),
                         funcType);

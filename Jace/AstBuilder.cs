@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Jace.Execution;
 using Jace.Operations;
 using Jace.Tokenizer;
@@ -19,13 +18,10 @@ namespace Jace
         private Stack<Token> operatorStack = new Stack<Token>();
         private Stack<int> parameterCount = new Stack<int>();
 
-        public AstBuilder(IFunctionRegistry functionRegistry, bool caseSensitive, IConstantRegistry compiledConstants = null)
+        public AstBuilder(IFunctionRegistry functionRegistry, bool caseSensitive, IConstantRegistry? compiledConstants = null)
         {
-            if (functionRegistry == null)
-                throw new ArgumentNullException("functionRegistry");
-
-            this.functionRegistry = functionRegistry;
-            this.localConstantRegistry = compiledConstants ?? new ConstantRegistry(caseSensitive);
+            this.functionRegistry = functionRegistry ?? throw new ArgumentNullException(nameof(functionRegistry));
+            localConstantRegistry = compiledConstants ?? new ConstantRegistry(caseSensitive);
             this.caseSensitive = caseSensitive;
 
             operationPrecedence.Add('(', 0);
@@ -68,7 +64,7 @@ namespace Jace
                     case TokenType.Text:
                         var tokenText = (string)token.Value;
                         
-                        if (functionRegistry.IsFunctionName(tokenText))
+                        if (functionRegistry.Contains(tokenText))
                         {
                             operatorStack.Push(token);
                             parameterCount.Push(1);
@@ -299,9 +295,9 @@ namespace Jace
             {
                 string functionName = ((string)functionToken.Value).ToLowerInvariant();
 
-                if (functionRegistry.IsFunctionName(functionName))
+                if (functionRegistry.Contains(functionName))
                 {
-                    FunctionInfo functionInfo = functionRegistry.GetFunctionInfo(functionName);
+                    FunctionInfo functionInfo = functionRegistry[functionName];
 
                     int numberOfParameters;
 

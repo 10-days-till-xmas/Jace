@@ -154,7 +154,7 @@ namespace Jace.Execution
             {
                 Function function = (Function)operation;
 
-                FunctionInfo functionInfo = functionRegistry.GetFunctionInfo(function.FunctionName);
+                FunctionInfo functionInfo = functionRegistry[function.FunctionName];
 
                 double[] arguments = new double[functionInfo.IsDynamicFunc ? function.Arguments.Count : functionInfo.NumberOfParameters];
                 for (int i = 0; i < arguments.Length; i++)

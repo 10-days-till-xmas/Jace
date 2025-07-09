@@ -16,7 +16,7 @@ public class ConstantRegistryTests
         var functionInfo = registry["test"];
 
         Assert.NotNull(functionInfo);
-        Assert.Equal("test", functionInfo.ConstantName);
+        Assert.Equal("test", functionInfo.Name);
         Assert.Equal(42.0, functionInfo.Value);
     }
 
@@ -26,6 +26,7 @@ public class ConstantRegistryTests
         var registry = new ConstantRegistry(false);
 
         registry.RegisterConstant("test", 42.0);
+        Assert.Equal(42.0, registry["test"].Value);
         registry.RegisterConstant("TeSt", 26.3);
 
         Assert.Equal(26.3, registry["test"].Value);
@@ -46,24 +47,24 @@ public class ConstantRegistryTests
         Assert.Equal(20.3, registry["test"].Value);
         Assert.Equal(-7.5, registry["TEST"].Value);
     }
-
-    [Fact]
-    public void TestNotOverwritable_CaseSensitive()
-    {
-        var registry = new ConstantRegistry(true);
-
-        registry.RegisterConstant("test", 42.0, true);
-
-        Assert.Throws<InvalidOperationException>(() => registry.RegisterConstant("test", 26.3, true));
-    }
-
+    
     [Fact]
     public void TestNotOverwritable_CaseInsensitive()
     {
         var registry = new ConstantRegistry(false);
 
-        registry.RegisterConstant("test", 42.0, true);
+        registry.RegisterConstant("test", 42.0, isReadOnly: true);
 
         Assert.Throws<InvalidOperationException>(() => registry.RegisterConstant("TEST", 26.3, true));
+    }
+    
+    [Fact]
+    public void TestNotOverwritable_CaseSensitive()
+    {
+        var registry = new ConstantRegistry(true);
+
+        registry.RegisterConstant("test", 42.0, isReadOnly: true);
+
+        Assert.Throws<InvalidOperationException>(() => registry.RegisterConstant("test", 26.3, true));
     }
 }

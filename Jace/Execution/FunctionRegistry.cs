@@ -1,119 +1,128 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Reflection;
-using System.Collections;
-using Jace.Util;
+using JetBrains.Annotations;
 
-namespace Jace.Execution
+namespace Jace.Execution;
+
+[PublicAPI]
+public class FunctionRegistry : RegistryBase<FunctionInfo>, IFunctionRegistry
 {
-    public class FunctionRegistry : IFunctionRegistry
+    private const string SystemFuncPrefix = $"{nameof(System)}.{nameof(Func<object>)}";
+    private const string DynamicFuncName = $"{nameof(Jace)}.{nameof(DynamicFunc<object, object>)}";
+
+    private Dictionary<string, FunctionInfo> functions => items;
+
+    public FunctionRegistry(IEnumerable<FunctionInfo> functions, bool caseSensitive) : base(caseSensitive)
     {
-        private const string DynamicFuncName = "Jace.DynamicFunc";
-
-        private readonly bool caseSensitive;
-        private readonly Dictionary<string, FunctionInfo> functions;
-
-        public FunctionRegistry(bool caseSensitive)
+        foreach(var functionInfo in functions)
         {
-            this.caseSensitive = caseSensitive;
-            this.functions = new Dictionary<string, FunctionInfo>();
+            if (functionInfo == null)
+                throw new ArgumentNullException(nameof(functions), "FunctionInfo cannot be null.");
+
+            RegisterFunction(functionInfo);
         }
+    }
 
-        public IEnumerator<FunctionInfo> GetEnumerator()
-        {
-            return functions.Values.GetEnumerator();
-        }
+    public FunctionRegistry(bool caseSensitive) : base(caseSensitive)
+    {
+    }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return this.GetEnumerator();
-        }
+    public void RegisterFunction(FunctionInfo functionInfo) 
+        => ValidateAndRegisterItem(functionInfo);
 
-        public FunctionInfo GetFunctionInfo(string functionName)
-        {
-            if (string.IsNullOrEmpty(functionName))
-                throw new ArgumentNullException("functionName");
+    public bool TryGetFunctionInfo(string functionName, out FunctionInfo? functionInfo) 
+        => TryGetItem(functionName, out functionInfo);
 
-            FunctionInfo functionInfo = null;
-            return functions.TryGetValue(ConvertFunctionName(functionName), out functionInfo) ? functionInfo : null;
-        }
+    public void RegisterFunction(string functionName, Delegate function, bool isIdempotent = true, bool isReadOnly = false)
+    {
+        if (string.IsNullOrEmpty(functionName))
+            throw new ArgumentNullException(nameof(functionName));
 
-        public void RegisterFunction(string functionName, Delegate function)
-        {
-            RegisterFunction(functionName, function, true, true);
-        }
-        
-        public void RegisterFunction(string functionName, Delegate function, bool isIdempotent, bool isOverWritable)
-        {
-            if (string.IsNullOrEmpty(functionName))
-                throw new ArgumentNullException("functionName");
+        if (function == null)
+            throw new ArgumentNullException(nameof(function));
 
-            if (function == null)
-                throw new ArgumentNullException("function");
-
-            Type funcType = function.GetType();
-            bool isDynamicFunc = false;
-            int numberOfParameters = -1;
+        var funcType = function.GetType();
+        var isDynamicFunc = false;
+        var numberOfParameters = -1;
             
-            if (funcType.FullName.StartsWith("System.Func"))
-            {
-                foreach (Type genericArgument in funcType.GenericTypeArguments)
-                    if (genericArgument != typeof(double))
-                        throw new ArgumentException("Only doubles are supported as function arguments.", "function");
-
-                numberOfParameters = function
-                    .GetMethodInfo()
-                    .GetParameters()
-                    .Count(p => p.ParameterType == typeof(double));
-            }
-            else if (funcType.FullName.StartsWith(DynamicFuncName))
-            {
-                isDynamicFunc = true;
-            }
-            else
-                throw new ArgumentException("Only System.Func and " + DynamicFuncName + " delegates are permitted.", "function");
-
-            functionName = ConvertFunctionName(functionName);
-
-            if (functions.ContainsKey(functionName) && !functions[functionName].IsOverWritable)
-            {
-                string message = string.Format("The function \"{0}\" cannot be overwriten.", functionName);
-                throw new Exception(message);
-            }
-
-            if (functions.ContainsKey(functionName) && functions[functionName].NumberOfParameters != numberOfParameters)
-            {
-                string message = string.Format("The number of parameters cannot be changed when overwriting a method.");
-                throw new Exception(message);
-            }
-
-            if (functions.ContainsKey(functionName) && functions[functionName].IsDynamicFunc != isDynamicFunc)
-            {
-                string message = string.Format("A Func can only be overwritten by another Func and a DynamicFunc can only be overwritten by another DynamicFunc.");
-                throw new Exception(message);
-            }
-
-            var functionInfo = new FunctionInfo(functionName, numberOfParameters, isIdempotent, !isOverWritable, isDynamicFunc, function);
-
-            if (functions.ContainsKey(functionName))
-                functions[functionName] = functionInfo;
-            else
-                functions.Add(functionName, functionInfo);
-        }
-
-            public bool IsFunctionName(string functionName)
+        if (funcType.FullName?.StartsWith("System.Func") ?? false)
         {
-            if (string.IsNullOrEmpty(functionName))
-                throw new ArgumentNullException("functionName");
+            if (funcType.GenericTypeArguments.Any(genericArgument => genericArgument != typeof(double)))
+                throw new ArgumentException("Only doubles are supported as function arguments.", nameof(function));
 
-            return functions.ContainsKey(ConvertFunctionName(functionName));
+            numberOfParameters = function
+                .GetMethodInfo()
+                .GetParameters()
+                .Count(p => p.ParameterType == typeof(double));
         }
-
-        private string ConvertFunctionName(string functionName)
+        else if (funcType.FullName?.StartsWith(DynamicFuncName) ?? false)
         {
-            return caseSensitive ? functionName : functionName.ToLowerFast();
+            isDynamicFunc = true;
+        }
+        else
+            throw new ArgumentException($"Only System.Func and {DynamicFuncName} delegates are permitted.", nameof(function));
+
+        if (functions.TryGetValue(functionName, out var existingFunctionInfo))
+        {
+            if (existingFunctionInfo.IsReadOnly)
+                throw new InvalidOperationException($"The function \"{existingFunctionInfo.Name}\" cannot be overwritten.");
+            if (existingFunctionInfo.IsDynamicFunc != isDynamicFunc)
+                throw new InvalidOperationException("A Func can only be overwritten by another Func and a DynamicFunc can only be overwritten by another DynamicFunc.");
+            if (existingFunctionInfo.NumberOfParameters != numberOfParameters)
+                throw new InvalidOperationException("The number of parameters cannot be changed when overwriting a method.");
+        }
+        functions[functionName] = new FunctionInfo(functionName, numberOfParameters, isIdempotent, isReadOnly, isDynamicFunc, function);
+    }
+
+    public override FunctionInfo ValidateItem(FunctionInfo functionInfo)
+    {
+        var functionName = functionInfo.Name;
+        var function = functionInfo.Function;
+        
+        if (string.IsNullOrEmpty(functionName) || function == null)
+            throw new ArgumentNullException(nameof(functionInfo));
+        
+        AssertValidFunction(function);
+
+        // Checks for existing function
+        if (!functions.TryGetValue(functionName, out var existingFunctionInfo))
+            return functionInfo;
+        
+        if (existingFunctionInfo.IsReadOnly)
+            throw new Exception($"The function \"{functionName}\" cannot be overwritten.");
+        if (existingFunctionInfo.NumberOfParameters != functionInfo.NumberOfParameters)
+            throw new Exception("The number of parameters cannot be changed when overwriting a method.");
+        if (existingFunctionInfo.IsDynamicFunc != functionInfo.IsDynamicFunc)
+            throw new Exception("A Func can only be overwritten by another Func and a DynamicFunc can only be overwritten by another DynamicFunc.");
+        return functionInfo;
+    }
+
+    /// <summary>
+    /// Throws an exception if the function type is not valid.
+    /// </summary>
+    /// <param name="function"></param>
+    /// <exception cref="ArgumentException"></exception>
+    private static void AssertValidFunction(Delegate function)
+    {
+        var functionType = function.GetType();
+        if (functionType == typeof(DynamicFunc<object, object>))
+            return; // DynamicFunc is always valid
+        
+        var funcTypeName = functionType.FullName;
+        if (string.IsNullOrWhiteSpace(funcTypeName))
+            throw new ArgumentException("Function type name cannot be null or empty.", nameof(functionType));
+
+        var isSystemFunc = funcTypeName.StartsWith(SystemFuncPrefix);
+        
+        switch (isSystemFunc)
+        {
+            case true when functionType.GenericTypeArguments.Any(arg => arg != typeof(double)):
+                throw new ArgumentException("Only doubles are supported as function arguments.", nameof(functionType));
+            case false when !funcTypeName.StartsWith(DynamicFuncName):
+                throw new ArgumentException($"Only {SystemFuncPrefix} and {DynamicFuncName} delegates are permitted.", nameof(functionType));
+            // If it is a DynamicFunc, no further checks are needed.
         }
     }
 }
