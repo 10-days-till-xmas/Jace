@@ -15,7 +15,7 @@ public class AstBuilderTests
     {
         IFunctionRegistry registry = new MockFunctionRegistry();
 
-        var builder = new AstBuilder(registry, false);
+        var builder = new AstBuilder(false, functionRegistry: registry);
         var operation = builder.Build(new List<Token>
         {
             new() { Value = '(', TokenType = TokenType.LeftBracket },
@@ -40,7 +40,7 @@ public class AstBuilderTests
     {
         IFunctionRegistry registry = new MockFunctionRegistry();
 
-        var builder = new AstBuilder(registry, false);
+        var builder = new AstBuilder(false, functionRegistry: registry);
         var operation = builder.Build(new List<Token>
         {
             new() { Value = 2, TokenType = TokenType.Integer },
@@ -63,7 +63,7 @@ public class AstBuilderTests
     {
         IFunctionRegistry registry = new MockFunctionRegistry();
 
-        var builder = new AstBuilder(registry, false);
+        var builder = new AstBuilder(false, functionRegistry: registry);
         var operation = builder.Build(new List<Token>
         {
             new() { Value = 2, TokenType = TokenType.Integer },
@@ -86,7 +86,7 @@ public class AstBuilderTests
     {
         IFunctionRegistry registry = new MockFunctionRegistry();
 
-        var builder = new AstBuilder(registry, false);
+        var builder = new AstBuilder(false, functionRegistry: registry);
         var operation = builder.Build(new List<Token>
         {
             new() { Value = 10, TokenType = TokenType.Integer },
@@ -105,7 +105,7 @@ public class AstBuilderTests
     {
         IFunctionRegistry registry = new MockFunctionRegistry();
 
-        var builder = new AstBuilder(registry, false);
+        var builder = new AstBuilder(false, functionRegistry: registry);
         var operation = builder.Build(new List<Token>
         {
             new() { Value = 10, TokenType = TokenType.Integer },
@@ -124,7 +124,7 @@ public class AstBuilderTests
     {
         IFunctionRegistry registry = new MockFunctionRegistry();
 
-        var builder = new AstBuilder(registry, false);
+        var builder = new AstBuilder(false, functionRegistry: registry);
         var operation = builder.Build(new List<Token>
         {
             new() { Value = 2, TokenType = TokenType.Integer },
@@ -143,7 +143,7 @@ public class AstBuilderTests
     {
         IFunctionRegistry registry = new MockFunctionRegistry();
 
-        var builder = new AstBuilder(registry, false);
+        var builder = new AstBuilder(false, functionRegistry: registry);
         var operation = builder.Build(new List<Token>
         {
             new() { Value = 2.7, TokenType = TokenType.FloatingPoint },
@@ -162,7 +162,7 @@ public class AstBuilderTests
     {
         IFunctionRegistry registry = new MockFunctionRegistry();
 
-        var builder = new AstBuilder(registry, false);
+        var builder = new AstBuilder(false, functionRegistry: registry);
         var operation = builder.Build(new List<Token>
         {
             new() { Value = 10, TokenType = TokenType.Integer },
@@ -181,7 +181,7 @@ public class AstBuilderTests
     {
         IFunctionRegistry registry = new MockFunctionRegistry();
 
-        var builder = new AstBuilder(registry, false);
+        var builder = new AstBuilder(false, functionRegistry: registry);
         var operation = builder.Build(new List<Token>
         {
             new() { Value = "var1", TokenType = TokenType.Text },
@@ -210,7 +210,7 @@ public class AstBuilderTests
     {
         IFunctionRegistry registry = new MockFunctionRegistry();
 
-        var builder = new AstBuilder(registry, false);
+        var builder = new AstBuilder(false, functionRegistry: registry);
         var operation = builder.Build(new List<Token>
         {
             new() { Value = "sin", TokenType = TokenType.Text },
@@ -229,7 +229,7 @@ public class AstBuilderTests
     {
         IFunctionRegistry registry = new MockFunctionRegistry();
 
-        var builder = new AstBuilder(registry, false);
+        var builder = new AstBuilder(false, functionRegistry: registry);
         var operation = builder.Build(new List<Token>
         {
             new() { Value = "sin", TokenType = TokenType.Text },
@@ -252,7 +252,7 @@ public class AstBuilderTests
     {
         IFunctionRegistry registry = new MockFunctionRegistry();
 
-        var builder = new AstBuilder(registry, false);
+        var builder = new AstBuilder(false, functionRegistry: registry);
         var operation = builder.Build(new List<Token>
         {
             new() { Value = "sin", TokenType = TokenType.Text },
@@ -281,7 +281,7 @@ public class AstBuilderTests
     {
         IFunctionRegistry registry = new MockFunctionRegistry();
 
-        var builder = new AstBuilder(registry, false);
+        var builder = new AstBuilder(false, functionRegistry: registry);
         var operation = builder.Build(new List<Token>
         {
             new() { Value = 5.3, TokenType = TokenType.FloatingPoint },
@@ -309,7 +309,7 @@ public class AstBuilderTests
     {
         IFunctionRegistry registry = new MockFunctionRegistry();
 
-        var builder = new AstBuilder(registry, false);
+        var builder = new AstBuilder(false, functionRegistry: registry);
 
         Assert.Throws<ParseException>(() =>
         {
@@ -330,7 +330,7 @@ public class AstBuilderTests
     {
         IFunctionRegistry registry = new MockFunctionRegistry();
 
-        var builder = new AstBuilder(registry, false);
+        var builder = new AstBuilder(false, functionRegistry: registry);
 
         Assert.Throws<ParseException>(() =>
         {
@@ -351,7 +351,7 @@ public class AstBuilderTests
     {
         IFunctionRegistry registry = new MockFunctionRegistry();
 
-        var builder = new AstBuilder(registry, false);
+        var builder = new AstBuilder(false, functionRegistry: registry);
 
         Assert.Throws<ParseException>(() =>
         {
@@ -370,7 +370,7 @@ public class AstBuilderTests
     {
         IFunctionRegistry registry = new MockFunctionRegistry();
 
-        var builder = new AstBuilder(registry, false);
+        var builder = new AstBuilder(false, functionRegistry: registry);
 
         Assert.Throws<ParseException>(() =>
         {
@@ -389,7 +389,7 @@ public class AstBuilderTests
     {
         IFunctionRegistry registry = new MockFunctionRegistry();
 
-        var builder = new AstBuilder(registry, false);
+        var builder = new AstBuilder(false, functionRegistry: registry);
 
         Assert.Throws<ParseException>(() =>
         {

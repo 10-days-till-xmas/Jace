@@ -21,7 +21,7 @@ public class OptimizerTests
         IFunctionRegistry functionRegistry = new FunctionRegistry(true);
         functionRegistry.RegisterFunction("test", (Func<double, double, double>)((a, b) => a + b));
 
-        var astBuilder = new AstBuilder(functionRegistry, true);
+        var astBuilder = new AstBuilder(true, functionRegistry);
         var operation = astBuilder.Build(tokens);
 
         var optimizedFunction = (Function)optimizer.Optimize(operation, functionRegistry, null!);
@@ -40,7 +40,7 @@ public class OptimizerTests
         IFunctionRegistry functionRegistry = new FunctionRegistry(true);
         functionRegistry.RegisterFunction("test", (Func<double, double>)(a => a), false);
 
-        var astBuilder = new AstBuilder(functionRegistry, true);
+        var astBuilder = new AstBuilder(true, functionRegistry);
         var operation = astBuilder.Build(tokens);
 
         var optimizedFunction = optimizer.Optimize(operation, functionRegistry, null!);
@@ -59,7 +59,7 @@ public class OptimizerTests
 
         IFunctionRegistry functionRegistry = new FunctionRegistry(true);
 
-        var astBuilder = new AstBuilder(functionRegistry, true);
+        var astBuilder = new AstBuilder(true, functionRegistry);
         var operation = astBuilder.Build(tokens);
 
         var optimizedOperation = optimizer.Optimize(operation, functionRegistry, null!);

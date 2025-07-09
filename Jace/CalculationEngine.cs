@@ -325,7 +325,7 @@ namespace Jace
             TokenReader tokenReader = new TokenReader(cultureInfo);
             List<Token> tokens = tokenReader.Read(formulaText);
             
-            AstBuilder astBuilder = new AstBuilder(FunctionRegistry, caseSensitive, compiledConstants);
+            AstBuilder astBuilder = new AstBuilder(caseSensitive, FunctionRegistry, compiledConstants);
             Operation operation = astBuilder.Build(tokens);
 
             if (optimizerEnabled)

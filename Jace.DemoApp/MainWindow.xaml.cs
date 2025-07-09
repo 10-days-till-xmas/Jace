@@ -35,7 +35,7 @@ public partial class MainWindow : Window
 
             IFunctionRegistry functionRegistry = new FunctionRegistry(false);
 
-            var astBuilder = new AstBuilder(functionRegistry, false);
+            var astBuilder = new AstBuilder(false, functionRegistry);
             var operation = astBuilder.Build(tokens);
 
             ShowAbstractSyntaxTree(operation);
