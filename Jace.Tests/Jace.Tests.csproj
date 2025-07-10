@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Title>Jace.Tests</Title>
-    <TargetFrameworks>net6.0;net9.0</TargetFrameworks>
+    <TargetFrameworks>net5.0;net6.0;net9.0</TargetFrameworks>
     <LangVersion>13.0</LangVersion>
     <IsPackable>false</IsPackable>
     
@@ -17,7 +17,8 @@
   </ItemGroup>
   
   <Choose>
-  <When Condition="'$(TargetFramework)' == 'net6.0'">
+  <When Condition="'$(TargetFramework)' == 'net6.0'
+or '$(TargetFramework)' == 'net5.0'">
     <PropertyGroup>
       <DefineConstants>XUNIT_V2</DefineConstants>
     </PropertyGroup>
