@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using Jace.Execution;
 using Jace.Operations;
+using Jace.Operations.BuiltIn;
 using Jace.Tokenizer;
 
 namespace Jace.DemoApp;

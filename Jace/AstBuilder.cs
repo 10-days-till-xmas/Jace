@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using Jace.Execution;
 using Jace.Operations;
+using Jace.Operations.BuiltIn;
 using Jace.Tokenizer;
 using Jace.Util;
 

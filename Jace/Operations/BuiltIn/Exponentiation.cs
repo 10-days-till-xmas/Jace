@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 
-namespace Jace.Operations;
+namespace Jace.Operations.BuiltIn;
 
 public sealed class Exponentiation(DataType dataType, Operation @base, Operation exponent) 
     : BinaryOperation(dataType, @base, exponent)

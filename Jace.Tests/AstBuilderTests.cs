@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Jace.Execution;
-using Jace.Operations;
+using Jace.Operations.BuiltIn;
 using Jace.Tests.Mocks;
 using Jace.Tokenizer;
 using Xunit;

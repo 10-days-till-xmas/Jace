@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Jace.Execution;
 
-namespace Jace.Operations;
+namespace Jace.Operations.BuiltIn;
 
 /// <summary>
 /// Represents a variable in a mathematical formula.

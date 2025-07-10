@@ -6,7 +6,7 @@ using System.Reflection;
 using Jace.Execution;
 using Jace.Util;
 
-namespace Jace.Operations;
+namespace Jace.Operations.BuiltIn;
 
 public sealed class Function(DataType dataType, string functionName, IList<Operation> arguments, bool isIdempotent)
     : Operation(dataType, arguments.FirstOrDefault(o => o.DependsOnVariables) != null,

@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using Jace.Execution;
-using Jace.Operations;
+using Jace.Operations.BuiltIn;
 using Jace.Tests.Mocks;
 using Jace.Tests.Mocks.Extensibility;
+using JetBrains.Annotations;
 using Xunit;
 
 namespace Jace.Tests;
 
+[UsedImplicitly(ImplicitUseTargetFlags.WithInheritors, 
+    Reason = "This class is used as a base class for tests.")]
 public abstract class BasicExecutorTests<T> where T : IExecutor
 {
     private static IConstantRegistry ConstantRegistry => MockConstantRegistry.GetPresetConstantRegistry();
@@ -92,5 +95,5 @@ public abstract class BasicExecutorTests<T> where T : IExecutor
         Assert.Equal(5.0, result);
     }
 }
-public class BasicInterpreterTests : BasicExecutorTests<Interpreter>;
+public sealed class BasicInterpreterTests : BasicExecutorTests<Interpreter>;
 public class BasicDynamicCompilerTests : BasicExecutorTests<DynamicCompiler>;

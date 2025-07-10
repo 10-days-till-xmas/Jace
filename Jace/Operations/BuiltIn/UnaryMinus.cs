@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 
-namespace Jace.Operations;
+namespace Jace.Operations.BuiltIn;
 
 public sealed class UnaryMinus(DataType dataType, Operation argument)
     : UnaryOperation(dataType, argument)

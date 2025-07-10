@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.Globalization;
 using Jace.Execution;
-using Jace.Operations;
+using Jace.Operations.BuiltIn;
 using Jace.Tokenizer;
 using Xunit;
 
 namespace Jace.Tests;
 
-public class OptimizerTests
+public sealed class OptimizerTests
 {
     [Fact]
     public void TestOptimizerIdempotentFunction()

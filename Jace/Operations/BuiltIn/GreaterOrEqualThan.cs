@@ -1,18 +1,18 @@
 ﻿using System.Linq.Expressions;
 
-namespace Jace.Operations;
+namespace Jace.Operations.BuiltIn;
 
-public sealed class LessThan(DataType dataType, Operation argument1, Operation argument2)
+public sealed class GreaterOrEqualThan(DataType dataType, Operation argument1, Operation argument2)
     : BinaryOperation(dataType, argument1, argument2)
 {
     protected override Expression ExpressionOperation(Expression argument1, Expression argument2)
     {
-        return Expression.Convert(Expression.LessThan(argument1, argument2),
+        return Expression.Convert(Expression.GreaterThanOrEqual(argument1, argument2),
             typeof(double));
     }
 
     protected override double Calculate(double argument1, double argument2)
     {
-        return (argument1 < argument2) ? 1.0 : 0.0;
+        return argument1 >= argument2 ? 1.0 : 0.0;  
     }
 }

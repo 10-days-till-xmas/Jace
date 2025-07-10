@@ -3,12 +3,8 @@ using JetBrains.Annotations;
 
 namespace Jace.Tests;
 
-[UsedImplicitly]
-public partial class CalculationEngineTests
-{
-    public abstract partial class TestExecutionModeBase(ExecutionMode executionMode);
-    [UsedImplicitly]
-    public class TestCalculationEngine_Interpreted() : TestExecutionModeBase(ExecutionMode.Interpreted);
-    [UsedImplicitly]
-    public class TestCalculationEngine_Compiled() : TestExecutionModeBase(ExecutionMode.Compiled);
-}
+[UsedImplicitly(ImplicitUseTargetFlags.WithInheritors, 
+    Reason = "This class is used as a base class for tests.")]
+public abstract partial class CalculationEngineTests(ExecutionMode executionMode);
+public class InterpretedEngineTests() : CalculationEngineTests(ExecutionMode.Interpreted);
+public class CompiledEngineTests() : CalculationEngineTests(ExecutionMode.Compiled);

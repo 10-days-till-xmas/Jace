@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 
-namespace Jace.Operations;
+namespace Jace.Operations.BuiltIn;
 
 public sealed class LessOrEqualThan(DataType dataType, Operation argument1, Operation argument2)
     : BinaryOperation(dataType, argument1, argument2)

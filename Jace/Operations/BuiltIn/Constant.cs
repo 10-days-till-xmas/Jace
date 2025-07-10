@@ -2,7 +2,7 @@
 using System.Linq.Expressions;
 using Jace.Execution;
 
-namespace Jace.Operations;
+namespace Jace.Operations.BuiltIn;
 
 public abstract class Constant<T>(DataType dataType, T value) : Operation(dataType, false, true) where T : notnull
 {
