@@ -1,20 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq.Expressions;
 
-namespace Jace.Operations
+namespace Jace.Operations;
+
+public sealed class Modulo(DataType dataType, Operation dividend, Operation divisor) 
+    : BinaryOperation(dataType, dividend, divisor)
 {
-    public class Modulo : Operation
+    protected override Expression ExpressionOperation(Expression argument1, Expression argument2)
     {
-        public Modulo(DataType dataType, Operation dividend, Operation divisor)
-            : base(dataType, dividend.DependsOnVariables || divisor.DependsOnVariables, dividend.IsIdempotent && divisor.IsIdempotent)
-        {
-            this.Dividend = dividend;
-            this.Divisor = divisor;
-        }
+        return Expression.Modulo(argument1, argument2);
+    }
 
-        public Operation Dividend { get; internal set; }
-        public Operation Divisor { get; internal set; }
+    protected override double Calculate(double argument1, double argument2)
+    {
+        return argument1 % argument2;
     }
 }

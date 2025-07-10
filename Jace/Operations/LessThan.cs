@@ -1,20 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq.Expressions;
 
-namespace Jace.Operations
+namespace Jace.Operations;
+
+public sealed class LessThan(DataType dataType, Operation argument1, Operation argument2)
+    : BinaryOperation(dataType, argument1, argument2)
 {
-    public class LessThan : Operation
+    protected override Expression ExpressionOperation(Expression argument1, Expression argument2)
     {
-        public LessThan(DataType dataType, Operation argument1, Operation argument2)
-            : base(dataType, argument1.DependsOnVariables || argument2.DependsOnVariables, argument1.IsIdempotent && argument2.IsIdempotent)
-        {
-            this.Argument1 = argument1;
-            this.Argument2 = argument2;
-        }
+        return Expression.Convert(Expression.LessThan(argument1, argument2),
+            typeof(double));
+    }
 
-        public Operation Argument1 { get; internal set; }
-        public Operation Argument2 { get; internal set; }
+    protected override double Calculate(double argument1, double argument2)
+    {
+        return (argument1 < argument2) ? 1.0 : 0.0;
     }
 }

@@ -1,37 +1,47 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
+using System.Linq.Expressions;
+using System.Reflection;
+using Jace.Execution;
 
-namespace Jace.Operations
+namespace Jace.Operations;
+
+/// <summary>
+/// Represents a variable in a mathematical formula.
+/// </summary>
+public sealed class Variable(string name) : Operation(DataType.FloatingPoint, true, false)
 {
-    /// <summary>
-    /// Represents a variable in a mathematical formula.
-    /// </summary>
-    public class Variable : Operation
+    public string Name { get; } = name;
+
+    public override bool Equals(object? obj)
     {
-        public Variable(string name)
-            : base(DataType.FloatingPoint, true, false)
+        if (obj is Variable other)
         {
-            this.Name = name;
+            return Name.Equals(other.Name);
         }
+        return false;
+    }
 
-        public string Name { get; private set; }
+    public override int GetHashCode()
+    {
+        return Name.GetHashCode();
+    }
 
-        public override bool Equals(object obj)
-        {
-            Variable other = obj as Variable;
-            if (other != null)
-            {
-                return this.Name.Equals(other.Name);
-            }
-            else
-                return false;
-        }
+    public override double Execute(Interpreter interpreter, IFunctionRegistry functionRegistry, IConstantRegistry constantRegistry,
+        IDictionary<string, double> variables)
+    {
+        return variables.TryGetValue(Name, out var value)
+            ? value
+            : throw new VariableNotDefinedException(
+                $"The variable \"{Name}\" used is not defined.");
+    }
 
-        public override int GetHashCode()
-        {
-            return this.Name.GetHashCode();
-        }
+    public override Expression GenerateMethodBody(DynamicCompiler dynamicCompiler, ParameterExpression contextParameter,
+        IFunctionRegistry functionRegistry)
+    {
+        var getVariableValueOrThrow = DynamicCompiler.PrecompiledMethods.GetVariableValueOrThrow;
+        return Expression.Call(null,
+            getVariableValueOrThrow.GetMethodInfo(),
+            Expression.Constant(Name),
+            contextParameter);
     }
 }

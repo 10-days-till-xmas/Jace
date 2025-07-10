@@ -97,25 +97,9 @@ public partial class MainWindow : Window
 
         switch (operation)
         {
-            case Multiplication multiplication:
-                item.Items.Add(CreateTreeViewItem(multiplication.Argument1));
-                item.Items.Add(CreateTreeViewItem(multiplication.Argument2));
-                break;
-            case Addition addition:
-                item.Items.Add(CreateTreeViewItem(addition.Argument1));
-                item.Items.Add(CreateTreeViewItem(addition.Argument2));
-                break;
-            case Subtraction subtraction:
-                item.Items.Add(CreateTreeViewItem(subtraction.Argument1));
-                item.Items.Add(CreateTreeViewItem(subtraction.Argument2));
-                break;
-            case Division division:
-                item.Items.Add(CreateTreeViewItem(division.Dividend));
-                item.Items.Add(CreateTreeViewItem(division.Divisor));
-                break;
-            case Exponentiation exponentiation:
-                item.Items.Add(CreateTreeViewItem(exponentiation.Base));
-                item.Items.Add(CreateTreeViewItem(exponentiation.Exponent));
+            case BinaryOperation binaryOperation:
+                item.Items.Add(CreateTreeViewItem(binaryOperation.Argument1));
+                item.Items.Add(CreateTreeViewItem(binaryOperation.Argument2));
                 break;
             case Function function:
             {
@@ -153,14 +137,9 @@ public partial class MainWindow : Window
             ? operation switch
             {
                 Variable variable => [variable],
-                Addition addition => [..GetVariables(addition.Argument1), ..GetVariables(addition.Argument2)],
-                Multiplication multiplication =>
-                    [..GetVariables(multiplication.Argument1), ..GetVariables(multiplication.Argument2)],
-                Subtraction substraction =>
-                    [..GetVariables(substraction.Argument1), ..GetVariables(substraction.Argument2)],
-                Division division => [..GetVariables(division.Dividend), ..GetVariables(division.Divisor)],
-                Exponentiation exponentiation =>
-                    [..GetVariables(exponentiation.Base), ..GetVariables(exponentiation.Exponent)],
+                BinaryOperation binaryOperation => [
+                    ..GetVariables(binaryOperation.Argument1), 
+                    ..GetVariables(binaryOperation.Argument2)],
                 Function function => [..function.Arguments.SelectMany(GetVariables)],
                 _ => []
             }

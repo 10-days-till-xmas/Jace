@@ -1,20 +1,26 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Jace.Execution;
 using Jace.Operations;
 using Jace.Tests.Mocks;
+using Jace.Tests.Mocks.Extensibility;
 using Xunit;
 
 namespace Jace.Tests;
 
-public class BasicInterpreterTests
+public abstract class BasicExecutorTests<T> where T : IExecutor
 {
     private static IConstantRegistry ConstantRegistry => MockConstantRegistry.GetPresetConstantRegistry();
     private static IFunctionRegistry FunctionRegistry => new MockFunctionRegistry();
+
+    private static IExecutor Executor => Activator.CreateInstance(typeof(T), [false]) as IExecutor
+                                         ?? throw new InvalidOperationException(
+                                             "Could not create instance of executor.");
     
     [Fact]
-    public void TestBasicInterpreterSubstraction()
+    public void TestBasicExecutorSubstraction()
     {
-        IExecutor executor = new Interpreter();
+        var executor = Executor;
         var result = executor.Execute(new Subtraction(
             DataType.Integer,
             new IntegerConstant(6),
@@ -24,11 +30,10 @@ public class BasicInterpreterTests
     }
 
     [Fact]
-    public void TestBasicInterpreter1()
+    public void TestBasicExecutor()
     {
-        IExecutor executor = new Interpreter();
         // 6 + (2 * 4)
-        var result = executor.Execute(
+        var result = Executor.Execute(
             new Addition(
                 DataType.Integer,
                 new IntegerConstant(6),
@@ -41,17 +46,16 @@ public class BasicInterpreterTests
     }
 
     [Fact]
-    public void TestBasicInterpreterWithVariables()
+    public void TestBasicExecutorWithVariables()
     {
         var variables = new Dictionary<string, double>
         {
             { "var1", 2 },
             { "age", 4 }
         };
-
-        IExecutor interpreter = new Interpreter();
+        
         // var1 + 2 * (3 * age)
-        var result = interpreter.Execute(
+        var result = Executor.Execute(
             new Addition(DataType.FloatingPoint,
                 new Variable("var1"),
                 new Multiplication(
@@ -64,4 +68,29 @@ public class BasicInterpreterTests
 
         Assert.Equal(26.0, result);
     }
+
+    [Fact]
+    public void TestBasicExecutorWithOperationExtension_Unary()
+    {
+        var result = Executor.Execute(
+            new Add5(DataType.FloatingPoint,
+                new FloatingPointConstant(10.0)), 
+            FunctionRegistry, 
+            ConstantRegistry);
+        Assert.Equal(15.0, result);
+    }
+    [Fact]
+    public void TestBasicExecutorWithOperationExtension_Binary()
+    {
+        var result = Executor.Execute(
+            new CalculateHypotenuse(DataType.FloatingPoint,
+                new FloatingPointConstant(3.0),
+                new FloatingPointConstant(4.0)
+                ), 
+            FunctionRegistry, 
+            ConstantRegistry);
+        Assert.Equal(5.0, result);
+    }
 }
+public class BasicInterpreterTests : BasicExecutorTests<Interpreter>;
+public class BasicDynamicCompilerTests : BasicExecutorTests<DynamicCompiler>;

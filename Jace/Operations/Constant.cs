@@ -1,48 +1,52 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
+using System.Linq.Expressions;
+using Jace.Execution;
 
-namespace Jace.Operations
+namespace Jace.Operations;
+
+public abstract class Constant<T>(DataType dataType, T value) : Operation(dataType, false, true) where T : notnull
 {
-    public abstract class Constant<T> : Operation
+    public T Value { get; } = value;
+
+    public override bool Equals(object? obj)
     {
-        public Constant(DataType dataType, T value)
-            : base(dataType, false, true)
-        {
-            this.Value = value;
-        }
-
-        public T Value { get; private set; }
-
-        public override bool Equals(object obj)
-        {
-            Constant<T> other = obj as Constant<T>;
-            if (other != null)
-                return this.Value.Equals(other.Value);
-            else
-                return false;
-        }
-
-        public override int GetHashCode()
-        {
-            return this.Value.GetHashCode();
-        }
+        if (obj is Constant<T> other)
+            return Value.Equals(other.Value);
+        return false;
     }
 
-    public class IntegerConstant : Constant<int>
+    public override int GetHashCode()
     {
-        public IntegerConstant(int value)
-            : base(DataType.Integer, value)
-        {
-        }
+        return Value.GetHashCode();
+    }
+}
+
+public sealed class IntegerConstant(int value) : Constant<int>(DataType.Integer, value)
+{
+    public override double Execute(Interpreter interpreter, IFunctionRegistry functionRegistry, IConstantRegistry constantRegistry,
+        IDictionary<string, double> variables)
+    {
+        return Value;
     }
 
-    public class FloatingPointConstant : Constant<double>
+    public override Expression GenerateMethodBody(DynamicCompiler dynamicCompiler, ParameterExpression contextParameter,
+        IFunctionRegistry functionRegistry)
     {
-        public FloatingPointConstant(double value)
-            : base(DataType.FloatingPoint, value)
-        {
-        }
+        return Expression.Constant((double)Value, typeof(double));
+    }
+}
+
+public sealed class FloatingPointConstant(double value) : Constant<double>(DataType.FloatingPoint, value)
+{
+    public override double Execute(Interpreter interpreter, IFunctionRegistry functionRegistry, IConstantRegistry constantRegistry,
+        IDictionary<string, double> variables)
+    {
+        return Value;
+    }
+
+    public override Expression GenerateMethodBody(DynamicCompiler dynamicCompiler, ParameterExpression contextParameter,
+        IFunctionRegistry functionRegistry)
+    {
+        return Expression.Constant(Value, typeof(double));
     }
 }

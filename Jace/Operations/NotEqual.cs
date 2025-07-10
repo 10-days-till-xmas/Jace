@@ -1,20 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Linq.Expressions;
 
-namespace Jace.Operations
+namespace Jace.Operations;
+
+public sealed class NotEqual(DataType dataType, Operation argument1, Operation argument2)
+    : BinaryOperation(dataType, argument1, argument2)
 {
-    public class NotEqual : Operation
+    protected override Expression ExpressionOperation(Expression argument1, Expression argument2)
     {
-        public NotEqual(DataType dataType, Operation argument1, Operation argument2)
-            : base(dataType, argument1.DependsOnVariables || argument2.DependsOnVariables, argument1.IsIdempotent && argument2.IsIdempotent)
-        {
-            this.Argument1 = argument1;
-            this.Argument2 = argument2;
-        }
+        return Expression.Convert(Expression.NotEqual(argument1, argument2),
+            typeof(double));
+    }
 
-        public Operation Argument1 { get; internal set; }
-        public Operation Argument2 { get; internal set; }
+    protected override double Calculate(double argument1, double argument2)
+    {
+        const double TOLERANCE = 1e-10; // TODO: Make this configurable (through JaceOptions?)
+        return (Math.Abs(argument1 - argument2) > TOLERANCE) ? 1.0 : 0.0; 
     }
 }

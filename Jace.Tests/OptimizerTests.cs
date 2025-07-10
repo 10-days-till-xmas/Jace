@@ -26,7 +26,7 @@ public class OptimizerTests
 
         var optimizedFunction = (Function)optimizer.Optimize(operation, functionRegistry, null!);
 
-        Assert.Equal(typeof(FloatingPointConstant), optimizedFunction.Arguments[1].GetType());
+        Assert.IsType<FloatingPointConstant>(optimizedFunction.Arguments[1]);
     }
 
     [Fact]
@@ -37,16 +37,16 @@ public class OptimizerTests
         var tokenReader = new TokenReader(CultureInfo.InvariantCulture);
         IList<Token> tokens = tokenReader.Read("test(500)");
 
-        IFunctionRegistry functionRegistry = new FunctionRegistry(true);
+        var functionRegistry = new FunctionRegistry(true);
         functionRegistry.RegisterFunction("test", (Func<double, double>)(a => a), false);
 
         var astBuilder = new AstBuilder(true, functionRegistry);
         var operation = astBuilder.Build(tokens);
 
         var optimizedFunction = optimizer.Optimize(operation, functionRegistry, null!);
-
-        Assert.Equal(typeof(Function), optimizedFunction.GetType());
-        Assert.Equal(typeof(IntegerConstant), ((Function)optimizedFunction).Arguments[0].GetType());
+        
+        Assert.IsType<Function>(optimizedFunction);
+        Assert.IsType<IntegerConstant>(((Function)optimizedFunction).Arguments[0]);
     }
 
     [Fact]
@@ -63,8 +63,8 @@ public class OptimizerTests
         var operation = astBuilder.Build(tokens);
 
         var optimizedOperation = optimizer.Optimize(operation, functionRegistry, null!);
-
-        Assert.Equal(typeof(FloatingPointConstant), optimizedOperation.GetType());
+        
+        Assert.IsType<FloatingPointConstant>(optimizedOperation);
         Assert.Equal(0.0, ((FloatingPointConstant)optimizedOperation).Value);
     }
 }
