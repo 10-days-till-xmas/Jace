@@ -4,172 +4,97 @@ using Xunit;
 
 namespace Jace.Tests;
 
-public class TokenReaderTests
+public sealed class TokenReaderTests
 {
     [Fact]
-    public void TestTokenReader1()
+    public void TestTokenReader01()
     {
         var reader = new TokenReader();
         var tokens = reader.Read("42+31");
 
         Assert.Equal(3, tokens.Count);
-
-        Assert.Equal(42, tokens[0].Value);
-        Assert.Equal(0, tokens[0].StartPosition);
-        Assert.Equal(2, tokens[0].Length);
-
-        Assert.Equal('+', tokens[1].Value);
-        Assert.Equal(2, tokens[1].StartPosition);
-        Assert.Equal(1, tokens[1].Length);
-
-        Assert.Equal(31, tokens[2].Value);
-        Assert.Equal(3, tokens[2].StartPosition);
-        Assert.Equal(2, tokens[2].Length);
+        
+        Assert.Equal(new Token(42, TokenType.Integer, 0, 2), tokens[0]);
+        Assert.Equal(new Token('+', TokenType.Operation, 2, 1), tokens[1]);
+        Assert.Equal(new Token(31, TokenType.Integer, 3, 2), tokens[2]);
     }
 
     [Fact]
-    public void TestTokenReader2()
+    public void TestTokenReader02()
     {
         var reader = new TokenReader();
         var tokens = reader.Read("(42+31)");
 
         Assert.Equal(5, tokens.Count);
-
-        Assert.Equal('(', tokens[0].Value);
-        Assert.Equal(0, tokens[0].StartPosition);
-        Assert.Equal(1, tokens[0].Length);
-
-        Assert.Equal(42, tokens[1].Value);
-        Assert.Equal(1, tokens[1].StartPosition);
-        Assert.Equal(2, tokens[1].Length);
-
-        Assert.Equal('+', tokens[2].Value);
-        Assert.Equal(3, tokens[2].StartPosition);
-        Assert.Equal(1, tokens[2].Length);
-
-        Assert.Equal(31, tokens[3].Value);
-        Assert.Equal(4, tokens[3].StartPosition);
-        Assert.Equal(2, tokens[3].Length);
-
-        Assert.Equal(')', tokens[4].Value);
-        Assert.Equal(6, tokens[4].StartPosition);
-        Assert.Equal(1, tokens[4].Length);
+        
+        Assert.Equal(new Token('(', TokenType.LeftBracket, 0, 1), tokens[0]);
+        Assert.Equal(new Token(42, TokenType.Integer, 1, 2), tokens[1]);
+        Assert.Equal(new Token('+', TokenType.Operation, 3, 1), tokens[2]);
+        Assert.Equal(new Token(31, TokenType.Integer, 4, 2), tokens[3]);
+        Assert.Equal(new Token(')', TokenType.RightBracket, 6, 1), tokens[4]);
     }
 
     [Fact]
-    public void TestTokenReader3()
+    public void TestTokenReader03()
     {
         var reader = new TokenReader(CultureInfo.InvariantCulture);
         var tokens = reader.Read("(42+31.0");
 
         Assert.Equal(4, tokens.Count);
 
-        Assert.Equal('(', tokens[0].Value);
-        Assert.Equal(0, tokens[0].StartPosition);
-        Assert.Equal(1, tokens[0].Length);
-
-        Assert.Equal(42, tokens[1].Value);
-        Assert.Equal(1, tokens[1].StartPosition);
-        Assert.Equal(2, tokens[1].Length);
-
-        Assert.Equal('+', tokens[2].Value);
-        Assert.Equal(3, tokens[2].StartPosition);
-        Assert.Equal(1, tokens[2].Length);
-
-        Assert.Equal(31.0, tokens[3].Value);
-        Assert.Equal(4, tokens[3].StartPosition);
-        Assert.Equal(4, tokens[3].Length);
+        Assert.Equal(new Token('(', TokenType.LeftBracket, 0, 1), tokens[0]);
+        Assert.Equal(new Token(42, TokenType.Integer, 1, 2), tokens[1]);
+        Assert.Equal(new Token('+', TokenType.Operation, 3, 1), tokens[2]);
+        Assert.Equal(new Token(31.0, TokenType.FloatingPoint, 4, 4), tokens[3]);
     }
 
     [Fact]
-    public void TestTokenReader4()
+    public void TestTokenReader04()
     {
         var reader = new TokenReader();
         var tokens = reader.Read("(42+ 8) *2");
 
         Assert.Equal(7, tokens.Count);
-
-        Assert.Equal('(', tokens[0].Value);
-        Assert.Equal(0, tokens[0].StartPosition);
-        Assert.Equal(1, tokens[0].Length);
-
-        Assert.Equal(42, tokens[1].Value);
-        Assert.Equal(1, tokens[1].StartPosition);
-        Assert.Equal(2, tokens[1].Length);
-
-        Assert.Equal('+', tokens[2].Value);
-        Assert.Equal(3, tokens[2].StartPosition);
-        Assert.Equal(1, tokens[2].Length);
-
-        Assert.Equal(8, tokens[3].Value);
-        Assert.Equal(5, tokens[3].StartPosition);
-        Assert.Equal(1, tokens[3].Length);
-
-        Assert.Equal(')', tokens[4].Value);
-        Assert.Equal(6, tokens[4].StartPosition);
-        Assert.Equal(1, tokens[4].Length);
-
-        Assert.Equal('*', tokens[5].Value);
-        Assert.Equal(8, tokens[5].StartPosition);
-        Assert.Equal(1, tokens[5].Length);
-
-        Assert.Equal(2, tokens[6].Value);
-        Assert.Equal(9, tokens[6].StartPosition);
-        Assert.Equal(1, tokens[6].Length);
+        
+        Assert.Equal(new Token('(', TokenType.LeftBracket, 0, 1), tokens[0]);
+        Assert.Equal(new Token(42, TokenType.Integer, 1, 2), tokens[1]);
+        Assert.Equal(new Token('+', TokenType.Operation, 3, 1), tokens[2]);
+        Assert.Equal(new Token(8, TokenType.Integer, 5, 1), tokens[3]);
+        Assert.Equal(new Token(')', TokenType.RightBracket, 6, 1), tokens[4]);
+        Assert.Equal(new Token('*', TokenType.Operation, 8, 1), tokens[5]);
+        Assert.Equal(new Token(2, TokenType.Integer, 9, 1), tokens[6]);
     }
 
     [Fact]
-    public void TestTokenReader5()
+    public void TestTokenReader05()
     {
         var reader = new TokenReader(CultureInfo.InvariantCulture);
         var tokens = reader.Read("(42.87+31.0");
 
         Assert.Equal(4, tokens.Count);
 
-        Assert.Equal('(', tokens[0].Value);
-        Assert.Equal(0, tokens[0].StartPosition);
-        Assert.Equal(1, tokens[0].Length);
-
-        Assert.Equal(42.87, tokens[1].Value);
-        Assert.Equal(1, tokens[1].StartPosition);
-        Assert.Equal(5, tokens[1].Length);
-
-        Assert.Equal('+', tokens[2].Value);
-        Assert.Equal(6, tokens[2].StartPosition);
-        Assert.Equal(1, tokens[2].Length);
-
-        Assert.Equal(31.0, tokens[3].Value);
-        Assert.Equal(7, tokens[3].StartPosition);
-        Assert.Equal(4, tokens[3].Length);
+        Assert.Equal(new Token('(', TokenType.LeftBracket, 0, 1), tokens[0]);
+        Assert.Equal(new Token(42.87, TokenType.FloatingPoint, 1, 5), tokens[1]);
+        Assert.Equal(new Token('+', TokenType.Operation, 6, 1), tokens[2]);
+        Assert.Equal(new Token(31.0, TokenType.FloatingPoint, 7, 4), tokens[3]);
     }
 
     [Fact]
-    public void TestTokenReader6()
+    public void TestTokenReader06()
     {
         var reader = new TokenReader(CultureInfo.InvariantCulture);
         var tokens = reader.Read("(var+31.0");
 
         Assert.Equal(4, tokens.Count);
 
-        Assert.Equal('(', tokens[0].Value);
-        Assert.Equal(0, tokens[0].StartPosition);
-        Assert.Equal(1, tokens[0].Length);
-
-        Assert.Equal("var", tokens[1].Value);
-        Assert.Equal(1, tokens[1].StartPosition);
-        Assert.Equal(3, tokens[1].Length);
-
-        Assert.Equal('+', tokens[2].Value);
-        Assert.Equal(4, tokens[2].StartPosition);
-        Assert.Equal(1, tokens[2].Length);
-
-        Assert.Equal(31.0, tokens[3].Value);
-        Assert.Equal(5, tokens[3].StartPosition);
-        Assert.Equal(4, tokens[3].Length);
+        Assert.Equal(new Token('(', TokenType.LeftBracket, 0, 1), tokens[0]);
+        Assert.Equal(new Token("var", TokenType.Text, 1, 3), tokens[1]);
+        Assert.Equal(new Token('+', TokenType.Operation, 4, 1), tokens[2]);
+        Assert.Equal(new Token(31.0, TokenType.FloatingPoint, 5, 4), tokens[3]);
     }
 
     [Fact]
-    public void TestTokenReader7()
+    public void TestTokenReader07()
     {
         var reader = new TokenReader(CultureInfo.InvariantCulture);
 
@@ -177,47 +102,32 @@ public class TokenReaderTests
 
         Assert.Single(tokens);
 
-        Assert.Equal("varb", tokens[0].Value);
-        Assert.Equal(0, tokens[0].StartPosition);
-        Assert.Equal(4, tokens[0].Length);
+        Assert.Equal(new Token("varb", TokenType.Text, 0, 4), tokens[0]);
     }
 
     [Fact]
-    public void TestTokenReader8()
+    public void TestTokenReader08()
     {
         var reader = new TokenReader(CultureInfo.InvariantCulture);
         var tokens = reader.Read("varb(");
 
         Assert.Equal(2, tokens.Count);
 
-        Assert.Equal("varb", tokens[0].Value);
-        Assert.Equal(0, tokens[0].StartPosition);
-        Assert.Equal(4, tokens[0].Length);
-
-        Assert.Equal('(', tokens[1].Value);
-        Assert.Equal(4, tokens[1].StartPosition);
-        Assert.Equal(1, tokens[1].Length);
+        Assert.Equal(new Token("varb", TokenType.Text, 0, 4), tokens[0]);
+        Assert.Equal(new Token('(', TokenType.LeftBracket, 4, 1), tokens[1]);
     }
 
     [Fact]
-    public void TestTokenReader9()
+    public void TestTokenReader09()
     {
         var reader = new TokenReader(CultureInfo.InvariantCulture);
         var tokens = reader.Read("+varb(");
 
         Assert.Equal(3, tokens.Count);
 
-        Assert.Equal('+', tokens[0].Value);
-        Assert.Equal(0, tokens[0].StartPosition);
-        Assert.Equal(1, tokens[0].Length);
-
-        Assert.Equal("varb", tokens[1].Value);
-        Assert.Equal(1, tokens[1].StartPosition);
-        Assert.Equal(4, tokens[1].Length);
-
-        Assert.Equal('(', tokens[2].Value);
-        Assert.Equal(5, tokens[2].StartPosition);
-        Assert.Equal(1, tokens[2].Length);
+        Assert.Equal(new Token('+', TokenType.Operation, 0, 1), tokens[0]);
+        Assert.Equal(new Token("varb", TokenType.Text, 1, 4), tokens[1]);
+        Assert.Equal(new Token('(', TokenType.LeftBracket, 5, 1), tokens[2]);
     }
 
     [Fact]
@@ -228,17 +138,9 @@ public class TokenReaderTests
 
         Assert.Equal(3, tokens.Count);
 
-        Assert.Equal("var1", tokens[0].Value);
-        Assert.Equal(0, tokens[0].StartPosition);
-        Assert.Equal(4, tokens[0].Length);
-
-        Assert.Equal('+', tokens[1].Value);
-        Assert.Equal(4, tokens[1].StartPosition);
-        Assert.Equal(1, tokens[1].Length);
-
-        Assert.Equal(2, tokens[2].Value);
-        Assert.Equal(5, tokens[2].StartPosition);
-        Assert.Equal(1, tokens[2].Length);
+        Assert.Equal(new Token("var1", TokenType.Text, 0, 4), tokens[0]);
+        Assert.Equal(new Token('+', TokenType.Operation, 4, 1), tokens[1]);
+        Assert.Equal(new Token(2, TokenType.Integer, 5, 1), tokens[2]);
     }
 
     [Fact]
@@ -249,17 +151,9 @@ public class TokenReaderTests
 
         Assert.Equal(3, tokens.Count);
 
-        Assert.Equal(5.1, tokens[0].Value);
-        Assert.Equal(0, tokens[0].StartPosition);
-        Assert.Equal(3, tokens[0].Length);
-
-        Assert.Equal('%', tokens[1].Value);
-        Assert.Equal(3, tokens[1].StartPosition);
-        Assert.Equal(1, tokens[1].Length);
-
-        Assert.Equal(2, tokens[2].Value);
-        Assert.Equal(4, tokens[2].StartPosition);
-        Assert.Equal(1, tokens[2].Length);
+        Assert.Equal(new Token(5.1, TokenType.FloatingPoint, 0, 3), tokens[0]);
+        Assert.Equal(new Token('%', TokenType.Operation, 3, 1), tokens[1]);
+        Assert.Equal(new Token(2, TokenType.Integer, 4, 1), tokens[2]);
     }
 
     [Fact]
@@ -270,9 +164,7 @@ public class TokenReaderTests
 
         Assert.Single(tokens);
 
-        Assert.Equal(-2.1, tokens[0].Value);
-        Assert.Equal(0, tokens[0].StartPosition);
-        Assert.Equal(4, tokens[0].Length);
+        Assert.Equal(new Token(-2.1, TokenType.FloatingPoint, 0, 4), tokens[0]);
     }
 
     [Fact]
@@ -282,18 +174,10 @@ public class TokenReaderTests
         var tokens = reader.Read("5-2");
 
         Assert.Equal(3, tokens.Count);
-
-        Assert.Equal(5, tokens[0].Value);
-        Assert.Equal(0, tokens[0].StartPosition);
-        Assert.Equal(1, tokens[0].Length);
-
-        Assert.Equal('-', tokens[1].Value);
-        Assert.Equal(1, tokens[1].StartPosition);
-        Assert.Equal(1, tokens[1].Length);
-
-        Assert.Equal(2, tokens[2].Value);
-        Assert.Equal(2, tokens[2].StartPosition);
-        Assert.Equal(1, tokens[2].Length);
+        
+        Assert.Equal(new Token(5, TokenType.Integer, 0, 1), tokens[0]);
+        Assert.Equal(new Token('-', TokenType.Operation, 1, 1), tokens[1]);
+        Assert.Equal(new Token(2, TokenType.Integer, 2, 1), tokens[2]);
     }
 
     [Fact]
@@ -304,17 +188,9 @@ public class TokenReaderTests
 
         Assert.Equal(3, tokens.Count);
 
-        Assert.Equal(5, tokens[0].Value);
-        Assert.Equal(0, tokens[0].StartPosition);
-        Assert.Equal(1, tokens[0].Length);
-
-        Assert.Equal('*', tokens[1].Value);
-        Assert.Equal(1, tokens[1].StartPosition);
-        Assert.Equal(1, tokens[1].Length);
-
-        Assert.Equal(-2, tokens[2].Value);
-        Assert.Equal(2, tokens[2].StartPosition);
-        Assert.Equal(2, tokens[2].Length);
+        Assert.Equal(new Token(5, TokenType.Integer, 0, 1), tokens[0]);
+        Assert.Equal(new Token('*', TokenType.Operation, 1, 1), tokens[1]);
+        Assert.Equal(new Token(-2, TokenType.Integer, 2, 2), tokens[2]);
     }
 
     [Fact]
@@ -325,25 +201,11 @@ public class TokenReaderTests
 
         Assert.Equal(5, tokens.Count);
 
-        Assert.Equal(5, tokens[0].Value);
-        Assert.Equal(0, tokens[0].StartPosition);
-        Assert.Equal(1, tokens[0].Length);
-
-        Assert.Equal('*', tokens[1].Value);
-        Assert.Equal(1, tokens[1].StartPosition);
-        Assert.Equal(1, tokens[1].Length);
-
-        Assert.Equal('(', tokens[2].Value);
-        Assert.Equal(2, tokens[2].StartPosition);
-        Assert.Equal(1, tokens[2].Length);
-
-        Assert.Equal(-2, tokens[3].Value);
-        Assert.Equal(3, tokens[3].StartPosition);
-        Assert.Equal(2, tokens[3].Length);
-
-        Assert.Equal(')', tokens[4].Value);
-        Assert.Equal(5, tokens[4].StartPosition);
-        Assert.Equal(1, tokens[4].Length);
+        Assert.Equal(new Token(5, TokenType.Integer, 0, 1), tokens[0]);
+        Assert.Equal(new Token('*', TokenType.Operation, 1, 1), tokens[1]);
+        Assert.Equal(new Token('(', TokenType.LeftBracket, 2, 1), tokens[2]);
+        Assert.Equal(new Token(-2, TokenType.Integer, 3, 2), tokens[3]);
+        Assert.Equal(new Token(')', TokenType.RightBracket, 5, 1), tokens[4]);
     }
 
     [Fact]
@@ -354,37 +216,14 @@ public class TokenReaderTests
 
         Assert.Equal(8, tokens.Count);
 
-        Assert.Equal(5, tokens[0].Value);
-        Assert.Equal(0, tokens[0].StartPosition);
-        Assert.Equal(1, tokens[0].Length);
-
-        Assert.Equal('*', tokens[1].Value);
-        Assert.Equal(1, tokens[1].StartPosition);
-        Assert.Equal(1, tokens[1].Length);
-
-        Assert.Equal('_', tokens[2].Value);
-        Assert.Equal(2, tokens[2].StartPosition);
-        Assert.Equal(1, tokens[2].Length);
-
-        Assert.Equal('(', tokens[3].Value);
-        Assert.Equal(3, tokens[3].StartPosition);
-        Assert.Equal(1, tokens[3].Length);
-
-        Assert.Equal(2, tokens[4].Value);
-        Assert.Equal(4, tokens[4].StartPosition);
-        Assert.Equal(1, tokens[4].Length);
-
-        Assert.Equal('+', tokens[5].Value);
-        Assert.Equal(5, tokens[5].StartPosition);
-        Assert.Equal(1, tokens[5].Length);
-
-        Assert.Equal(43, tokens[6].Value);
-        Assert.Equal(6, tokens[6].StartPosition);
-        Assert.Equal(2, tokens[6].Length);
-
-        Assert.Equal(')', tokens[7].Value);
-        Assert.Equal(8, tokens[7].StartPosition);
-        Assert.Equal(1, tokens[7].Length);
+        Assert.Equal(new Token(5, TokenType.Integer, 0, 1), tokens[0]);
+        Assert.Equal(new Token('*', TokenType.Operation, 1, 1), tokens[1]);
+        Assert.Equal(new Token('_', TokenType.Operation, 2, 1), tokens[2]);
+        Assert.Equal(new Token('(', TokenType.LeftBracket, 3, 1), tokens[3]);
+        Assert.Equal(new Token(2, TokenType.Integer, 4, 1), tokens[4]);
+        Assert.Equal(new Token('+', TokenType.Operation, 5, 1), tokens[5]);
+        Assert.Equal(new Token(43, TokenType.Integer, 6, 2), tokens[6]);
+        Assert.Equal(new Token(')', TokenType.RightBracket, 8, 1), tokens[7]);
     }
 
     [Fact]
@@ -395,32 +234,12 @@ public class TokenReaderTests
 
         Assert.Equal(6, tokens.Count);
 
-        Assert.Equal("logn", tokens[0].Value);
-        Assert.Equal(0, tokens[0].StartPosition);
-        Assert.Equal(4, tokens[0].Length);
-
-        Assert.Equal('(', tokens[1].Value);
-        Assert.Equal(4, tokens[1].StartPosition);
-        Assert.Equal(1, tokens[1].Length);
-        Assert.Equal(TokenType.LeftBracket, tokens[1].TokenType);
-
-        Assert.Equal(2, tokens[2].Value);
-        Assert.Equal(5, tokens[2].StartPosition);
-        Assert.Equal(1, tokens[2].Length);
-
-        Assert.Equal(',', tokens[3].Value);
-        Assert.Equal(6, tokens[3].StartPosition);
-        Assert.Equal(1, tokens[3].Length);
-        Assert.Equal(TokenType.ArgumentSeparator, tokens[3].TokenType);
-
-        Assert.Equal(5, tokens[4].Value);
-        Assert.Equal(7, tokens[4].StartPosition);
-        Assert.Equal(1, tokens[4].Length);
-
-        Assert.Equal(')', tokens[5].Value);
-        Assert.Equal(8, tokens[5].StartPosition);
-        Assert.Equal(1, tokens[5].Length);
-        Assert.Equal(TokenType.RightBracket, tokens[5].TokenType);
+        Assert.Equal(new Token("logn", TokenType.Text, 0, 4), tokens[0]);
+        Assert.Equal(new Token('(', TokenType.LeftBracket, 4, 1), tokens[1]);
+        Assert.Equal(new Token(2, TokenType.Integer, 5, 1), tokens[2]);
+        Assert.Equal(new Token(',', TokenType.ArgumentSeparator, 6, 1), tokens[3]);
+        Assert.Equal(new Token(5, TokenType.Integer, 7, 1), tokens[4]);
+        Assert.Equal(new Token(')', TokenType.RightBracket, 8, 1), tokens[5]);
     }
 
     [Fact]
@@ -431,29 +250,11 @@ public class TokenReaderTests
 
         Assert.Equal(3, tokens.Count);
 
-        Assert.Equal("var_1", tokens[0].Value);
-        Assert.Equal(0, tokens[0].StartPosition);
-        Assert.Equal(5, tokens[0].Length);
-
-        Assert.Equal('+', tokens[1].Value);
-        Assert.Equal(5, tokens[1].StartPosition);
-        Assert.Equal(1, tokens[1].Length);
-
-        Assert.Equal(2, tokens[2].Value);
-        Assert.Equal(6, tokens[2].StartPosition);
-        Assert.Equal(1, tokens[2].Length);
+        Assert.Equal(new Token("var_1", TokenType.Text, 0, 5), tokens[0]);
+        Assert.Equal(new Token('+', TokenType.Operation, 5, 1), tokens[1]);
+        Assert.Equal(new Token(2, TokenType.Integer, 6, 1), tokens[2]);
     }
-
-    [Fact]
-    public void TestTokenReader19()
-    {
-        Assert.Throws<ParseException>(() =>
-        {
-            var reader = new TokenReader(CultureInfo.InvariantCulture);
-            reader.Read("$1+$2+$3");
-        });
-    }
-
+    
     [Fact]
     public void TestTokenReader20()
     {
@@ -462,9 +263,7 @@ public class TokenReaderTests
 
         Assert.Single(tokens);
 
-        Assert.Equal(2.11E-3, tokens[0].Value);
-        Assert.Equal(0, tokens[0].StartPosition);
-        Assert.Equal(7, tokens[0].Length);
+        Assert.Equal(new Token(2.11E-3, TokenType.FloatingPoint, 0, 7), tokens[0]);
     }
 
     [Fact]
@@ -475,92 +274,78 @@ public class TokenReaderTests
 
         Assert.Equal(3, tokens.Count);
 
-        Assert.Equal("var_1", tokens[0].Value);
-        Assert.Equal(0, tokens[0].StartPosition);
-        Assert.Equal(5, tokens[0].Length);
-
-        Assert.Equal('+', tokens[1].Value);
-        Assert.Equal(5, tokens[1].StartPosition);
-        Assert.Equal(1, tokens[1].Length);
-
-        Assert.Equal(2.11E-3, tokens[2].Value);
-        Assert.Equal(6, tokens[2].StartPosition);
-        Assert.Equal(7, tokens[2].Length);
+        Assert.Equal(new Token("var_1", TokenType.Text, 0, 5), tokens[0]);
+        Assert.Equal(new Token('+', TokenType.Operation, 5, 1), tokens[1]);
+        Assert.Equal(new Token(2.11E-3, TokenType.FloatingPoint, 6, 7), tokens[2]);
     }
-
+    
     [Fact]
     public void TestTokenReader22()
-    {
-        Assert.Throws<ParseException>(() =>
-        {
-            var reader = new TokenReader(CultureInfo.InvariantCulture);
-            reader.Read("2.11E-E3");
-        });
-    }
-
-    [Fact]
-    public void TestTokenReader23()
     {
         var reader = new TokenReader(CultureInfo.InvariantCulture);
         var tokens = reader.Read("2.11e3");
 
         Assert.Single(tokens);
 
-        Assert.Equal(2.11E3, tokens[0].Value);
-        Assert.Equal(0, tokens[0].StartPosition);
-        Assert.Equal(6, tokens[0].Length);
+        Assert.Equal(new Token(2.11E3, TokenType.FloatingPoint, 0, 6), tokens[0]);
     }
 
     [Fact]
-    public void TestTokenReader24()
+    public void TestTokenReader23()
     {
         var reader = new TokenReader(CultureInfo.InvariantCulture);
         var tokens = reader.Read("1 * e");
 
         Assert.Equal(3, tokens.Count);
 
-        Assert.Equal(1, tokens[0].Value);
-        Assert.Equal(0, tokens[0].StartPosition);
-        Assert.Equal(1, tokens[0].Length);
-
-        Assert.Equal('*', tokens[1].Value);
-        Assert.Equal(2, tokens[1].StartPosition);
-        Assert.Equal(1, tokens[1].Length);
-
-        Assert.Equal("e", tokens[2].Value);
-        Assert.Equal(4, tokens[2].StartPosition);
-        Assert.Equal(1, tokens[2].Length);
+        Assert.Equal(new Token(1, TokenType.Integer, 0, 1), tokens[0]);
+        Assert.Equal(new Token('*', TokenType.Operation, 2, 1), tokens[1]);
+        Assert.Equal(new Token("e", TokenType.Text, 4, 1), tokens[2]);
     }
 
     [Fact]
-    public void TestTokenReader25()
+    public void TestTokenReader24()
     {
         var reader = new TokenReader(CultureInfo.InvariantCulture);
         var tokens = reader.Read("e");
 
         Assert.Single(tokens);
 
-        Assert.Equal("e", tokens[0].Value);
-        Assert.Equal(0, tokens[0].StartPosition);
-        Assert.Equal(1, tokens[0].Length);
+        Assert.Equal(new Token("e", TokenType.Text, 0, 1), tokens[0]);
     }
 
     [Fact]
-    public void TestTokenReader26()
+    public void TestTokenReader25()
     {
         var reader = new TokenReader(CultureInfo.InvariantCulture);
         var tokens = reader.Read("2.11e3+1.23E4");
 
         Assert.Equal(3, tokens.Count);
 
-        Assert.Equal(2.11E3, tokens[0].Value);
-        Assert.Equal(0, tokens[0].StartPosition);
-        Assert.Equal(6, tokens[0].Length);
-
-        Assert.Equal('+', tokens[1].Value);
-
-        Assert.Equal(1.23E4, tokens[2].Value);
-        Assert.Equal(7, tokens[2].StartPosition);
-        Assert.Equal(6, tokens[2].Length);
+        Assert.Equal(new Token(2.11E3, TokenType.FloatingPoint, 0, 6), tokens[0]);
+        Assert.Equal(new Token('+', TokenType.Operation, 6, 1), tokens[1]);
+        Assert.Equal(new Token(1.23E4, TokenType.FloatingPoint, 7, 6), tokens[2]);
+    }
+    
+    [Fact]
+    public void TestTokenReader_ThrowsIfInvalid1()
+    {
+        var ex = Assert.Throws<ParseException>(() =>
+        {
+            var reader = new TokenReader(CultureInfo.InvariantCulture);
+            reader.Read("$1+$2+$3");
+        });
+        Assert.Equal("Invalid token \"$\" detected at position 0.", ex.Message);
+    }
+    
+    [Fact]
+    public void TestTokenReader_ThrowsIfInvalid2()
+    {
+        var ex = Assert.Throws<ParseException>(() =>
+        {
+            var reader = new TokenReader(CultureInfo.InvariantCulture);
+            reader.Read("2.11E-E3");
+        });
+        Assert.Equal("Invalid token \"E\" detected at position 6.", ex.Message);
     }
 }

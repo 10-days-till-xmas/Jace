@@ -1,33 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿namespace Jace.Tokenizer;
 
-namespace Jace.Tokenizer
-{
-    /// <summary>
-    /// Represents an input token
-    /// </summary>
-    public struct Token
-    {
-        /// <summary>
-        /// The start position of the token in the input function text.
-        /// </summary>
-        public int StartPosition;
-        
-        /// <summary>
-        /// The length of token in the input function text.
-        /// </summary>
-        public int Length;
-
-        /// <summary>
-        /// The type of the token.
-        /// </summary>
-        public TokenType TokenType;
-
-        /// <summary>
-        /// The value of the token.
-        /// </summary>
-        public object Value;
-    }
-}
+/// <summary>
+/// Represents an input token
+/// </summary>
+/// <param name="Value">The value of the token.</param>
+/// <param name="TokenType">The type of the token.</param>
+/// <param name="StartPosition">The start position of the token in the input function text.</param>
+/// <param name="Length">The length of token in the input function text.</param>
+public record struct Token(
+    object Value,
+    TokenType TokenType,
+    int StartPosition,
+    int Length);
+// TODO: Check if Length can be removed
