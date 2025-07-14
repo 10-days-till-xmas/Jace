@@ -3,47 +3,18 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using Jace.Util;
-using JetBrains.Annotations;
 
 namespace Jace.Tokenizer;
-
-/// <summary>
-/// A token reader that converts the input string in a list of tokens.
-/// </summary>
-public sealed partial class TokenReader(CultureInfo cultureInfo)
+#if NET5_0_OR_GREATER
+public partial class TokenReader
 {
-    private readonly char decimalSeparator = cultureInfo.NumberFormat.NumberDecimalSeparator[0];
-    private readonly char argumentSeparator = cultureInfo.TextInfo.ListSeparator[0];
-
-    public TokenReader() 
-        : this(CultureInfo.CurrentCulture)
-    {
-    }
-
-    public List<Token> Read(string formula)
-    {
-        #if NET5_0_OR_GREATER
-        return formula.Length < 512 // TODO: benchmark to test this threshold
-            ? ReadAsSpan(formula) 
-            : ReadAsArray(formula);
-        #else
-        return ReadAsArray(formula);
-        #endif
-    }
-    
-    /// <summary>
-    /// Read in the provided formula and convert it into a list of tokens that can be processed by the
-    /// Abstract Syntax Tree Builder.
-    /// </summary>
-    /// <param name="formula">The formula that must be converted into a list of tokens.</param>
-    /// <returns>The list of tokens for the provided formula.</returns>
-    private List<Token> ReadAsArray(string formula)
+    private List<Token> ReadAsSpan(string formula)
     {
         if (string.IsNullOrEmpty(formula))
             throw new ArgumentNullException(nameof(formula));
 
         var tokens = new List<Token>();
-        var characters = formula.ToCharArray();
+        var characters = formula.AsSpan();
         
         var isFormulaSubPart = true;
         var isScientific = false;
@@ -56,9 +27,9 @@ public sealed partial class TokenReader(CultureInfo cultureInfo)
             {
                 // Skip whitespace
             }
-            else if (TryParseNumeric(currentChar, characters, ref i, ref isFormulaSubPart, ref isScientific,
-                         out var numericToken))
+            else if (IsPartOfNumeric(currentChar, true, isFormulaSubPart))
             {
+                var numericToken = ParseNumeric(characters, ref i, ref isFormulaSubPart, ref isScientific);
                 tokens.Add(numericToken);
             }
             else if (IsPartOfVariable(currentChar, true))
@@ -84,79 +55,60 @@ public sealed partial class TokenReader(CultureInfo cultureInfo)
 
         return tokens;
     }
-
-    private bool TryParseNumeric(char currentChar, char[] characters, ref int i, ref bool isFormulaSubPart, ref bool isScientific,
-        out Token token)
+    
+    private Token ParseNumeric(ReadOnlySpan<char> characters, ref int i, ref bool isFormulaSubPart, ref bool isScientific)
     {
-        if (IsPartOfNumeric(currentChar, true, isFormulaSubPart))
-        {
-            i++;
-            var buffer = new StringBuilder();
-            var startPosition = i-1;
-            buffer.Append(currentChar); 
+        var buffer = new StringBuilder();
+        var startPosition = i;
+        buffer.Append(characters.Dequeue(ref i)); 
             
-            var _isFormulaSubPart = isFormulaSubPart;
-            
-            while (characters.DequeueIf(ref i, out currentChar,
-                       c => IsPartOfNumeric(c, false, _isFormulaSubPart)))
-            {
-                if (isScientific && IsScientificNotation(currentChar))
-                    throw new ParseException($"Invalid token \"{currentChar}\" detected at position {i-1}.");
-                if (IsScientificNotation(currentChar))
-                {
-                    isScientific = true;
-                    buffer.Append(currentChar); // Append 'e' or 'E'
-                    if (characters.DequeueIf(ref i, out var minus, c => c == '-')) 
-                        buffer.Append(minus);
-                }
-                else 
-                {
-                    buffer.Append(currentChar); // add digit or decimal separator
-                }
-            }
-        
-            var numericToken = buffer.ToString();
-            var length = i - startPosition;
-            i--;
-            // Verify if we don't have an int
-            if (int.TryParse(numericToken, out var intValue))
-            {
-                isFormulaSubPart = false;
-                token = new Token(intValue, TokenType.Integer, startPosition, length);
-            }
-            else
-            {
-                if (double.TryParse(numericToken, 
-                        NumberStyles.Float | NumberStyles.AllowThousands, cultureInfo, 
-                        out var doubleValue))
-                {
-                    isScientific = false;
-                    isFormulaSubPart = false;
-                    token = new Token(doubleValue, TokenType.FloatingPoint, startPosition, length);
-                }
-                else
-                {
-                    if (numericToken == "-")
-                    {
-                        // Verify if we have a unary minus, we use the token '_' for a unary minus in the AST builder
-                        token = new Token('_', TokenType.Operation, startPosition, Length: 1);
-                    }
-                    else
-                    {
-                        throw new ParseException($"Invalid numeric token \"{buffer}\" detected at position {startPosition}.");
-                    }
-                }
-            }
+        var _isFormulaSubPart = isFormulaSubPart;
 
-            return true;
+        while (characters.DequeueIf(ref i, out var currentChar,
+                c => IsPartOfNumeric(c, false, _isFormulaSubPart)))
+        {
+            if (isScientific && IsScientificNotation(currentChar))
+                throw new ParseException($"Invalid token \"{currentChar}\" detected at position {i-1}.");
+            if (IsScientificNotation(currentChar))
+            {
+                isScientific = true;
+                buffer.Append(currentChar); // Append 'e' or 'E'
+                if (characters.DequeueIf(ref i, out var minus, c => c == '-')) 
+                    buffer.Append(minus);
+            }
+            else 
+            {
+                buffer.Append(currentChar); // add digit or decimal separator
+            }
+        }
+        
+        var numericToken = buffer.ToString();
+        var length = i - startPosition;
+        i--;
+        // Verify if we don't have an int
+        if (int.TryParse(numericToken, out var intValue))
+        {
+            isFormulaSubPart = false;
+            return new Token(intValue, TokenType.Integer, startPosition, length);
+        }
+        if (double.TryParse(numericToken, 
+                NumberStyles.Float | NumberStyles.AllowThousands, cultureInfo, 
+                out var doubleValue))
+        {
+            isScientific = false;
+            isFormulaSubPart = false;
+            return new Token(doubleValue, TokenType.FloatingPoint, startPosition, length);
+        }
+        if (numericToken == "-")
+        {
+            // Verify if we have a unary minus, we use the token '_' for a unary minus in the AST builder
+            return new Token('_', TokenType.Operation, startPosition, Length: 1);
         }
 
-        token = default!;
-        return false;
+        throw new ParseException($"Invalid numeric token \"{buffer}\" detected at position {startPosition}.");
     }
-
-    /// The current value of i points to the last character of the token.
-    private static Token ParseVariableName(char[] characters, ref int i, out bool isFormulaSubPart)
+    
+    private static Token ParseVariableName(ReadOnlySpan<char> characters, ref int i, out bool isFormulaSubPart)
     {
         var startPosition = i;
         var sb = new StringBuilder();
@@ -173,9 +125,8 @@ public sealed partial class TokenReader(CultureInfo cultureInfo)
         
         return token;
     }
-
-    /// Doesn't increment, i.e., the cursor is on the last character of the operation token.
-    private static Token AppendOperationToken(char[] characters, ref int i, List<Token> tokens, ref bool isFormulaSubPart)
+    
+    private static Token AppendOperationToken(ReadOnlySpan<char> characters, ref int i, List<Token> tokens, ref bool isFormulaSubPart)
     {
         var doSkip = false;
         Token token;
@@ -275,42 +226,6 @@ public sealed partial class TokenReader(CultureInfo cultureInfo)
 
         return token;
     }
-
-    [Pure]
-    private bool IsPartOfNumeric(char character, bool isFirstCharacter, bool isFormulaSubPart)
-    {
-        return character == decimalSeparator 
-               || character is >= '0' and <= '9' 
-               || (isFormulaSubPart && isFirstCharacter && character == '-') 
-               || (!isFirstCharacter && character == 'e') 
-               || (!isFirstCharacter && character == 'E');
-    }
-
-    [Pure]
-    private static bool IsPartOfVariable(char character, bool isFirstCharacter)
-    {
-        return character is >= 'a' and <= 'z' 
-           || character is >= 'A' and <= 'Z' 
-           || (!isFirstCharacter && character is >= '0' and <= '9') 
-           || (!isFirstCharacter && character == '_');
-    }
-
-    [Pure]
-    private static bool IsUnaryMinus(char currentToken, List<Token> tokens)
-    {
-        if (currentToken != '-') return false;
-        // ReSharper disable once UseIndexFromEndExpression
-        var previousToken = tokens[tokens.Count - 1];
-
-        return previousToken.TokenType is 
-            TokenType.Operation or 
-            TokenType.LeftBracket or 
-            TokenType.ArgumentSeparator;
-    }
-
-    [Pure]
-    private static bool IsScientificNotation(char currentToken)
-    {
-        return currentToken is 'e' or 'E';
-    }
+    
 }
+#endif
