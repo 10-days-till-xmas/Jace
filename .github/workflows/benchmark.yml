@@ -2,11 +2,6 @@ name: Benchmark Logic
 
 on:
   workflow_call:
-    inputs:
-      branch:
-        description: "Branch to benchmark"
-        required: true
-        type: string
     secrets:
       BENCHER_API_TOKEN:
         required: true
