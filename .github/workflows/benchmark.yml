@@ -1,0 +1,53 @@
+name: Benchmark Logic
+
+on:
+  workflow_call:
+    inputs:
+      branch:
+        description: "Branch to benchmark"
+        required: true
+        type: string
+    secrets:
+      BENCHER_API_TOKEN:
+        required: true
+
+jobs:
+  benchmark:
+    name: Run Benchmarks
+    runs-on: ubuntu-latest
+    permissions:
+      checks: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.branch }}
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Install Bencher CLI
+        uses: bencherdev/bencher@main
+
+      - name: Run Benchmarks
+        run: |
+          bencher run \
+            --project jace \
+            --token '${{ secrets.BENCHER_API_TOKEN }}' \
+            --branch "${{ inputs.branch }}" \
+            --testbed ubuntu-latest \
+            --threshold-measure latency \
+            --threshold-test t_test \
+            --threshold-max-sample-size 64 \
+            --threshold-upper-boundary 0.99 \
+            --thresholds-reset \
+            --err \
+            --adapter json \
+            --github-actions '${{ secrets.GITHUB_TOKEN }}' \
+            dotnet run -c Release --project Jace.Benchmark
