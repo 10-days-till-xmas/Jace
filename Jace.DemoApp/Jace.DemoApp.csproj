@@ -1,17 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <Title>Jace.DemoApp</Title>
-        <Product>Jace.DemoApp</Product>
-        <Version>1.1.0</Version>
-        <TargetFramework>net9.0-windows</TargetFramework>
-        <OutputType>WinExe</OutputType>
-        <UseWPF>true</UseWPF>
-        <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
-    </PropertyGroup>
+  <PropertyGroup>
+    <Title>Jace.DemoApp</Title>
+    <Product>Jace.DemoApp</Product>
+    <Version>1.1.0</Version>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <OutputType>WinExe</OutputType>
+    <UseWPF>true</UseWPF>
+    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+  </PropertyGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\Jace\Jace.csproj"/>
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Jace\Jace.csproj"/>
+  </ItemGroup>
 
 </Project>
