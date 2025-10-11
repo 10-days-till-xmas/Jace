@@ -11,8 +11,6 @@ on:
 jobs:
   call-benchmark:
     uses: ./.github/workflows/benchmark.yml
-    with:
-      branch: ${{ github.event.inputs.branch }}
     secrets:
       BENCHER_API_TOKEN: ${{ secrets.BENCHER_API_TOKEN }}
     
