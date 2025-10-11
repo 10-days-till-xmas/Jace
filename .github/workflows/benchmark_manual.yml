@@ -2,11 +2,6 @@ name: Manual Benchmark Run
 
 on:
   workflow_dispatch:
-    inputs:
-      branch:
-        description: "Branch to benchmark"
-        required: true
-        default: "main"
 
 jobs:
   call-benchmark:
