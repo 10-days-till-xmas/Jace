@@ -32,6 +32,7 @@ jobs:
           ref: ${{ inputs.commit || inputs.branch || 'master' }}
 
       - name: Confirm checked out commit
+        shell: bash
         run: |
           echo "Checked out ref: ${{ inputs.commit != '' && inputs.commit || inputs.branch }}"
           git log -1 --oneline
@@ -56,6 +57,7 @@ jobs:
             -- --exporters JSON --join -d -j Short
 
       - name: Export Benchmark Results to Bencher
+        shell: bash
         run: |
           file=$(ls -t ./BenchmarkDotNet.Artifacts/results/*.json | head -n 1)
           echo "Using benchmark results file: $file"

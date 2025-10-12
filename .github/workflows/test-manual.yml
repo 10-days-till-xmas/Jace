@@ -36,12 +36,15 @@ jobs:
       - name: Install .NET SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 9.0.x
+          dotnet-version: |
+            9.0.x
+            5.0.x
       
       - name: Restore solution
         run: dotnet restore Jace.sln
 
       - name: Build and run tests
+        shell: bash
         run: |
           dotnet test Jace.sln \
             -f ${{ github.event.inputs.target-framework }} \

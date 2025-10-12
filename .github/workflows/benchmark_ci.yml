@@ -39,6 +39,7 @@ jobs:
             -- --exporters JSON --join -d -j Short
 
       - name: Export Benchmark Results to Bencher
+        shell: bash
         run: |
           file=$(ls -t ./BenchmarkDotNet.Artifacts/results/*.json | head -n 1)
           echo "Using benchmark results file: $file"

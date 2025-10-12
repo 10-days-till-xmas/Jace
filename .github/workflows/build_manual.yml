@@ -45,6 +45,7 @@ jobs:
           ref: ${{ inputs.commit || inputs.branch || 'master' }}
           
       - name: Confirm checked out commit
+        shell: bash
         run: |
           echo "Checked out ref: ${{ inputs.commit != '' && inputs.commit || inputs.branch }}"
           git log -1 --oneline
@@ -52,7 +53,9 @@ jobs:
       - name: Install .NET SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 9.0.x
+          dotnet-version: |
+            9.0.x
+            5.0.x
 
       - name: Restore solution
         run: dotnet restore Jace.sln
