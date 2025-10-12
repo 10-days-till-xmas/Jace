@@ -2,10 +2,49 @@ name: Manual Benchmark Run
 
 on:
   workflow_dispatch:
+    inputs:
+      os:
+        description: 'Operating System'
+        required: true
+        default: 'ubuntu-latest'
+        type: choice
+        options:
+          - ubuntu-latest
+          - windows-latest
 
 jobs:
-  call-benchmark:
-    uses: ./.github/workflows/benchmark.yml
-    secrets:
-      BENCHER_API_TOKEN: ${{ secrets.BENCHER_API_TOKEN }}
-    
+  benchmark-manual:
+    environment: manual-workflow
+    runs-on: ${{ github.event.inputs.os }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Restore solution
+        run: dotnet restore
+
+      - name: Install Bencher CLI
+        uses: bencherdev/bencher@main
+
+      - name: Run Benchmarks
+        run: |
+          bencher run \
+            --project jace \
+            --token '${{ secrets.BENCHER_API_TOKEN }}' \
+            --branch "${{ inputs.branch }}" \
+            --testbed ubuntu-latest \
+            --threshold-measure latency \
+            --threshold-test t_test \
+            --threshold-max-sample-size 64 \
+            --threshold-upper-boundary 0.99 \
+            --thresholds-reset \
+            --err \
+            --adapter json \
+            --github-actions '${{ secrets.GITHUB_TOKEN }}' \
+            dotnet run -c Release --project Jace.Benchmark

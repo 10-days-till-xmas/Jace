@@ -10,22 +10,35 @@ jobs:
     continue-on-error: true
     
     strategy:
+      fail-fast: false
       matrix:
         os: [ ubuntu-latest, windows-latest ]
-        target-framework: [ net6.0, net9.0 ]
+        target-framework: [ net5.0, net9.0 ]
         
     runs-on: ${{ matrix.os }}
     
     steps:
-      - name: Setup .NET SDK
+      - name: Fail if disabled
+        if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+        run: |
+          echo "❌ Build job failed"
+          exit 1
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Install .NET SDK
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9.0.x
+      
+      - name: Restore solution
+        run: dotnet restore Jace.sln
 
       - name: Build and run tests
-        run: 
-          dotnet test Jace.sln
-            -f ${{ matrix.target-framework }}
+        run: |
+          dotnet test Jace.sln \
+            -f ${{ matrix.target-framework }} \
             --results-directory ./test-results/${{ matrix.target-framework }}
 
       - name: Upload test results

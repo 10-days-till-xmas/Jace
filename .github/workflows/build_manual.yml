@@ -1,0 +1,53 @@
+﻿# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: Manual Build
+
+on:
+  workflow_dispatch: 
+    inputs: 
+      os: 
+        description: 'Operating System'
+        required: true
+        default: 'ubuntu-latest'
+        type: choice
+        options:
+          - ubuntu-latest
+          - windows-latest
+      configuration: 
+        description: 'Build Configuration'
+        required: true
+        default: 'Release'
+        type: choice
+        options:
+          - Debug
+          - Release
+
+jobs:
+  build-manual:
+    environment: manual-workflow
+    runs-on: ${{ github.event.inputs.os }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Restore solution
+        run: dotnet restore Jace.sln
+
+      - name: Build solution
+        run: dotnet build Jace.sln -c ${{ github.event.inputs.configuration }}
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts-${{ github.event.inputs.os }}-${{ github.event.inputs.configuration }}
+          path: '**/bin/${{ github.event.inputs.configuration }}/'
+        

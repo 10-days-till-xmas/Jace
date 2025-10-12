@@ -1,0 +1,55 @@
+name: Test Jace
+on:
+  workflow_dispatch:
+    inputs:
+      os:
+        description: 'Operating System'
+        required: true
+        default: 'ubuntu-latest'
+        type: choice
+        options:
+          - ubuntu-latest
+          - windows-latest
+      target-framework:
+        description: 'Target Framework'
+        required: true
+        default: 'net9.0'
+        type: choice
+        options:
+          - net5.0
+          - net9.0
+    
+jobs:
+  test:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    continue-on-error: true
+    
+    strategy:
+      fail-fast: false
+        
+    runs-on: ${{ github.event.inputs.os }}
+    
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Install .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+      
+      - name: Restore solution
+        run: dotnet restore Jace.sln
+
+      - name: Build and run tests
+        run: |
+          dotnet test Jace.sln \
+            -f ${{ github.event.inputs.target-framework }} \
+            --results-directory ./test-results/${{ github.event.inputs.target-framework }}
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ github.event.inputs.target-framework }}
+          path: ./test-results/${{ github.event.inputs.target-framework }}
