@@ -1,4 +1,4 @@
-name: Test Jace
+name: Manual Test Jace
 on:
   workflow_dispatch:
     inputs:
