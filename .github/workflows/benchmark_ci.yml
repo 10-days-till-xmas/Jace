@@ -46,7 +46,6 @@ jobs:
           
           bencher run \
             --project jace \
-            --token '${{ secrets.BENCHER_API_TOKEN }}' \
             --branch ${{ github.ref_name }} \
             --testbed ${{ matrix.os }} \
             --threshold-measure latency \
