@@ -1,8 +1,7 @@
-name: CI Benchmarks
+name: Benchmarks
 
 on:
   push:
-    branches: [ main ]
   pull_request:
     types: [opened, reopened, synchronize]
 
@@ -14,6 +13,7 @@ jobs:
         os: [ ubuntu-latest, windows-latest ]
     
     runs-on: ${{ matrix.os }}
+  
 
     steps:
       - name: Checkout code
@@ -31,18 +31,67 @@ jobs:
         uses: bencherdev/bencher@main
 
       - name: Run Benchmarks
+        shell: bash
         run: |
+          dotnet run \
+            -c Release \
+            --project Jace.Benchmark \
+            -- --exporters JSON --join -d -j Short
+
+      - name: Export Benchmark Results to Bencher
+        run: |
+          file=$(ls -t ./BenchmarkDotNet.Artifacts/results/*.json | head -n 1)
+          echo "Using benchmark results file: $file"
+          
           bencher run \
             --project jace \
             --token '${{ secrets.BENCHER_API_TOKEN }}' \
-            --branch "${{ inputs.branch }}" \
-            --testbed ubuntu-latest \
+            --branch ${{ github.ref_name }} \
+            --testbed ${{ matrix.os }} \
             --threshold-measure latency \
             --threshold-test t_test \
             --threshold-max-sample-size 64 \
             --threshold-upper-boundary 0.99 \
             --thresholds-reset \
             --err \
-            --adapter json \
-            --github-actions '${{ secrets.GITHUB_TOKEN }}' \
-            dotnet run -c Release --project Jace.Benchmark
+            --adapter c_sharp_dot_net \
+            --file "$file" \
+            --token ${{ secrets.BENCHER_API_TOKEN }} \
+            --github-actions ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-${{ matrix.os }}
+          path: '**/*'
+          
+      - name: Read Benchmark Results
+        id: read_benchmark
+        shell: bash
+        run: |
+          file=$(ls -t ./BenchmarkDotNet.Artifacts/results/*github.md | head -n 1)
+          echo "Using benchmark results file: $file"
+          echo "body<<EOF" >> $GITHUB_OUTPUT
+          cat $file >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+        
+      
+      - name: Comment Benchmark Results (Push Only)
+        if: github.event_name == 'push'
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-sha: ${{ github.sha }}
+          body: |
+            ## Benchmark Results
+            ${{ steps.read_benchmark.outputs.body }}
+            
+      - name: Comment Benchmark Results (Pull Request Only)
+        if: github.event_name == 'pull_request'
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            ## Benchmark Results
+            ${{ steps.read_benchmark.outputs.body }}

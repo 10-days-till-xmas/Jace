@@ -11,16 +11,31 @@ on:
         options:
           - ubuntu-latest
           - windows-latest
+      branch:
+        description: "Branch to run benchmarks on"
+        required: true
+        default: "master"
+      commit:
+        description: 'Commit SHA to checkout (leave blank for latest on main)'
+        required: false
+        default: ''
 
 jobs:
   benchmark-manual:
     environment: manual-workflow
-    runs-on: ${{ github.event.inputs.os }}
+    runs-on: ${{ inputs.os }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.commit || inputs.branch || 'master' }}
 
+      - name: Confirm checked out commit
+        run: |
+          echo "Checked out ref: ${{ inputs.commit != '' && inputs.commit || inputs.branch }}"
+          git log -1 --oneline
+      
       - name: Install .NET SDK
         uses: actions/setup-dotnet@v4
         with:
@@ -33,18 +48,35 @@ jobs:
         uses: bencherdev/bencher@main
 
       - name: Run Benchmarks
+        shell: bash
         run: |
+          dotnet run \
+            -c Release \
+            --project Jace.Benchmark \
+            -- --exporters JSON --join -d -j Short
+
+      - name: Export Benchmark Results to Bencher
+        run: |
+          file=$(ls -t ./BenchmarkDotNet.Artifacts/results/*.json | head -n 1)
+          echo "Using benchmark results file: $file"
+
           bencher run \
             --project jace \
-            --token '${{ secrets.BENCHER_API_TOKEN }}' \
-            --branch "${{ inputs.branch }}" \
-            --testbed ubuntu-latest \
+            --branch jace-manual \
+            --testbed ${{ inputs.os }} \
             --threshold-measure latency \
             --threshold-test t_test \
             --threshold-max-sample-size 64 \
             --threshold-upper-boundary 0.99 \
             --thresholds-reset \
             --err \
-            --adapter json \
-            --github-actions '${{ secrets.GITHUB_TOKEN }}' \
-            dotnet run -c Release --project Jace.Benchmark
+            --adapter c_sharp_dot_net \
+            --file "$file" \
+            --token ${{ secrets.BENCHER_API_TOKEN }} \
+            --github-actions ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-${{ inputs.os }}
+          path: '**/*'

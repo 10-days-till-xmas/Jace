@@ -6,9 +6,6 @@ on:
     
 jobs:
   test:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    continue-on-error: true
-    
     strategy:
       fail-fast: false
       matrix:
@@ -39,10 +36,10 @@ jobs:
         run: |
           dotnet test Jace.sln \
             -f ${{ matrix.target-framework }} \
-            --results-directory ./test-results/${{ matrix.target-framework }}
+            --results-directory ./test-results/${{ matrix.target-framework }}-${{ matrix.os }}
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
         with:
-          name: test-results-${{ matrix.target-framework }}
-          path: ./test-results/${{ matrix.target-framework }}
+          name: test-results-${{ matrix.target-framework }}-${{ matrix.os }}
+          path: ./test-results/${{ matrix.target-framework }}-${{ matrix.os }}

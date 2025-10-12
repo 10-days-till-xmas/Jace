@@ -24,15 +24,30 @@ on:
         options:
           - Debug
           - Release
+      branch:
+        description: "Branch to run benchmarks on"
+        required: true
+        default: "master"
+      commit:
+        description: 'Commit SHA to checkout (leave blank for latest on main)'
+        required: false
+        default: ''
 
 jobs:
   build-manual:
     environment: manual-workflow
-    runs-on: ${{ github.event.inputs.os }}
+    runs-on: ${{ inputs.os }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.commit || inputs.branch || 'master' }}
+          
+      - name: Confirm checked out commit
+        run: |
+          echo "Checked out ref: ${{ inputs.commit != '' && inputs.commit || inputs.branch }}"
+          git log -1 --oneline
 
       - name: Install .NET SDK
         uses: actions/setup-dotnet@v4
@@ -43,11 +58,11 @@ jobs:
         run: dotnet restore Jace.sln
 
       - name: Build solution
-        run: dotnet build Jace.sln -c ${{ github.event.inputs.configuration }}
+        run: dotnet build Jace.sln -c ${{ inputs.configuration }}
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: build-artifacts-${{ github.event.inputs.os }}-${{ github.event.inputs.configuration }}
-          path: '**/bin/${{ github.event.inputs.configuration }}/'
+          name: build-artifacts-${{ inputs.os }}-${{ inputs.configuration }}
+          path: '**/bin/${{ inputs.configuration }}/'
         

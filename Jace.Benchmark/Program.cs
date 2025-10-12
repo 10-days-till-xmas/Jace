@@ -7,7 +7,7 @@ namespace Jace.Benchmark;
 
 internal static class Program
 {
-    private static void Main()
+    private static void Main(string[] args)
     {
         CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
         CultureInfo.CurrentUICulture = CultureInfo.InvariantCulture;
@@ -15,6 +15,6 @@ internal static class Program
         Console.WriteLine("No command line arguments provided. Running benchmarks with default settings.");
         var assembly = Assembly.GetEntryAssembly() ?? throw new InvalidOperationException("Entry assembly not found.");
 
-        BenchmarkRunner.Run(assembly);
+        BenchmarkRunner.Run(assembly, args: args);
     }
 }
