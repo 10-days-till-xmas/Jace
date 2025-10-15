@@ -1,9 +1,9 @@
 name: Test Jace
 on:
-  workflow_run:
-    workflows: ["Build"]
-    types: [completed]
-    
+  push:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
 jobs:
   test:
     strategy:
@@ -11,26 +11,20 @@ jobs:
       matrix:
         os: [ ubuntu-latest, windows-latest ]
         target-framework: [ net5.0, net9.0 ]
-        
+    
     runs-on: ${{ matrix.os }}
     
     steps:
-      - name: Fail if disabled
-        if: ${{ github.event.workflow_run.conclusion == 'failure' }}
-        run: |
-          echo "❌ Build job failed"
-          exit 1
-
       - name: Checkout repository
         uses: actions/checkout@v4
-        
+
       - name: Install .NET SDK
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: |
             9.0.x
             5.0.x
-      
+
       - name: Restore solution
         run: dotnet restore Jace.sln
 
@@ -38,12 +32,14 @@ jobs:
         if: ${{ matrix.target-framework != 'net5.0' || matrix.os != 'ubuntu-latest' }} # Skip net5.0 on Ubuntu due to "No usable version of libssl was found"
         shell: bash
         run: |
-          dotnet test Jace.sln \
+          dotnet test ./Jace.Tests/Jace.Tests.csproj \
             -f ${{ matrix.target-framework }} \
-            --results-directory ./test-results/${{ matrix.target-framework }}-${{ matrix.os }}
+            /p:CollectCoverage=true \
+            /p:CoverletOutput=./coverage/ \
+            /p:CoverletOutputFormat=lcov
 
-      - name: Upload test results
-        uses: actions/upload-artifact@v4
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
         with:
-          name: test-results-${{ matrix.target-framework }}-${{ matrix.os }}
-          path: ./test-results/${{ matrix.target-framework }}-${{ matrix.os }}
+          files: ./coverage/coverage.${{ matrix.target-framework }}.info
+          fail_ci_if_error: true
