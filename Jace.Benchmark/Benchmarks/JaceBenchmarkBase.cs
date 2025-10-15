@@ -11,14 +11,18 @@ public abstract class JaceBenchmarkBase
     private static readonly JaceOptions _baseOptions = new()
     {
         CultureInfo = CultureInfo.InvariantCulture,
-        CacheEnabled = true,
-        OptimizerEnabled = true
     };
 
-    [Params(true, false)] public bool CaseSensitive;
+    [Params(true, false)]
+    public bool CaseSensitive;
 
     [Params(ExecutionMode.Interpreted, ExecutionMode.Compiled)]
     public ExecutionMode Mode;
+
+    [Params(true, false)]
+    public bool CacheEnabled;
+    [Params(true, false)]
+    public bool OptimizerEnabled;
 
     protected EngineWrapper Engine { get; set; }
 
@@ -27,7 +31,9 @@ public abstract class JaceBenchmarkBase
         Engine = new EngineWrapper(_baseOptions with
         {
             ExecutionMode = Mode,
-            CaseSensitive = CaseSensitive
+            CaseSensitive = CaseSensitive,
+            CacheEnabled = CacheEnabled,
+            OptimizerEnabled = OptimizerEnabled
         });
     }
 }
