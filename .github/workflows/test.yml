@@ -35,6 +35,7 @@ jobs:
         run: dotnet restore Jace.sln
 
       - name: Build and run tests
+        if: ${{ matrix.target-framework != 'net5.0' || matrix.os != 'ubuntu-latest' }} # Skip net5.0 on Ubuntu due to "No usable version of libssl was found"
         shell: bash
         run: |
           dotnet test Jace.sln \

@@ -78,10 +78,8 @@ jobs:
       
       - name: Comment Benchmark Results (Push Only)
         if: github.event_name == 'push'
-        uses: peter-evans/create-or-update-comment@v4
+        uses: peter-evans/commit-comment@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-sha: ${{ github.sha }}
           body: |
             ## Benchmark Results
             ${{ steps.read_benchmark.outputs.body }}
