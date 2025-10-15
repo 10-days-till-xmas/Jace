@@ -40,6 +40,7 @@ jobs:
 
       - name: Export Benchmark Results to Bencher
         shell: bash
+        continue-on-error: true
         run: |
           file=$(ls -t ./BenchmarkDotNet.Artifacts/results/*.json | head -n 1)
           echo "Using benchmark results file: $file"
