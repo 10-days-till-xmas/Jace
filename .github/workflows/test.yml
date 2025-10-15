@@ -11,9 +11,9 @@ jobs:
       matrix:
         os: [ ubuntu-latest, windows-latest ]
         target-framework: [ net5.0, net9.0 ]
-    
+
     runs-on: ${{ matrix.os }}
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -28,8 +28,19 @@ jobs:
       - name: Restore solution
         run: dotnet restore Jace.sln
 
+      - name: Install OpenSSL 1.1 (net5.0 Ubuntu Only)
+        # Fixes "No usable version of libssl was found
+        if: ${{ matrix.target-framework == 'net5.0' && matrix.os == 'ubuntu-latest' }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libssl1.1
+
       - name: Build and run tests
-        if: ${{ matrix.target-framework != 'net5.0' || matrix.os != 'ubuntu-latest' }} # Skip net5.0 on Ubuntu due to "No usable version of libssl was found"
+        run: dotnet test -f ${{ matrix.target-framework }}
+
+      - name: Gather Coverage (Ubuntu net9.0 Only)
+        if: ${{ matrix.target-framework == 'net9.0' && matrix.os == 'ubuntu-latest' }}
+        id: coverage
         shell: bash
         run: |
           dotnet test ./Jace.Tests/Jace.Tests.csproj \
@@ -39,6 +50,7 @@ jobs:
             /p:CoverletOutputFormat=lcov
 
       - name: Upload coverage to Codecov
+        if: ${{ steps.coverage.outcome == 'success' }} 
         uses: codecov/codecov-action@v4
         with:
           files: ./coverage/coverage.${{ matrix.target-framework }}.info
