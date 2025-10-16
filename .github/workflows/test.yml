@@ -9,7 +9,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest, windows-latest ]
+        os: [ ubuntu-20.04, windows-latest ]
         target-framework: [ net5.0, net9.0 ]
 
     runs-on: ${{ matrix.os }}
@@ -27,13 +27,6 @@ jobs:
 
       - name: Restore solution
         run: dotnet restore Jace.sln
-
-      - name: Install OpenSSL 1.1 (net5.0 Ubuntu Only)
-        # Fixes "No usable version of libssl was found
-        if: ${{ matrix.target-framework == 'net5.0' && matrix.os == 'ubuntu-latest' }}
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libssl1.1
 
       - name: Build and run tests
         run: dotnet test -f ${{ matrix.target-framework }}
