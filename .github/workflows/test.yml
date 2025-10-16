@@ -9,7 +9,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-20.04, windows-latest ]
+        os: [ ubuntu-latest, windows-latest ]
         target-framework: [ net5.0, net9.0 ]
 
     runs-on: ${{ matrix.os }}
@@ -29,6 +29,8 @@ jobs:
         run: dotnet restore Jace.sln
 
       - name: Build and run tests
+        # net5.0 doesn't play nice on ubuntu-22.04 onwards. Missing required libssl
+        if: ${{ matrix.target-framework != 'net5.0' || matrix.os != 'ubuntu-latest' }}
         run: dotnet test -f ${{ matrix.target-framework }}
 
       - name: Gather Coverage (Ubuntu net9.0 Only)
