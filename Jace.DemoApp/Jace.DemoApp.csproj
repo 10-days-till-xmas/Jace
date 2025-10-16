@@ -15,4 +15,8 @@
     <ProjectReference Include="..\Jace\Jace.csproj"/>
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="JetBrains.Annotations" Version="2025.2.2" />
+  </ItemGroup>
+
 </Project>

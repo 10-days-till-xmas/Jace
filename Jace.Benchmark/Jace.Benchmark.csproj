@@ -18,6 +18,7 @@
     <PackageReference Include="BenchmarkDotNet.Annotations" Version="0.15.2" />
     <PackageReference Include="BenchmarkDotNet.Diagnostics.dotTrace" Version="0.15.2" />
     <PackageReference Include="EPPlus" Version="4.5.3.2" />
+    <PackageReference Include="JetBrains.Annotations" Version="2025.2.2" />
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta5.25306.1" />
   </ItemGroup>
 

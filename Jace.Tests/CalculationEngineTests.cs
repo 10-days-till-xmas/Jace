@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Jace.Execution;
 using Xunit;
+
 namespace Jace.Tests;
 
 public class CalculationEngineTests
@@ -21,7 +22,7 @@ public class CalculationEngineTests
 
             Assert.Equal(expected, result);
         }
-        
+
         #region Operator Tests
         [Fact]
         public void TestCalculateModulo()
@@ -47,7 +48,7 @@ public class CalculationEngineTests
 
             Assert.Equal(8.0, result);
         }
-        
+
         [Fact]
         public void TestLessThan()
         {
@@ -66,7 +67,7 @@ public class CalculationEngineTests
         [Theory]
         [InlineData("var1 <= var2", 1.0)]
         [InlineData("var1 ≤ var2", 1.0)]
-        public void TestLessOrEqualThan1(string formula,  double expected)
+        public void TestLessOrEqualThan1(string formula, double expected)
         {
             var engine = new CalculationEngine(CultureInfo.InvariantCulture, executionMode);
 
@@ -98,7 +99,7 @@ public class CalculationEngineTests
         [Theory]
         [InlineData("var1 >= var2", 1.0)]
         [InlineData("var1 ≥ var2", 1.0)]
-        public void TestGreaterOrEqualThan1(string formula,  double expected)
+        public void TestGreaterOrEqualThan1(string formula, double expected)
         {
             var engine = new CalculationEngine(CultureInfo.InvariantCulture, executionMode);
 
@@ -115,7 +116,7 @@ public class CalculationEngineTests
         [Theory]
         [InlineData("var1 != 2", 0.0)]
         [InlineData("var1 ≠ 2", 0.0)]
-        public void TestNotEqual(string formula,  double expected)
+        public void TestNotEqual(string formula, double expected)
         {
             var engine = new CalculationEngine(CultureInfo.InvariantCulture, executionMode);
 
@@ -143,7 +144,7 @@ public class CalculationEngineTests
             var result = engine.Calculate("var1 == 2", variables);
             Assert.Equal(1.0, result);
         }
-        
+
         [Fact]
         public void TestAnd()
         {
@@ -162,7 +163,7 @@ public class CalculationEngineTests
         [Theory]
         [InlineData("(1 || 0)", 1)]
         [InlineData("(0 || 0)", 0)]
-        public void TestOr1(string  formula, double expected)
+        public void TestOr1(string formula, double expected)
         {
             var engine = new CalculationEngine(new JaceOptions
             {
@@ -176,11 +177,11 @@ public class CalculationEngineTests
             Assert.Equal(expected, result);
         }
 
-        
+
         [Theory]
         [InlineData("-(1+2+(3+4))", -10.0)]
         [InlineData("5+(-(1*2))", 3.0)]
-        [InlineData("5*(-(1*2)*3)",-30.0)]
+        [InlineData("5*(-(1*2)*3)", -30.0)]
         [InlineData("5* -(1*2)", -10.0)]
         [InlineData("-(1*2)^3", -8.0)]
         public void TestUnaryMinus(string formula, double expected)
@@ -197,7 +198,7 @@ public class CalculationEngineTests
 
             Assert.Equal(expected, result);
         }
-        
+
         [Fact]
         public void TestNegativeConstant()
         {
@@ -213,7 +214,7 @@ public class CalculationEngineTests
 
             Assert.Equal(-100.0, result);
         }
-        
+
         [Fact]
         public void TestMultiplicationWithNegativeConstant()
         {
@@ -230,7 +231,7 @@ public class CalculationEngineTests
             Assert.Equal(-500.0, result);
         }
         #endregion
-        
+
         #region Function Tests
         [Fact]
         public void TestCalculateSineFunction()
@@ -265,10 +266,10 @@ public class CalculationEngineTests
 
             Assert.Equal(Math.Log(14.0, 3.0), result);
         }
-        
+
         [Theory]
         [InlineData("median(3,1,5,4,2)", 3)]
-        [InlineData("median(3,1,5,4)",3)]
+        [InlineData("median(3,1,5,4)", 3)]
         public void TestMedian(string formula, double expected)
         {
             var engine = new CalculationEngine(new JaceOptions
@@ -282,7 +283,7 @@ public class CalculationEngineTests
             var result = engine.Calculate(formula);
             Assert.Equal(expected, result);
         }
-        
+
         [Fact]
         public void TestNestedFunctions()
         {
@@ -292,7 +293,7 @@ public class CalculationEngineTests
             Assert.Equal(-0.517769799789505, Math.Round(result, 15));
         }
         #endregion
-        
+
         #region Variable Tests
         [Fact]
         public void TestCalculateFormulaWithVariables()
@@ -343,7 +344,7 @@ public class CalculationEngineTests
                     .Calculate("var1*var2", variables);
             });
         }
-        
+
         [Fact]
         public void TestReservedVariableName()
         {
@@ -384,7 +385,7 @@ public class CalculationEngineTests
 
             Assert.Equal(85.0, result);
         }
-        
+
         [Fact]
         public void TestVariableCaseFunc()
         {
@@ -398,7 +399,7 @@ public class CalculationEngineTests
             };
 
             var result = formula(variables);
-            Assert.Equal(2+2/(3*4.2), result);
+            Assert.Equal(2+(2/(3*4.2)), result);
         }
 
         [Fact]
@@ -413,9 +414,9 @@ public class CalculationEngineTests
             };
 
             var result = engine.Calculate("var1+2/(3*otherVariablE)", variables);
-            Assert.Equal(2+2/(3*4.2), result);
+            Assert.Equal(2+(2/(3*4.2)), result);
         }
-        
+
         [Fact]
         public void TestVariableUnderscore()
         {
@@ -503,7 +504,7 @@ public class CalculationEngineTests
                     .Build();
             });
         }
-        
+
         [Fact]
         public void TestCalculationFormulaBuildingWithConstants1()
         {
@@ -580,7 +581,7 @@ public class CalculationEngineTests
             var result1 = fn1(new Dictionary<string, double> { { "b", 2 }, { "c", 2 } });
             Assert.Equal(6.0, result1);
         }
-        
+
         [Fact]
         public void TestCalculationFormulaBuildingWithConstantsCache3()
         {
@@ -623,7 +624,7 @@ public class CalculationEngineTests
             var result1 = fn1(new Dictionary<string, double> { { "b", 2 }, { "c", 2 } });
             Assert.Equal(6.0, result1);
         }
-        
+
         [Fact]
         public void TestCalculationFormulaBuildingWithConstantsCache5()
         {
@@ -657,7 +658,7 @@ public class CalculationEngineTests
             var result = engine.Calculate("test(2,3)");
             Assert.Equal(5.0, result);
         }
-        
+
         [Fact]
         public void TestCustomFunctionFunc11()
         {
@@ -675,7 +676,7 @@ public class CalculationEngineTests
             Assert.Equal(expected, result);
             return;
 
-            double CustomFunction(double a, double b, double c, double d, double e, double f, double g, double h, double i, double j, double k) 
+            double CustomFunction(double a, double b, double c, double d, double e, double f, double g, double h, double i, double j, double k)
                 => a + b + c + d + e + f + g + h + i + j + k;
         }
 
@@ -759,7 +760,7 @@ public class CalculationEngineTests
             var result = engine.Calculate(formula);
             Assert.Equal(expected, result);
         }
-        
+
         [Fact]
         public void TestCalculationCompiledExpression()
         {

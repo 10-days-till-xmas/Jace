@@ -1,33 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿namespace Jace.Tokenizer;
 
-namespace Jace.Tokenizer
+/// <summary>
+/// Represents an input token
+/// </summary>
+public struct Token
 {
     /// <summary>
-    /// Represents an input token
+    /// The start position of the token in the input function text.
     /// </summary>
-    public struct Token
-    {
-        /// <summary>
-        /// The start position of the token in the input function text.
-        /// </summary>
-        public int StartPosition;
-        
-        /// <summary>
-        /// The length of token in the input function text.
-        /// </summary>
-        public int Length;
+    public int StartPosition;
 
-        /// <summary>
-        /// The type of the token.
-        /// </summary>
-        public TokenType TokenType;
+    /// <summary>
+    /// The length of token in the input function text.
+    /// </summary>
+    public int Length;
 
-        /// <summary>
-        /// The value of the token.
-        /// </summary>
-        public object Value;
-    }
+    /// <summary>
+    /// The type of the token.
+    /// </summary>
+    public TokenType TokenType;
+
+    /// <summary>
+    /// The value of the token.
+    /// </summary>
+    public object Value;
 }
+
+// TODO: use [StructLayout(LayoutKind.Explicit)] to reduce boxing of Value, by overlapping varName and varValues

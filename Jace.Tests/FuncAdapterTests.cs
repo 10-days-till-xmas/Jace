@@ -32,7 +32,7 @@ public class FuncAdapterTests
     [Fact]
     public void TestFuncAdapterWrapAndGC() // TODO: Verify whether this actually tests anything
     {
-        
+
         var adapter = new FuncAdapter();
 
         var parameters = new List<ParameterInfo>
@@ -76,7 +76,7 @@ public class FuncAdapterTests
     // Uncomment for debugging purposes
     //[TestMethod]
     //public void SaveToDisk()
-    //{ 
+    //{
     //    FuncAdapter adapter = new FuncAdapter();
     //    adapter.CreateDynamicModuleBuilder();
     //}

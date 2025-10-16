@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿namespace Jace.Execution;
 
-namespace Jace.Execution
+public enum ExecutionMode
 {
-    public enum ExecutionMode
-    {
-        Interpreted,
-        Compiled
-    }
+    Interpreted,
+    Compiled
 }

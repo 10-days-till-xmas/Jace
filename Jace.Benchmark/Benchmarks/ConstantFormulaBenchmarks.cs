@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Diagnostics.dotTrace;
@@ -12,18 +13,18 @@ public sealed class ConstantFormulaBenchmarks : JaceBenchmarkBase
 {
     private readonly Random _random = new();
 
-    public static string[] SimpleFormulae =>
+    public static IEnumerable<string> SimpleFormulae =>
     [
         "2+3*7",
         "20-3^2"
     ];
 
-    public static string[] SimpleFunctions =>
+    public static IEnumerable<string> SimpleFunctions =>
     [
         "logn(var1, (2+3) * 500)",
         "(var1 + var2 * 3)/(2+3) - something"
     ];
-    
+
     public static Func<int, int, int, double>[] SimpleFunctionsCompiled { get; private set; }
 
     [GlobalSetup]
@@ -37,7 +38,7 @@ public sealed class ConstantFormulaBenchmarks : JaceBenchmarkBase
                                                                     .Result(DataType.FloatingPoint)
                                                                     .Build())
                                                  .Cast<Func<int, int, int, double>>()
-                                                 .ToArray();
+                                                 .ToArray(); // Force immediate evaluation
     }
 
     [Benchmark]

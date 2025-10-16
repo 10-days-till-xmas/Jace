@@ -26,7 +26,7 @@ public sealed class RandomFormulaBenchmarks : JaceBenchmarkBase
     private static string RandomFormula => _randomFormulae[++_formulaIndex % MaxFormulae];
 
     private static Func<int, int, int, double> RandomFormulaCompiled => _randomFormulaeCompiled[++_formulaIndex % MaxFormulae];
-    
+
     [GlobalSetup]
     public void GlobalSetup()
     {

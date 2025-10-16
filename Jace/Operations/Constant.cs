@@ -1,48 +1,40 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿namespace Jace.Operations;
 
-namespace Jace.Operations
+public abstract class Constant<T> : Operation
 {
-    public abstract class Constant<T> : Operation
+    public Constant(DataType dataType, T value)
+        : base(dataType, false, true)
     {
-        public Constant(DataType dataType, T value)
-            : base(dataType, false, true)
-        {
-            this.Value = value;
-        }
-
-        public T Value { get; private set; }
-
-        public override bool Equals(object obj)
-        {
-            Constant<T> other = obj as Constant<T>;
-            if (other != null)
-                return this.Value.Equals(other.Value);
-            else
-                return false;
-        }
-
-        public override int GetHashCode()
-        {
-            return this.Value.GetHashCode();
-        }
+        Value = value;
     }
 
-    public class IntegerConstant : Constant<int>
+    public T Value { get; private set; }
+
+    public override bool Equals(object? obj)
     {
-        public IntegerConstant(int value)
-            : base(DataType.Integer, value)
-        {
-        }
+        if (obj is Constant<T> other)
+            return Value!.Equals(other.Value);
+        return false;
     }
 
-    public class FloatingPointConstant : Constant<double>
+    public override int GetHashCode()
     {
-        public FloatingPointConstant(double value)
-            : base(DataType.FloatingPoint, value)
-        {
-        }
+        return Value.GetHashCode();
+    }
+}
+
+public class IntegerConstant : Constant<int>
+{
+    public IntegerConstant(int value)
+        : base(DataType.Integer, value)
+    {
+    }
+}
+
+public class FloatingPointConstant : Constant<double>
+{
+    public FloatingPointConstant(double value)
+        : base(DataType.FloatingPoint, value)
+    {
     }
 }

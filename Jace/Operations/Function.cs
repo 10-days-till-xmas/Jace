@@ -1,33 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
-namespace Jace.Operations
+namespace Jace.Operations;
+
+public class Function : Operation
 {
-    public class Function : Operation
+    private IList<Operation> arguments;
+
+    public Function(DataType dataType, string functionName, IList<Operation> arguments, bool isIdempotent)
+        : base(dataType, arguments.FirstOrDefault(o => o.DependsOnVariables) != null, isIdempotent && arguments.All(o => o.IsIdempotent))
     {
-        private IList<Operation> arguments;
+        FunctionName = functionName;
+        this.arguments = arguments;
+    }
 
-        public Function(DataType dataType, string functionName, IList<Operation> arguments, bool isIdempotent)
-            : base(dataType, arguments.FirstOrDefault(o => o.DependsOnVariables) != null, isIdempotent && arguments.All(o => o.IsIdempotent))
+    public string FunctionName { get; private set; }
+
+    public IList<Operation> Arguments {
+        get
         {
-            this.FunctionName = functionName;
-            this.arguments = arguments;
+            return arguments;
         }
-
-        public string FunctionName { get; private set; }
-
-        public IList<Operation> Arguments {
-            get
-            {
-                return arguments;
-            }
-            internal set
-            {
-                this.arguments = value;
-                this.DependsOnVariables = arguments.FirstOrDefault(o => o.DependsOnVariables) != null;
-            }
+        internal set
+        {
+            arguments = value;
+            DependsOnVariables = arguments.FirstOrDefault(o => o.DependsOnVariables) != null;
         }
     }
 }

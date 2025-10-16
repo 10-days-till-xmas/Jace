@@ -1,37 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿namespace Jace.Operations;
 
-namespace Jace.Operations
+/// <summary>
+/// Represents a variable in a mathematical formula.
+/// </summary>
+public class Variable : Operation
 {
-    /// <summary>
-    /// Represents a variable in a mathematical formula.
-    /// </summary>
-    public class Variable : Operation
+    public Variable(string name)
+        : base(DataType.FloatingPoint, true, false)
     {
-        public Variable(string name)
-            : base(DataType.FloatingPoint, true, false)
+        Name = name;
+    }
+
+    public string Name { get; private set; }
+
+    public override bool Equals(object obj)
+    {
+        var other = obj as Variable;
+        if (other != null)
         {
-            this.Name = name;
+            return Name.Equals(other.Name);
         }
 
-        public string Name { get; private set; }
+        return false;
+    }
 
-        public override bool Equals(object obj)
-        {
-            Variable other = obj as Variable;
-            if (other != null)
-            {
-                return this.Name.Equals(other.Name);
-            }
-            else
-                return false;
-        }
-
-        public override int GetHashCode()
-        {
-            return this.Name.GetHashCode();
-        }
+    public override int GetHashCode()
+    {
+        return Name.GetHashCode();
     }
 }

@@ -1,18 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿namespace Jace.Tokenizer;
 
-namespace Jace.Tokenizer
+public enum TokenType
 {
-    public enum TokenType
-    {
-        Integer,
-        FloatingPoint,
-        Text,
-        Operation,
-        LeftBracket,
-        RightBracket,
-        ArgumentSeparator
-    }
+    Integer,
+    FloatingPoint,
+    Text,
+    Operation,
+    LeftBracket,
+    RightBracket,
+    ArgumentSeparator
 }

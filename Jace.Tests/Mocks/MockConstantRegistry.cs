@@ -24,7 +24,7 @@ public class MockConstantRegistry(bool caseSensitive, Dictionary<string, Constan
 
     public IEnumerator<ConstantInfo> GetEnumerator()
     {
-        return constants.Select(c=> c.Value).GetEnumerator();  
+        return constants.Select(c=> c.Value).GetEnumerator();
     }
 
     public bool IsConstantName(string constantName)
@@ -45,7 +45,7 @@ public class MockConstantRegistry(bool caseSensitive, Dictionary<string, Constan
         constantName = ConvertConstantName(constantName);
 
         var constantInfo = new ConstantInfo(constantName, value, isOverWritable);
-        
+
         if (IsConstantName(constantName))
         {
             if (GetConstantInfo(constantName).IsOverWritable)
@@ -61,9 +61,9 @@ public class MockConstantRegistry(bool caseSensitive, Dictionary<string, Constan
 
     IEnumerator IEnumerable.GetEnumerator()
     {
-        return GetEnumerator(); 
+        return GetEnumerator();
     }
-    
+
     private string ConvertConstantName(string constantName)
     {
         return caseSensitive ? constantName : constantName.ToLower();
