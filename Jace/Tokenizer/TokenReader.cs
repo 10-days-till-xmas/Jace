@@ -8,22 +8,15 @@ namespace Jace.Tokenizer;
 /// <summary>
 /// A token reader that converts the input string in a list of tokens.
 /// </summary>
-public class TokenReader
+public sealed class TokenReader(CultureInfo cultureInfo)
 {
-    private readonly CultureInfo cultureInfo;
-    private readonly char decimalSeparator;
-    private readonly char argumentSeparator;
+    private readonly CultureInfo cultureInfo = cultureInfo;
+    private readonly char decimalSeparator = cultureInfo.NumberFormat.NumberDecimalSeparator[0];
+    private readonly char argumentSeparator = cultureInfo.TextInfo.ListSeparator[0];
 
     public TokenReader()
         : this(CultureInfo.CurrentCulture)
     {
-    }
-
-    public TokenReader(CultureInfo cultureInfo)
-    {
-        this.cultureInfo = cultureInfo;
-        decimalSeparator = cultureInfo.NumberFormat.NumberDecimalSeparator[0];
-        argumentSeparator = cultureInfo.TextInfo.ListSeparator[0];
     }
 
     /// <summary>
@@ -44,7 +37,7 @@ public class TokenReader
         var isFormulaSubPart = true;
         var isScientific = false;
 
-        for(var i = 0; i < characters.Length; i++)
+        for (var i = 0; i < characters.Length; i++)
         {
             if (IsPartOfNumeric(characters[i], true, isFormulaSubPart))
             {
@@ -53,8 +46,8 @@ public class TokenReader
                 //string buffer = "" + characters[i];
                 var startPosition = i;
 
-
-                while (++i < characters.Length && IsPartOfNumeric(characters[i], false, isFormulaSubPart))
+                i++;
+                for (; i < characters.Length && IsPartOfNumeric(characters[i], false, isFormulaSubPart); i++)
                 {
                     if (isScientific && IsScientificNotation(characters[i]))
                         throw new ParseException($"Invalid token \"{characters[i]}\" detected at position {i}.");
@@ -64,9 +57,7 @@ public class TokenReader
                         isScientific = IsScientificNotation(characters[i]);
 
                         if (characters[i + 1] == '-')
-                        {
                             buffer.Append(characters[i++]);
-                        }
                     }
 
                     buffer.Append(characters[i]);
@@ -75,34 +66,29 @@ public class TokenReader
                 // Verify if we don't have an int
                 if (int.TryParse(buffer.ToString(), out var intValue))
                 {
-                    tokens.Add(new Token(Value: intValue, TokenType: TokenType.Integer,
+                    tokens.Add(new Token(Value: intValue, TokenType.Integer,
                                          StartPosition: startPosition, Length: i - startPosition));
                     isFormulaSubPart = false;
                 }
-                else
+                else if (double.TryParse(buffer.ToString(), NumberStyles.Float | NumberStyles.AllowThousands,
+                                         cultureInfo, out var doubleValue))
                 {
-                    if (double.TryParse(buffer.ToString(), NumberStyles.Float | NumberStyles.AllowThousands,
-                                        cultureInfo, out var doubleValue))
-                    {
-                        tokens.Add(new Token(Value: doubleValue,
-                                             TokenType: TokenType.FloatingPoint, StartPosition: startPosition, Length: i - startPosition));
-                        isScientific = false;
-                        isFormulaSubPart = false;
-                    }
-                    else if (buffer.ToString() == "-")
-                    {
-                        // Verify if we have a unary minus, we use the token '_' for a unary minus in the AST builder
-                        tokens.Add(new Token(Value: '_', TokenType: TokenType.Operation,
-                                             StartPosition: startPosition, Length: 1));
-                    }
-                    // Else we skip
+                    tokens.Add(new Token(Value: doubleValue,
+                                         TokenType: TokenType.FloatingPoint, StartPosition: startPosition,
+                                         Length: i - startPosition));
+                    isScientific = false;
+                    isFormulaSubPart = false;
                 }
+                else if (buffer.ToString() == "-")
+                {
+                    // Verify if we have a unary minus, we use the token '_' for a unary minus in the AST builder
+                    tokens.Add(new Token(Value: '_', TokenType: TokenType.Operation,
+                                         StartPosition: startPosition, Length: 1));
+                }
+                // Else we skip
 
-                if (i == characters.Length)
-                {
-                    // Last character read
+                if (i == characters.Length) // Last character read
                     continue;
-                }
             }
 
             if (IsPartOfVariable(characters[i], true))
@@ -115,7 +101,7 @@ public class TokenReader
                     buffer += characters[i];
                 }
 
-                tokens.Add(new Token(Value: buffer, TokenType: TokenType.Text,
+                tokens.Add(new Token(Value: buffer, TokenType.Text,
                                      StartPosition: startPosition, Length: i - startPosition));
                 isFormulaSubPart = false;
 
@@ -132,7 +118,6 @@ public class TokenReader
                 isFormulaSubPart = false;
             }
             else
-            {
                 switch (characters[i])
                 {
                     case ' ':
@@ -148,7 +133,7 @@ public class TokenReader
                     case '≠':
                         // We use the token '_' for a unary minus in the AST builder
                         tokens.Add(new Token(Value: IsUnaryMinus(characters[i], tokens) ? '_' : characters[i],
-                                             TokenType: TokenType.Operation, StartPosition: i, Length: 1));
+                                             TokenType.Operation, StartPosition: i, Length: 1));
                         isFormulaSubPart = true;
                         break;
                     case '(':
@@ -188,6 +173,7 @@ public class TokenReader
                         }
                         else
                             throw new ParseException($"Invalid token \"{characters[i]}\" detected at position {i}.");
+
                         break;
                     case '&':
                         if (i + 1 < characters.Length && characters[i + 1] == '&')
@@ -198,6 +184,7 @@ public class TokenReader
                         }
                         else
                             throw new ParseException($"Invalid token \"{characters[i]}\" detected at position {i}.");
+
                         break;
                     case '|':
                         if (i + 1 < characters.Length && characters[i + 1] == '|')
@@ -208,6 +195,7 @@ public class TokenReader
                         }
                         else
                             throw new ParseException($"Invalid token \"{characters[i]}\" detected at position {i}.");
+
                         break;
                     case '=':
                         if (i + 1 < characters.Length && characters[i + 1] == '=')
@@ -218,11 +206,11 @@ public class TokenReader
                         }
                         else
                             throw new ParseException($"Invalid token \"{characters[i]}\" detected at position {i}.");
+
                         break;
                     default:
                         throw new ParseException($"Invalid token \"{characters[i]}\" detected at position {i}.");
                 }
-            }
         }
 
         return tokens;
@@ -230,31 +218,29 @@ public class TokenReader
 
     private bool IsPartOfNumeric(char character, bool isFirstCharacter, bool isFormulaSubPart)
     {
-        return character == decimalSeparator || character is >= '0' and <= '9' || (isFormulaSubPart && isFirstCharacter && character == '-') || (!isFirstCharacter && character == 'e') || (!isFirstCharacter && character == 'E');
+        return character == decimalSeparator
+            || character is >= '0' and <= '9'
+            || (isFormulaSubPart && isFirstCharacter && character == '-')
+            || (!isFirstCharacter && character is 'e' or 'E');
     }
 
-    private bool IsPartOfVariable(char character, bool isFirstCharacter)
+    private static bool IsPartOfVariable(char character, bool isFirstCharacter)
     {
-        return character is >= 'a' and <= 'z' || character is >= 'A' and <= 'Z' || (!isFirstCharacter && character is >= '0' and <= '9') || (!isFirstCharacter && character == '_');
+        return character is >= 'a' and <= 'z'
+            || character is >= 'A' and <= 'Z'
+            || (!isFirstCharacter && character is >= '0' and <= '9' or '_');
     }
 
-    private bool IsUnaryMinus(char currentToken, List<Token> tokens)
+    private static bool IsUnaryMinus(char currentToken, List<Token> tokens)
     {
-        if (currentToken == '-')
-        {
-            var previousToken = tokens[tokens.Count - 1];
+        if (currentToken != '-') return false;
+        var previousToken = tokens[tokens.Count - 1];
 
-            return !(previousToken.TokenType == TokenType.FloatingPoint ||
-                     previousToken.TokenType == TokenType.Integer ||
-                     previousToken.TokenType == TokenType.Text ||
-                     previousToken.TokenType == TokenType.RightBracket);
-        }
-
-        return false;
+        return previousToken.TokenType is not (TokenType.FloatingPoint or TokenType.Integer or TokenType.Text or TokenType.RightBracket);
     }
 
-    private bool IsScientificNotation(char currentToken)
+    private static bool IsScientificNotation(char currentToken)
     {
-        return currentToken == 'e' || currentToken == 'E';
+        return currentToken is 'e' or 'E';
     }
 }
