@@ -1,20 +1,14 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Jace.Util;
 
 namespace Jace.Execution;
 
-public class ConstantRegistry : IConstantRegistry
+public sealed class ConstantRegistry(bool caseSensitive) : IConstantRegistry
 {
-    private readonly bool caseSensitive;
-    private readonly Dictionary<string, ConstantInfo> constants;
-
-    public ConstantRegistry(bool caseSensitive)
-    {
-        this.caseSensitive = caseSensitive;
-        constants = new Dictionary<string, ConstantInfo>();
-    }
+    private readonly Dictionary<string, ConstantInfo> constants = new();
 
     public IEnumerator<ConstantInfo> GetEnumerator()
     {
@@ -28,44 +22,42 @@ public class ConstantRegistry : IConstantRegistry
 
     public ConstantInfo GetConstantInfo(string constantName)
     {
-        if (string.IsNullOrEmpty(constantName))
-            throw new ArgumentNullException(nameof(constantName));
-
-        return constants.TryGetValue(ConvertConstantName(constantName), out var constantInfo) ? constantInfo : null;
+        return TryGetConstantInfo(constantName, out var constantInfo)
+                   ? constantInfo
+                   : throw new KeyNotFoundException(constantName);
     }
 
-    public bool IsConstantName(string constantName)
+    public bool TryGetConstantInfo(string constantName, [NotNullWhen(true)] out ConstantInfo? constantInfo)
+    {
+        return string.IsNullOrEmpty(constantName)
+                   ? throw new ArgumentNullException(nameof(constantName))
+                   : constants.TryGetValue(ConvertConstantName(constantName), out constantInfo);
+    }
+
+    public bool ContainsConstantName(string constantName)
+    {
+        return string.IsNullOrEmpty(constantName)
+                   ? throw new ArgumentNullException(nameof(constantName))
+                   : constants.ContainsKey(ConvertConstantName(constantName));
+    }
+
+    public void RegisterConstant(string constantName, double value, bool isOverWritable = true)
     {
         if (string.IsNullOrEmpty(constantName))
-            throw new ArgumentNullException(nameof(constantName));
-
-        return constants.ContainsKey(ConvertConstantName(constantName));
-    }
-
-    public void RegisterConstant(string constantName, double value)
-    {
-        RegisterConstant(constantName, value, true);
-    }
-
-    public void RegisterConstant(string constantName, double value, bool isOverWritable)
-    {
-        if(string.IsNullOrEmpty(constantName))
             throw new ArgumentNullException(nameof(constantName));
 
         constantName = ConvertConstantName(constantName);
 
         if (constants.TryGetValue(constantName, out var oldConstantInfo) && !oldConstantInfo.IsOverWritable)
-        {
             throw new Exception($"The constant \"{constantName}\" cannot be overwritten.");
-        }
 
-        var constantInfo = new ConstantInfo(constantName, value, isOverWritable);
-
-        constants[constantName] = constantInfo;
+        constants[constantName] = new ConstantInfo(constantName, value, isOverWritable);
     }
 
     private string ConvertConstantName(string constantName)
     {
-        return caseSensitive ? constantName : constantName.ToLowerFast();
+        return caseSensitive
+                   ? constantName
+                   : constantName.ToLowerFast();
     }
 }

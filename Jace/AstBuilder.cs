@@ -68,8 +68,8 @@ public sealed class AstBuilder
                     else
                     {
                         var tokenValue = (string)token.Value;
-                        if (localConstantRegistry.IsConstantName(tokenValue))
-                            resultStack.Push(new FloatingPointConstant(localConstantRegistry.GetConstantInfo(tokenValue).Value));
+                        if (localConstantRegistry.TryGetConstantInfo(tokenValue, out var info))
+                            resultStack.Push(new FloatingPointConstant(info.Value));
                         else
                         {
                             if (!caseSensitive)

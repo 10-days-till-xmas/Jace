@@ -466,7 +466,7 @@ public class CalculationEngine
     {
         foreach (var variableName in variables.Keys)
         {
-            if(ConstantRegistry.IsConstantName(variableName) && !ConstantRegistry.GetConstantInfo(variableName).IsOverWritable)
+            if (ConstantRegistry.TryGetConstantInfo(variableName, out var constantInfo) && !constantInfo.IsOverWritable)
                 throw new ArgumentException($"The name \"{variableName}\" is a reserved variable name that cannot be overwritten.", nameof(variables));
 
             if (FunctionRegistry.IsFunctionName(variableName))

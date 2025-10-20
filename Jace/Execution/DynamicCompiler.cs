@@ -320,10 +320,10 @@ public class DynamicCompiler : IExecutor
     {
         public static double GetVariableValueOrThrow(string variableName, FormulaContext context)
         {
-            if (context.Variables.TryGetValue(variableName, out var result))
-                return result;
-            if (context.ConstantRegistry.IsConstantName(variableName))
-                return context.ConstantRegistry.GetConstantInfo(variableName).Value;
+            if (context.Variables.TryGetValue(variableName, out var variable))
+                return variable;
+            if (context.ConstantRegistry.TryGetConstantInfo(variableName, out var info))
+                return info.Value;
             throw new VariableNotDefinedException($"The variable \"{variableName}\" used is not defined.");
         }
     }

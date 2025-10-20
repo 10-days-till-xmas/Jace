@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Jace.Execution;
 
@@ -21,13 +22,17 @@ public class MockConstantRegistry(bool caseSensitive, Dictionary<string, Constan
     {
         return constants[ConvertConstantName(constantName)];
     }
+    public bool TryGetConstantInfo(string constantName, [NotNullWhen(true)] out ConstantInfo constantInfo)
+    {
+        return constants.TryGetValue(ConvertConstantName(constantName), out constantInfo);
+    }
 
     public IEnumerator<ConstantInfo> GetEnumerator()
     {
         return constants.Select(c=> c.Value).GetEnumerator();
     }
 
-    public bool IsConstantName(string constantName)
+    public bool ContainsConstantName(string constantName)
     {
         return constants.ContainsKey(ConvertConstantName(constantName));
     }
@@ -46,17 +51,13 @@ public class MockConstantRegistry(bool caseSensitive, Dictionary<string, Constan
 
         var constantInfo = new ConstantInfo(constantName, value, isOverWritable);
 
-        if (IsConstantName(constantName))
-        {
-            if (GetConstantInfo(constantName).IsOverWritable)
+        if (TryGetConstantInfo(constantName, out var oldInfo))
+            if (oldInfo.IsOverWritable)
                 constants[constantName] = constantInfo;
             else
                 throw new Exception($"The constant \"{constantName}\" cannot be overwritten.");
-        }
         else
-        {
             constants.Add(constantName, constantInfo);
-        }
     }
 
     IEnumerator IEnumerable.GetEnumerator()
