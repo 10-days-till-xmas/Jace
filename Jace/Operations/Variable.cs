@@ -3,29 +3,12 @@
 /// <summary>
 /// Represents a variable in a mathematical formula.
 /// </summary>
-public class Variable : Operation
+public sealed class Variable(string name) : Operation(DataType.FloatingPoint, true, false)
 {
-    public Variable(string name)
-        : base(DataType.FloatingPoint, true, false)
-    {
-        Name = name;
-    }
+    public string Name { get; } = name;
 
-    public string Name { get; private set; }
+    public override bool Equals(object? obj) => obj is Variable other
+                                             && Name.Equals(other.Name);
 
-    public override bool Equals(object obj)
-    {
-        var other = obj as Variable;
-        if (other != null)
-        {
-            return Name.Equals(other.Name);
-        }
-
-        return false;
-    }
-
-    public override int GetHashCode()
-    {
-        return Name.GetHashCode();
-    }
+    public override int GetHashCode() => Name.GetHashCode();
 }

@@ -50,14 +50,14 @@ public class Optimizer
         else if (operation.GetType() == typeof(Division))
         {
             var division = (Division)operation;
-            division.Dividend = Optimize(division.Dividend, functionRegistry, constantRegistry);
-            division.Divisor = Optimize(division.Divisor, functionRegistry, constantRegistry);
+            division.Argument1 = Optimize(division.Argument1, functionRegistry, constantRegistry);
+            division.Argument2 = Optimize(division.Argument2, functionRegistry, constantRegistry);
         }
         else if (operation.GetType() == typeof(Exponentiation))
         {
             var division = (Exponentiation)operation;
-            division.Base = Optimize(division.Base, functionRegistry, constantRegistry);
-            division.Exponent = Optimize(division.Exponent, functionRegistry, constantRegistry);
+            division.Argument1 = Optimize(division.Argument1, functionRegistry, constantRegistry);
+            division.Argument2 = Optimize(division.Argument2, functionRegistry, constantRegistry);
         }
         else if(operation.GetType() == typeof(Function))
         {

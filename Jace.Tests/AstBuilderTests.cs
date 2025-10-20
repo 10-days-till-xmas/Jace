@@ -96,8 +96,8 @@ public class AstBuilderTests
 
         var division = (Division)operation;
 
-        Assert.Equal(new IntegerConstant(10), division.Dividend);
-        Assert.Equal(new IntegerConstant(2), division.Divisor);
+        Assert.Equal(new IntegerConstant(10), division.Argument1);
+        Assert.Equal(new IntegerConstant(2), division.Argument2);
     }
 
     [Fact]
@@ -134,8 +134,8 @@ public class AstBuilderTests
 
         var exponentiation = (Exponentiation)operation;
 
-        Assert.Equal(new IntegerConstant(2), exponentiation.Base);
-        Assert.Equal(new IntegerConstant(3), exponentiation.Exponent);
+        Assert.Equal(new IntegerConstant(2), exponentiation.Argument1);
+        Assert.Equal(new IntegerConstant(3), exponentiation.Argument2);
     }
 
     [Fact]
@@ -153,8 +153,8 @@ public class AstBuilderTests
 
         var modulo = (Modulo)operation;
 
-        Assert.Equal(new FloatingPointConstant(2.7), modulo.Dividend);
-        Assert.Equal(new IntegerConstant(3), modulo.Divisor);
+        Assert.Equal(new FloatingPointConstant(2.7), modulo.Argument1);
+        Assert.Equal(new IntegerConstant(3), modulo.Argument2);
     }
 
     [Fact]

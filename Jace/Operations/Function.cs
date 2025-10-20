@@ -3,24 +3,16 @@ using System.Linq;
 
 namespace Jace.Operations;
 
-public class Function : Operation
+public sealed class Function(DataType dataType, string functionName, IList<Operation> arguments, bool isIdempotent)
+    : Operation(dataType, arguments.Any(static o => o.DependsOnVariables),
+                isIdempotent && arguments.All(static o => o.IsIdempotent))
 {
-    private IList<Operation> arguments;
+    private IList<Operation> arguments = arguments;
 
-    public Function(DataType dataType, string functionName, IList<Operation> arguments, bool isIdempotent)
-        : base(dataType, arguments.FirstOrDefault(o => o.DependsOnVariables) != null, isIdempotent && arguments.All(o => o.IsIdempotent))
-    {
-        FunctionName = functionName;
-        this.arguments = arguments;
-    }
-
-    public string FunctionName { get; private set; }
+    public string FunctionName { get; private set; } = functionName;
 
     public IList<Operation> Arguments {
-        get
-        {
-            return arguments;
-        }
+        get => arguments;
         internal set
         {
             arguments = value;

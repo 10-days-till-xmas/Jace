@@ -1,20 +1,14 @@
 ﻿namespace Jace.Operations;
 
-public abstract class Constant<T> : Operation
+public abstract class Constant<T>(DataType dataType, T value)
+    : Operation(dataType, false, true) where T : notnull
 {
-    public Constant(DataType dataType, T value)
-        : base(dataType, false, true)
-    {
-        Value = value;
-    }
-
-    public T Value { get; private set; }
+    public T Value { get; } = value;
 
     public override bool Equals(object? obj)
     {
-        if (obj is Constant<T> other)
-            return Value!.Equals(other.Value);
-        return false;
+        return obj is Constant<T> other
+            && Value.Equals(other.Value);
     }
 
     public override int GetHashCode()
@@ -23,18 +17,6 @@ public abstract class Constant<T> : Operation
     }
 }
 
-public class IntegerConstant : Constant<int>
-{
-    public IntegerConstant(int value)
-        : base(DataType.Integer, value)
-    {
-    }
-}
+public sealed class IntegerConstant(int value) : Constant<int>(DataType.Integer, value);
 
-public class FloatingPointConstant : Constant<double>
-{
-    public FloatingPointConstant(double value)
-        : base(DataType.FloatingPoint, value)
-    {
-    }
-}
+public sealed class FloatingPointConstant(double value) : Constant<double>(DataType.FloatingPoint, value);

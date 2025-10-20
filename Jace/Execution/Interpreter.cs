@@ -84,19 +84,19 @@ public class Interpreter : IExecutor
         if (operation.GetType() == typeof(Division))
         {
             var division = (Division)operation;
-            return Execute(division.Dividend, functionRegistry, constantRegistry, variables) / Execute(division.Divisor, functionRegistry, constantRegistry, variables);
+            return Execute(division.Argument1, functionRegistry, constantRegistry, variables) / Execute(division.Argument2, functionRegistry, constantRegistry, variables);
         }
 
         if (operation.GetType() == typeof(Modulo))
         {
             var division = (Modulo)operation;
-            return Execute(division.Dividend, functionRegistry, constantRegistry, variables) % Execute(division.Divisor, functionRegistry, constantRegistry, variables);
+            return Execute(division.Argument1, functionRegistry, constantRegistry, variables) % Execute(division.Argument2, functionRegistry, constantRegistry, variables);
         }
 
         if (operation.GetType() == typeof(Exponentiation))
         {
             var exponentiation = (Exponentiation)operation;
-            return Math.Pow(Execute(exponentiation.Base, functionRegistry, constantRegistry, variables), Execute(exponentiation.Exponent, functionRegistry, constantRegistry, variables));
+            return Math.Pow(Execute(exponentiation.Argument1, functionRegistry, constantRegistry, variables), Execute(exponentiation.Argument2, functionRegistry, constantRegistry, variables));
         }
 
         if (operation.GetType() == typeof(UnaryMinus))

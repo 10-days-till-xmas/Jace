@@ -122,8 +122,8 @@ public class DynamicCompiler : IExecutor
         if (operation.GetType() == typeof(Division))
         {
             var division = (Division)operation;
-            var dividend = GenerateMethodBody(division.Dividend, contextParameter, functionRegistry);
-            var divisor = GenerateMethodBody(division.Divisor, contextParameter, functionRegistry);
+            var dividend = GenerateMethodBody(division.Argument1, contextParameter, functionRegistry);
+            var divisor = GenerateMethodBody(division.Argument2, contextParameter, functionRegistry);
 
             return Expression.Divide(dividend, divisor);
         }
@@ -131,8 +131,8 @@ public class DynamicCompiler : IExecutor
         if (operation.GetType() == typeof(Modulo))
         {
             var modulo = (Modulo)operation;
-            var dividend = GenerateMethodBody(modulo.Dividend, contextParameter, functionRegistry);
-            var divisor = GenerateMethodBody(modulo.Divisor, contextParameter, functionRegistry);
+            var dividend = GenerateMethodBody(modulo.Argument1, contextParameter, functionRegistry);
+            var divisor = GenerateMethodBody(modulo.Argument2, contextParameter, functionRegistry);
 
             return Expression.Modulo(dividend, divisor);
         }
@@ -140,8 +140,8 @@ public class DynamicCompiler : IExecutor
         if (operation.GetType() == typeof(Exponentiation))
         {
             var exponentiation = (Exponentiation)operation;
-            var @base = GenerateMethodBody(exponentiation.Base, contextParameter, functionRegistry);
-            var exponent = GenerateMethodBody(exponentiation.Exponent, contextParameter, functionRegistry);
+            var @base = GenerateMethodBody(exponentiation.Argument1, contextParameter, functionRegistry);
+            var exponent = GenerateMethodBody(exponentiation.Argument2, contextParameter, functionRegistry);
 
             return Expression.Call(null, typeof(Math).GetRuntimeMethod("Pow", [typeof(double), typeof(double)]), @base, exponent);
         }

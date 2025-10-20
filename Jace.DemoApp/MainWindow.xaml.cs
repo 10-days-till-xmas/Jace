@@ -110,12 +110,12 @@ public partial class MainWindow : Window
                 item.Items.Add(CreateTreeViewItem(subtraction.Argument2));
                 break;
             case Division division:
-                item.Items.Add(CreateTreeViewItem(division.Dividend));
-                item.Items.Add(CreateTreeViewItem(division.Divisor));
+                item.Items.Add(CreateTreeViewItem(division.Argument1));
+                item.Items.Add(CreateTreeViewItem(division.Argument2));
                 break;
             case Exponentiation exponentiation:
-                item.Items.Add(CreateTreeViewItem(exponentiation.Base));
-                item.Items.Add(CreateTreeViewItem(exponentiation.Exponent));
+                item.Items.Add(CreateTreeViewItem(exponentiation.Argument1));
+                item.Items.Add(CreateTreeViewItem(exponentiation.Argument2));
                 break;
             case Function function:
             {
@@ -158,9 +158,9 @@ public partial class MainWindow : Window
                     [..GetVariables(multiplication.Argument1), ..GetVariables(multiplication.Argument2)],
                 Subtraction substraction =>
                     [..GetVariables(substraction.Argument1), ..GetVariables(substraction.Argument2)],
-                Division division => [..GetVariables(division.Dividend), ..GetVariables(division.Divisor)],
+                Division division => [..GetVariables(division.Argument1), ..GetVariables(division.Argument2)],
                 Exponentiation exponentiation =>
-                    [..GetVariables(exponentiation.Base), ..GetVariables(exponentiation.Exponent)],
+                    [..GetVariables(exponentiation.Argument1), ..GetVariables(exponentiation.Argument2)],
                 Function function => [..function.Arguments.SelectMany(GetVariables)],
                 _ => []
             }
