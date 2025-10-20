@@ -8,15 +8,15 @@ using Jace.Util;
 
 namespace Jace;
 
-public class AstBuilder
+public sealed class AstBuilder
 {
     private readonly IFunctionRegistry functionRegistry;
     private readonly IConstantRegistry localConstantRegistry;
     private readonly bool caseSensitive;
-    private Dictionary<char, int> operationPrecedence = new Dictionary<char, int>();
-    private Stack<Operation> resultStack = new Stack<Operation>();
-    private Stack<Token> operatorStack = new Stack<Token>();
-    private Stack<int> parameterCount = new Stack<int>();
+    private readonly Dictionary<char, int> operationPrecedence = new();
+    private readonly Stack<Operation> resultStack = new();
+    private readonly Stack<Token> operatorStack = new();
+    private readonly Stack<int> parameterCount = new();
 
     public AstBuilder(IFunctionRegistry functionRegistry, bool caseSensitive, IConstantRegistry? compiledConstants = null)
     {
@@ -51,8 +51,6 @@ public class AstBuilder
 
         foreach (var token in tokens)
         {
-            var value = token.Value;
-
             switch (token.TokenType)
             {
                 case TokenType.Integer:
@@ -71,15 +69,11 @@ public class AstBuilder
                     {
                         var tokenValue = (string)token.Value;
                         if (localConstantRegistry.IsConstantName(tokenValue))
-                        {
                             resultStack.Push(new FloatingPointConstant(localConstantRegistry.GetConstantInfo(tokenValue).Value));
-                        }
                         else
                         {
                             if (!caseSensitive)
-                            {
                                 tokenValue = tokenValue.ToLowerFast();
-                            }
                             resultStack.Push(new Variable(tokenValue));
                         }
                     }
@@ -89,15 +83,13 @@ public class AstBuilder
                     break;
                 case TokenType.RightBracket:
                     PopOperations(true, token);
-                    //parameterCount.Pop();
                     break;
                 case TokenType.ArgumentSeparator:
                     PopOperations(false, token);
                     parameterCount.Push(parameterCount.Pop() + 1);
                     break;
                 case TokenType.Operation:
-                    var operation1Token = token;
-                    var operation1 = (char)operation1Token.Value;
+                    var operation1 = (char)token.Value;
 
                     while (operatorStack.Count > 0 && (operatorStack.Peek().TokenType == TokenType.Operation ||
                                                        operatorStack.Peek().TokenType == TokenType.Text))
@@ -128,7 +120,7 @@ public class AstBuilder
                         }
                     }
 
-                    operatorStack.Push(operation1Token);
+                    operatorStack.Push(token);
                     break;
             }
         }
@@ -169,13 +161,10 @@ public class AstBuilder
                 throw new ParseException("No matching left bracket found for the right " +
                                          $"bracket at position {currentToken!.Value.StartPosition}.");
         }
-        else
-        {
-            if (operatorStack.Count > 0 && operatorStack.Peek().TokenType == TokenType.LeftBracket
-                                        && !(currentToken is { TokenType: TokenType.ArgumentSeparator }))
-                throw new ParseException("No matching right bracket found for the left " +
-                                         $"bracket at position {operatorStack.Peek().StartPosition}.");
-        }
+        else if (operatorStack.Count > 0 && operatorStack.Peek() is {TokenType: TokenType.LeftBracket }
+                                         && currentToken is not { TokenType: TokenType.ArgumentSeparator })
+            throw new ParseException("No matching right bracket found for the left " +
+                                     $"bracket at position {operatorStack.Peek().StartPosition}.");
     }
 
     private Operation ConvertOperation(Token operationToken)
@@ -185,8 +174,6 @@ public class AstBuilder
             DataType dataType;
             Operation argument1;
             Operation argument2;
-            Operation divisor;
-            Operation dividend;
 
             switch ((char)operationToken.Value)
             {
@@ -194,86 +181,71 @@ public class AstBuilder
                     argument2 = resultStack.Pop();
                     argument1 = resultStack.Pop();
                     dataType = RequiredDataType(argument1, argument2);
-
                     return new Addition(dataType, argument1, argument2);
                 case '-':
                     argument2 = resultStack.Pop();
                     argument1 = resultStack.Pop();
                     dataType = RequiredDataType(argument1, argument2);
-
                     return new Subtraction(dataType, argument1, argument2);
                 case '*':
                     argument2 = resultStack.Pop();
                     argument1 = resultStack.Pop();
                     dataType = RequiredDataType(argument1, argument2);
-
                     return new Multiplication(dataType, argument1, argument2);
                 case '/':
-                    divisor = resultStack.Pop();
-                    dividend = resultStack.Pop();
-
-                    return new Division(DataType.FloatingPoint, dividend, divisor);
+                    argument2 = resultStack.Pop();
+                    argument1 = resultStack.Pop();
+                    return new Division(DataType.FloatingPoint, argument1, argument2);
                 case '%':
-                    divisor = resultStack.Pop();
-                    dividend = resultStack.Pop();
-
-                    return new Modulo(DataType.FloatingPoint, dividend, divisor);
+                    argument2 = resultStack.Pop();
+                    argument1 = resultStack.Pop();
+                    return new Modulo(DataType.FloatingPoint, argument1, argument2);
                 case '_':
                     argument1 = resultStack.Pop();
-
                     return new UnaryMinus(argument1.DataType, argument1);
                 case '^':
-                    var exponent = resultStack.Pop();
-                    var @base = resultStack.Pop();
-
-                    return new Exponentiation(DataType.FloatingPoint, @base, exponent);
+                    argument2 = resultStack.Pop();
+                    argument1 = resultStack.Pop();
+                    return new Exponentiation(DataType.FloatingPoint, argument1, argument2);
                 case '&':
                     argument2 = resultStack.Pop();
                     argument1 = resultStack.Pop();
                     dataType = RequiredDataType(argument1, argument2);
-
                     return new And(dataType, argument1, argument2);
                 case '|':
                     argument2 = resultStack.Pop();
                     argument1 = resultStack.Pop();
                     dataType = RequiredDataType(argument1, argument2);
-
                     return new Or(dataType, argument1, argument2);
                 case '<':
                     argument2 = resultStack.Pop();
                     argument1 = resultStack.Pop();
                     dataType = RequiredDataType(argument1, argument2);
-
                     return new LessThan(dataType, argument1, argument2);
                 case '≤':
                     argument2 = resultStack.Pop();
                     argument1 = resultStack.Pop();
                     dataType = RequiredDataType(argument1, argument2);
-
                     return new LessOrEqualThan(dataType, argument1, argument2);
                 case '>':
                     argument2 = resultStack.Pop();
                     argument1 = resultStack.Pop();
                     dataType = RequiredDataType(argument1, argument2);
-
                     return new GreaterThan(dataType, argument1, argument2);
                 case '≥':
                     argument2 = resultStack.Pop();
                     argument1 = resultStack.Pop();
                     dataType = RequiredDataType(argument1, argument2);
-
                     return new GreaterOrEqualThan(dataType, argument1, argument2);
                 case '=':
                     argument2 = resultStack.Pop();
                     argument1 = resultStack.Pop();
                     dataType = RequiredDataType(argument1, argument2);
-
                     return new Equal(dataType, argument1, argument2);
                 case '≠':
                     argument2 = resultStack.Pop();
                     argument1 = resultStack.Pop();
                     dataType = RequiredDataType(argument1, argument2);
-
                     return new NotEqual(dataType, argument1, argument2);
                 default:
                     throw new ArgumentException($"Unknown operation \"{operationToken}\".", nameof(operationToken));
@@ -294,29 +266,22 @@ public class AstBuilder
         {
             var functionName = ((string)functionToken.Value).ToLowerInvariant();
 
-            if (functionRegistry.IsFunctionName(functionName))
-            {
-                var functionInfo = functionRegistry.GetFunctionInfo(functionName);
+            if (!functionRegistry.IsFunctionName(functionName))
+                throw new ArgumentException($"Unknown function \"{functionToken.Value}\".", nameof(functionToken));
 
-                int numberOfParameters;
+            var functionInfo = functionRegistry.GetFunctionInfo(functionName);
+            var numberOfParameters = parameterCount.Pop();
 
-                if (functionInfo.IsDynamicFunc) {
-                    numberOfParameters = parameterCount.Pop();
-                }
-                else {
-                    parameterCount.Pop();
-                    numberOfParameters = functionInfo.NumberOfParameters;
-                }
+            if (!functionInfo.IsDynamicFunc)
+                numberOfParameters = functionInfo.NumberOfParameters;
 
-                var operations = new List<Operation>();
-                for (var i = 0; i < numberOfParameters; i++)
-                    operations.Add(resultStack.Pop());
-                operations.Reverse();
+            var operations = new List<Operation>();
+            for (var i = 0; i < numberOfParameters; i++)
+                operations.Add(resultStack.Pop());
+            operations.Reverse();
 
-                return new Function(DataType.FloatingPoint, functionName, operations, functionInfo.IsIdempotent);
-            }
+            return new Function(DataType.FloatingPoint, functionName, operations, functionInfo.IsIdempotent);
 
-            throw new ArgumentException($"Unknown function \"{functionToken.Value}\".", nameof(functionToken));
         }
         catch (InvalidOperationException)
         {
@@ -329,38 +294,33 @@ public class AstBuilder
 
     private void VerifyResultStack()
     {
-        if(resultStack.Count > 1)
+        if (resultStack.Count <= 1) return;
+        var operations = resultStack.ToArray();
+
+        for (var i = 1; i < operations.Length; i++)
         {
-            var operations = resultStack.ToArray();
-
-            for (var i = 1; i < operations.Length; i++)
+            switch (operations[i])
             {
-                var operation = operations[i];
-
-                if (operation.GetType() == typeof(IntegerConstant))
-                {
-                    var constant = (IntegerConstant)operation;
-                    throw new ParseException($"Unexpected integer constant \"{constant.Value}\" found.");
-                }
-
-                if (operation.GetType() == typeof(FloatingPointConstant))
-                {
-                    var constant = (FloatingPointConstant)operation;
-                    throw new ParseException($"Unexpected floating point constant \"{constant.Value}\" found.");
-                }
+                case IntegerConstant integerConstant:
+                    throw new ParseException($"Unexpected integer constant \"{integerConstant.Value}\" found.");
+                case FloatingPointConstant floatConstant:
+                    throw new ParseException($"Unexpected floating point constant \"{floatConstant.Value}\" found.");
             }
-
-            throw new ParseException("The syntax of the provided formula is not valid.");
         }
+
+        throw new ParseException("The syntax of the provided formula is not valid.");
     }
 
-    private bool IsLeftAssociativeOperation(char character)
+    private static bool IsLeftAssociativeOperation(char character)
     {
-        return character == '*' || character == '+' || character == '-' || character == '/';
+        return character is '*' or '+' or '-' or '/';
     }
 
-    private DataType RequiredDataType(Operation argument1, Operation argument2)
+    private static DataType RequiredDataType(Operation argument1, Operation argument2)
     {
-        return (argument1.DataType == DataType.FloatingPoint || argument2.DataType == DataType.FloatingPoint) ? DataType.FloatingPoint : DataType.Integer;
+        return (argument1.DataType == DataType.FloatingPoint
+             || argument2.DataType == DataType.FloatingPoint)
+                   ? DataType.FloatingPoint
+                   : DataType.Integer;
     }
 }
