@@ -3,42 +3,55 @@ using System.Collections.Generic;
 using System.Linq;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Diagnostics.dotTrace;
+using JetBrains.Annotations;
 
 namespace Jace.Benchmark.Benchmarks;
 
 [DotTraceDiagnoser]
 [DisassemblyDiagnoser]
 [RPlotExporter]
-public sealed class ConstantFormulaBenchmarks : JaceBenchmarkBase
+// ReSharper disable once ClassCanBeSealed.Global
+public class ConstantFormulaBenchmarks : JaceBenchmarkBase
 {
+    [Serializable]
+    public sealed class FunctionInfo(string function)
+    {
+        public string Function { get; } = function;
+        public Func<int, int, int, double>? CompiledFunction { get; set; }
+
+        public void CompileFunction(CalculationEngine engine)
+        {
+            CompiledFunction = (Func<int, int, int, double>)engine.Formula(Function)
+                                                                  .Parameter("var1", DataType.Integer)
+                                                                  .Parameter("var2", DataType.Integer)
+                                                                  .Parameter("something", DataType.Integer)
+                                                                  .Result(DataType.FloatingPoint)
+                                                                  .Build();
+        }
+        public override string ToString() => Function;
+    }
+
     private readonly Random _random = new();
 
-    public static IEnumerable<string> SimpleFormulae =>
+    public static string[] SimpleFormulae =>
     [
         "2+3*7",
         "20-3^2"
     ];
 
-    public static IEnumerable<string> SimpleFunctions =>
-    [
-        "logn(var1, (2+3) * 500)",
-        "(var1 + var2 * 3)/(2+3) - something"
+    public static FunctionInfo[] SimpleFunctionInfos { get; } = [
+        new("logn(var1, (2+3) * 500)"),
+        new("(var1 + var2 * 3)/(2+3) - something")
     ];
-
-    public static Func<int, int, int, double>[] SimpleFunctionsCompiled { get; private set; }
 
     [GlobalSetup]
     public void GlobalSetup()
     {
         GlobalSetup_Engine();
-        SimpleFunctionsCompiled = SimpleFunctions.Select(f => Engine.Engine.Formula(f)
-                                                                    .Parameter("var1", DataType.Integer)
-                                                                    .Parameter("var2", DataType.Integer)
-                                                                    .Parameter("something", DataType.Integer)
-                                                                    .Result(DataType.FloatingPoint)
-                                                                    .Build())
-                                                 .Cast<Func<int, int, int, double>>()
-                                                 .ToArray(); // Force immediate evaluation
+        foreach (var fi in SimpleFunctionInfos)
+        {
+            fi.CompileFunction(Engine.Engine);
+        }
     }
 
     [Benchmark]
@@ -51,10 +64,10 @@ public sealed class ConstantFormulaBenchmarks : JaceBenchmarkBase
 
     [Benchmark]
     [BenchmarkCategory("Simple Function")]
-    [ArgumentsSource(nameof(SimpleFunctions))]
-    public double EngineFunctionBuildAndRun(string simpleFunction)
+    [ArgumentsSource(nameof(SimpleFunctionInfos))]
+    public double EngineFunctionBuildAndRun(FunctionInfo functionInfo)
     {
-        var function = (Func<int, int, int, double>)Engine.Engine.Formula(simpleFunction)
+        var function = (Func<int, int, int, double>)Engine.Engine.Formula(functionInfo.Function)
             .Parameter("var1", DataType.Integer)
             .Parameter("var2", DataType.Integer)
             .Parameter("something", DataType.Integer)
@@ -65,11 +78,11 @@ public sealed class ConstantFormulaBenchmarks : JaceBenchmarkBase
 
     [Benchmark]
     [BenchmarkCategory("Simple Function")]
-    [ArgumentsSource(nameof(SimpleFunctions))]
-    public Func<int, int, int, double> EngineFunctionBuildOnly(string simpleFunction)
+    [ArgumentsSource(nameof(SimpleFunctionInfos))]
+    public Func<int, int, int, double> EngineFunctionBuildOnly(FunctionInfo functionInfo)
     {
         return (Func<int, int, int, double>)Engine.Engine
-                                                  .Formula(simpleFunction)
+                                                  .Formula(functionInfo.Function)
                                                   .Parameter("var1", DataType.Integer)
                                                   .Parameter("var2", DataType.Integer)
                                                   .Parameter("something", DataType.Integer)
@@ -79,9 +92,9 @@ public sealed class ConstantFormulaBenchmarks : JaceBenchmarkBase
 
     [Benchmark]
     [BenchmarkCategory("Simple Function")]
-    [ArgumentsSource(nameof(SimpleFunctionsCompiled))]
-    public double EngineFunctionCompiled(Func<int, int, int, double> function)
+    [ArgumentsSource(nameof(SimpleFunctionInfos))]
+    public double EngineFunctionCompiled(FunctionInfo functionInfo)
     {
-        return function(_random.Next(), _random.Next(), _random.Next());
+        return functionInfo.CompiledFunction!(_random.Next(), _random.Next(), _random.Next());
     }
 }

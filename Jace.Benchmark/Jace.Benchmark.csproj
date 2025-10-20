@@ -5,6 +5,7 @@
     <Product>Jace.Benchmark</Product>
     <TargetFramework>net9.0</TargetFramework>
     <LangVersion>13.0</LangVersion>
+    <Nullable>enable</Nullable>
     <OutputType>Exe</OutputType>
     <IncludeSatelliteAssemblies>false</IncludeSatelliteAssemblies>
   </PropertyGroup>

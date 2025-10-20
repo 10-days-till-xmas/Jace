@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -10,22 +11,23 @@ namespace Jace.Benchmark.Benchmarks;
 [DotTraceDiagnoser]
 [DisassemblyDiagnoser]
 [RPlotExporter]
-public sealed class RandomFormulaBenchmarks : JaceBenchmarkBase
+// ReSharper disable once ClassCanBeSealed.Global
+public class RandomFormulaBenchmarks : JaceBenchmarkBase
 {
     private const int MaxFormulae = 1000;
     private const int RandomSeed = ':' + '3'; // :3 // (109)
 
-    private static string[] _randomFormulae;
-    private static Func<int, int, int, double>[] _randomFormulaeCompiled;
+    private static string[]? _randomFormulae = null!;
+    private static Func<int, int, int, double>[]? _randomFormulaeCompiled = null!;
     private static int _formulaIndex = 0;
 
     private static int globalCounter = 0;
 
-    private Random _random;
+    private Random? _random = null!;
 
-    private static string RandomFormula => _randomFormulae[++_formulaIndex % MaxFormulae];
+    private static string RandomFormula => _randomFormulae![++_formulaIndex % MaxFormulae];
 
-    private static Func<int, int, int, double> RandomFormulaCompiled => _randomFormulaeCompiled[++_formulaIndex % MaxFormulae];
+    private static Func<int, int, int, double> RandomFormulaCompiled => _randomFormulaeCompiled![++_formulaIndex % MaxFormulae];
 
     [GlobalSetup]
     public void GlobalSetup()
@@ -42,27 +44,21 @@ public sealed class RandomFormulaBenchmarks : JaceBenchmarkBase
                                                                      .Build())
                                                   .Cast<Func<int, int, int, double>>()
                                                   .ToArray();
-        var formulaDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly()!.Location)
+        var formulaDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)
                          ?? throw new InvalidOperationException("Directory not found for the assembly location.");
 
         Console.WriteLine($"Saving generated formulae to {formulaDir}");
 
-        var formulaeFile = Path.Combine(formulaDir, $"formulae{globalCounter}.txt");
-
-        MoveOldFileIfExists(formulaeFile);
+        var formulaeFile = Path.Combine(formulaDir, $"formulae-run{globalCounter}.txt");
+        var counter = 1;
+        while (File.Exists(formulaeFile))
+        {
+            formulaeFile = Path.Combine(formulaDir, $"formulae-run{globalCounter} ({counter}).txt");
+            counter++;
+        }
 
         File.WriteAllLines(formulaeFile, _randomFormulae);
         Console.WriteLine($"Saved {_randomFormulae.Length} random formulae to {formulaeFile}");
-        return;
-        // tbh this is weird
-        static void MoveOldFileIfExists(string filePath, int count = 0)
-        {
-            if (!File.Exists(filePath)) return;
-            var newFilePath = Path.ChangeExtension(filePath, $".old{count++}.txt");
-            MoveOldFileIfExists(newFilePath, count);
-            File.Move(filePath, newFilePath);
-            Console.WriteLine($"Moved existing file to {newFilePath}");
-        }
     }
 
     [Benchmark]
@@ -84,7 +80,7 @@ public sealed class RandomFormulaBenchmarks : JaceBenchmarkBase
     [BenchmarkCategory("Random Formula")]
     public double RandomFunctionRunCompiled()
     {
-        return RandomFormulaCompiled(_random.Next(), _random.Next(), _random.Next());
+        return RandomFormulaCompiled(_random!.Next(), _random.Next(), _random.Next());
     }
 
     [Benchmark]
@@ -99,7 +95,7 @@ public sealed class RandomFormulaBenchmarks : JaceBenchmarkBase
             .Result(DataType.FloatingPoint)
             .Build();
 
-        return function(_random.Next(), _random.Next(), _random.Next());
+        return function(_random!.Next(), _random.Next(), _random.Next());
     }
 
     [Benchmark]
@@ -107,6 +103,11 @@ public sealed class RandomFormulaBenchmarks : JaceBenchmarkBase
     [BenchmarkCategory("Random Formula")]
     public double RandomFunctionCalculate()
     {
-        return Engine.Engine.Calculate(RandomFormula);
+        return Engine.Engine.Calculate(RandomFormula, new Dictionary<string, double>()
+        {
+            { "var1", _random!.Next() },
+            { "var2", _random.Next() },
+            { "var3", _random.Next() }
+        });
     }
 }
