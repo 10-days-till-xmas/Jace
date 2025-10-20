@@ -3,27 +3,8 @@
 /// <summary>
 /// Represents an input token
 /// </summary>
-public struct Token
-{
-    /// <summary>
-    /// The start position of the token in the input function text.
-    /// </summary>
-    public int StartPosition;
-
-    /// <summary>
-    /// The length of token in the input function text.
-    /// </summary>
-    public int Length;
-
-    /// <summary>
-    /// The type of the token.
-    /// </summary>
-    public TokenType TokenType;
-
-    /// <summary>
-    /// The value of the token.
-    /// </summary>
-    public object Value;
-}
-
-// TODO: use [StructLayout(LayoutKind.Explicit)] to reduce boxing of Value, by overlapping varName and varValues
+/// <param name="TokenType">The type of the token</param>
+/// <param name="Value">The value of the token</param>
+/// <param name="StartPosition">The start position of the token in the input function text</param>
+/// <param name="Length">The length of token in the input function text</param>
+public readonly record struct Token(object Value, TokenType TokenType, int StartPosition = 0, int Length = 0);

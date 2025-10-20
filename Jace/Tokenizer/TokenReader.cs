@@ -75,7 +75,8 @@ public class TokenReader
                 // Verify if we don't have an int
                 if (int.TryParse(buffer.ToString(), out var intValue))
                 {
-                    tokens.Add(new Token { TokenType = TokenType.Integer, Value = intValue, StartPosition = startPosition, Length = i - startPosition });
+                    tokens.Add(new Token(Value: intValue, TokenType: TokenType.Integer,
+                                         StartPosition: startPosition, Length: i - startPosition));
                     isFormulaSubPart = false;
                 }
                 else
@@ -83,14 +84,16 @@ public class TokenReader
                     if (double.TryParse(buffer.ToString(), NumberStyles.Float | NumberStyles.AllowThousands,
                                         cultureInfo, out var doubleValue))
                     {
-                        tokens.Add(new Token { TokenType = TokenType.FloatingPoint, Value = doubleValue, StartPosition = startPosition, Length = i - startPosition });
+                        tokens.Add(new Token(Value: doubleValue,
+                                             TokenType: TokenType.FloatingPoint, StartPosition: startPosition, Length: i - startPosition));
                         isScientific = false;
                         isFormulaSubPart = false;
                     }
                     else if (buffer.ToString() == "-")
                     {
                         // Verify if we have a unary minus, we use the token '_' for a unary minus in the AST builder
-                        tokens.Add(new Token { TokenType = TokenType.Operation, Value = '_', StartPosition = startPosition, Length = 1 });
+                        tokens.Add(new Token(Value: '_', TokenType: TokenType.Operation,
+                                             StartPosition: startPosition, Length: 1));
                     }
                     // Else we skip
                 }
@@ -112,7 +115,8 @@ public class TokenReader
                     buffer += characters[i];
                 }
 
-                tokens.Add(new Token { TokenType = TokenType.Text, Value = buffer, StartPosition = startPosition, Length = i -startPosition });
+                tokens.Add(new Token(Value: buffer, TokenType: TokenType.Text,
+                                     StartPosition: startPosition, Length: i - startPosition));
                 isFormulaSubPart = false;
 
                 if (i == characters.Length)
@@ -123,7 +127,8 @@ public class TokenReader
             }
             if (characters[i] == argumentSeparator)
             {
-                tokens.Add(new Token { TokenType = TokenType.ArgumentSeparator, Value = characters[i], StartPosition = i, Length = 1 });
+                tokens.Add(new Token(Value: characters[i], TokenType: TokenType.ArgumentSeparator,
+                                     StartPosition: i, Length: 1));
                 isFormulaSubPart = false;
             }
             else
@@ -142,40 +147,43 @@ public class TokenReader
                     case '≥':
                     case '≠':
                         // We use the token '_' for a unary minus in the AST builder
-                        tokens.Add(new Token
-                            {
-                                TokenType = TokenType.Operation,
-                                Value = IsUnaryMinus(characters[i], tokens)? '_' : characters[i],
-                                StartPosition = i, Length = 1
-                            });
+                        tokens.Add(new Token(Value: IsUnaryMinus(characters[i], tokens) ? '_' : characters[i],
+                                             TokenType: TokenType.Operation, StartPosition: i, Length: 1));
                         isFormulaSubPart = true;
                         break;
                     case '(':
-                        tokens.Add(new Token { TokenType = TokenType.LeftBracket, Value = characters[i], StartPosition = i, Length = 1 });
+                        tokens.Add(new Token(Value: characters[i], TokenType: TokenType.LeftBracket,
+                                             StartPosition: i, Length: 1));
                         isFormulaSubPart = true;
                         break;
                     case ')':
-                        tokens.Add(new Token { TokenType = TokenType.RightBracket, Value = characters[i], StartPosition = i, Length = 1 });
+                        tokens.Add(new Token(Value: characters[i], TokenType: TokenType.RightBracket,
+                                             StartPosition: i, Length: 1));
                         isFormulaSubPart = false;
                         break;
                     case '<':
                         if (i + 1 < characters.Length && characters[i + 1] == '=')
-                            tokens.Add(new Token { TokenType = TokenType.Operation, Value = '≤', StartPosition = i++, Length = 2 });
+                            tokens.Add(new Token(Value: '≤', TokenType: TokenType.Operation,
+                                                 StartPosition: i++, Length: 2));
                         else
-                            tokens.Add(new Token { TokenType = TokenType.Operation, Value = '<', StartPosition = i, Length = 1 });
+                            tokens.Add(new Token(Value: '<', TokenType: TokenType.Operation,
+                                                 StartPosition: i, Length: 1));
                         isFormulaSubPart = false;
                         break;
                     case '>':
                         if (i + 1 < characters.Length && characters[i + 1] == '=')
-                            tokens.Add(new Token { TokenType = TokenType.Operation, Value = '≥', StartPosition = i++, Length = 2 });
+                            tokens.Add(new Token(Value: '≥', TokenType: TokenType.Operation,
+                                                 StartPosition: i++, Length: 2));
                         else
-                            tokens.Add(new Token { TokenType = TokenType.Operation, Value = '>', StartPosition = i, Length = 1 });
+                            tokens.Add(new Token(Value: '>', TokenType: TokenType.Operation,
+                                                 StartPosition: i, Length: 1));
                         isFormulaSubPart = false;
                         break;
                     case '!':
                         if (i + 1 < characters.Length && characters[i + 1] == '=')
                         {
-                            tokens.Add(new Token { TokenType = TokenType.Operation, Value = '≠', StartPosition = i++, Length = 2 });
+                            tokens.Add(new Token(Value: '≠', TokenType: TokenType.Operation,
+                                                 StartPosition: i++, Length: 2));
                             isFormulaSubPart = false;
                         }
                         else
@@ -184,7 +192,8 @@ public class TokenReader
                     case '&':
                         if (i + 1 < characters.Length && characters[i + 1] == '&')
                         {
-                            tokens.Add(new Token { TokenType = TokenType.Operation, Value = '&', StartPosition = i++, Length = 2 });
+                            tokens.Add(new Token(Value: '&', TokenType: TokenType.Operation,
+                                                 StartPosition: i++, Length: 2));
                             isFormulaSubPart = false;
                         }
                         else
@@ -193,7 +202,8 @@ public class TokenReader
                     case '|':
                         if (i + 1 < characters.Length && characters[i + 1] == '|')
                         {
-                            tokens.Add(new Token { TokenType = TokenType.Operation, Value = '|', StartPosition = i++, Length = 2 });
+                            tokens.Add(new Token(Value: '|', TokenType: TokenType.Operation,
+                                                 StartPosition: i++, Length: 2));
                             isFormulaSubPart = false;
                         }
                         else
@@ -202,7 +212,8 @@ public class TokenReader
                     case '=':
                         if (i + 1 < characters.Length && characters[i + 1] == '=')
                         {
-                            tokens.Add(new Token { TokenType = TokenType.Operation, Value = '=', StartPosition = i++, Length = 2 });
+                            tokens.Add(new Token(Value: '=', TokenType: TokenType.Operation,
+                                                 StartPosition: i++, Length: 2));
                             isFormulaSubPart = false;
                         }
                         else
