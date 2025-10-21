@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using Jace.Execution;
@@ -9,14 +10,14 @@ using Jace.Util;
 
 namespace Jace;
 
-public delegate TResult DynamicFunc<T, TResult>(params T[] values);
+public delegate TResult DynamicFunc<in T, out TResult>(params T[] values);
 
 /// <summary>
 /// The CalculationEngine class is the main class of Jace.NET to convert strings containing
 /// mathematical formulas into .NET Delegates and to calculate the result.
 /// It can be configured to run in a number of modes based on the constructor parameters chosen.
 /// </summary>
-public class CalculationEngine
+public sealed class CalculationEngine
 {
     private readonly IExecutor executor;
     private readonly Optimizer optimizer;
@@ -167,7 +168,7 @@ public class CalculationEngine
         foreach (var constant in ConstantRegistry)
             variables.Add(constant.ConstantName, constant.Value);
 
-        if (IsInFormulaCache(formulaText, null, out var function))
+        if (TryGetFromFormulaCache(formulaText, null, out var function))
         {
             return function(variables);
         }
@@ -195,7 +196,7 @@ public class CalculationEngine
         if (string.IsNullOrEmpty(formulaText))
             throw new ArgumentNullException(nameof(formulaText));
 
-        if (IsInFormulaCache(formulaText, null, out var result))
+        if (TryGetFromFormulaCache(formulaText, null, out var result))
         {
             return result;
         }
@@ -210,7 +211,7 @@ public class CalculationEngine
     /// <param name="formulaText">The formula that must be converted into a .NET func.</param>
     /// <param name="constants">Constant values for variables defined into the formula. They variables will be replaced by the constant value at pre-compilation time.</param>
     /// <returns>A .NET func for the provided formula.</returns>
-    public Func<IDictionary<string, double>, double> Build(string formulaText, IDictionary<string, double> constants)
+    public Func<IDictionary<string, double>, double> Build(string formulaText, IDictionary<string, double>? constants)
     {
         if (string.IsNullOrEmpty(formulaText))
             throw new ArgumentNullException(nameof(formulaText));
@@ -225,7 +226,7 @@ public class CalculationEngine
             }
         }
 
-        if (IsInFormulaCache(formulaText, compiledConstants, out var result))
+        if (TryGetFromFormulaCache(formulaText, compiledConstants, out var result))
         {
             return result;
         }
@@ -390,13 +391,13 @@ public class CalculationEngine
         FunctionRegistry.RegisterFunction("acot", (Func<double, double>)MathUtil.Acot, true, false);
         FunctionRegistry.RegisterFunction("loge", (Func<double, double>)Math.Log, true, false);
         FunctionRegistry.RegisterFunction("log10", (Func<double, double>)Math.Log10, true, false);
-        FunctionRegistry.RegisterFunction("logn", (Func<double, double, double>)((a, b) => Math.Log(a, b)), true, false);
+        FunctionRegistry.RegisterFunction("logn", (Func<double, double, double>)(Math.Log), true, false);
         FunctionRegistry.RegisterFunction("sqrt", (Func<double, double>)Math.Sqrt, true, false);
         FunctionRegistry.RegisterFunction("abs", (Func<double, double>)Math.Abs, true, false);
         FunctionRegistry.RegisterFunction("if", (Func<double, double, double, double>)((a, b, c) => (a != 0.0 ? b : c)), true, false);
         FunctionRegistry.RegisterFunction("ifless", (Func<double, double, double, double, double>)((a, b, c, d) => (a < b ? c : d)), true, false);
         FunctionRegistry.RegisterFunction("ifmore", (Func<double, double, double, double, double>)((a, b, c, d) => (a > b ? c : d)), true, false);
-        FunctionRegistry.RegisterFunction("ifequal", (Func<double, double, double, double, double>)((a, b, c, d) => (a == b ? c : d)), true, false);
+        FunctionRegistry.RegisterFunction("ifequal", (Func<double, double, double, double, double>)((a, b, c, d) => (a.Equals(b) ? c : d)), true, false);
         FunctionRegistry.RegisterFunction("ceiling", (Func<double, double>)Math.Ceiling, true, false);
         FunctionRegistry.RegisterFunction("floor", (Func<double, double>)Math.Floor, true, false);
         FunctionRegistry.RegisterFunction("truncate", (Func<double, double>)Math.Truncate, true, false);
@@ -424,6 +425,7 @@ public class CalculationEngine
     /// </summary>
     /// <param name="formulaText">A string containing the mathematical formula that must be converted
     /// into an abstract syntax tree.</param>
+    /// <param name="compiledConstants">A registry containing the constant values that should be used during compilation of the formula.</param>
     /// <returns>The abstract syntax tree of the formula.</returns>
     private Operation BuildAbstractSyntaxTree(string formulaText, ConstantRegistry compiledConstants)
     {
@@ -433,17 +435,18 @@ public class CalculationEngine
         var astBuilder = new AstBuilder(FunctionRegistry, caseSensitive, compiledConstants);
         var operation = astBuilder.Build(tokens);
 
-        if (optimizerEnabled)
-            return optimizer.Optimize(operation, FunctionRegistry, ConstantRegistry);
-        return operation;
+        return optimizerEnabled
+                   ? optimizer.Optimize(operation, FunctionRegistry, ConstantRegistry)
+                   : operation;
     }
 
-    private Func<IDictionary<string, double>, double> BuildFormula(string formulaText, ConstantRegistry compiledConstants, Operation operation)
+    private Func<IDictionary<string, double>, double> BuildFormula(string formulaText, ConstantRegistry? compiledConstants, Operation operation)
     {
-        return executionFormulaCache.GetOrAdd(GenerateFormulaCacheKey(formulaText, compiledConstants), v => executor.BuildFormula(operation, FunctionRegistry, ConstantRegistry));
+        return executionFormulaCache.GetOrAdd(GenerateFormulaCacheKey(formulaText, compiledConstants),
+                                              _ => executor.BuildFormula(operation, FunctionRegistry, ConstantRegistry));
     }
 
-    private bool IsInFormulaCache(string formulaText, ConstantRegistry? compiledConstants,  out Func<IDictionary<string, double>, double>? function)
+    private bool TryGetFromFormulaCache(string formulaText, ConstantRegistry? compiledConstants, [NotNullWhen(true)] out Func<IDictionary<string, double>, double>? function)
     {
         function = null;
         return cacheEnabled && executionFormulaCache.TryGetValue(GenerateFormulaCacheKey(formulaText, compiledConstants), out function);
@@ -452,7 +455,7 @@ public class CalculationEngine
     private string GenerateFormulaCacheKey(string formulaText, ConstantRegistry? compiledConstants)
     {
         return (compiledConstants != null && compiledConstants.Any())
-                   ? $"{formulaText}@{string.Join(",", compiledConstants.Select(x => $"{x.ConstantName}:{x.Value}"))}" 
+                   ? $"{formulaText}@{string.Join(",", compiledConstants.Select(x => $"{x.ConstantName}:{x.Value}"))}"
                    : formulaText;
     }
 

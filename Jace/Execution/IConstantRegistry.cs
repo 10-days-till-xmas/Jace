@@ -12,4 +12,6 @@ public interface IConstantRegistry : IEnumerable<ConstantInfo>
     bool ContainsConstantName(string constantName);
 
     void RegisterConstant(string constantName, double value, bool isOverWritable = true);
+
+    void RegisterConstant(ConstantInfo constantInfo);
 }

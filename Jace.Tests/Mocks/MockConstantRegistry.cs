@@ -37,9 +37,9 @@ public class MockConstantRegistry(bool caseSensitive, Dictionary<string, Constan
         return constants.ContainsKey(ConvertConstantName(constantName));
     }
 
-    public void RegisterConstant(string constantName, double value)
+    public void RegisterConstant(ConstantInfo constantInfo)
     {
-        RegisterConstant(constantName, value, false);
+        RegisterConstant(constantInfo.ConstantName, constantInfo.Value, constantInfo.IsOverWritable);
     }
 
     public void RegisterConstant(string constantName, double value, bool isOverWritable)
