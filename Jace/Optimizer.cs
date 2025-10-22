@@ -1,71 +1,41 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using Jace.Execution;
 using Jace.Operations;
 
 namespace Jace;
 
-public class Optimizer
+public sealed class Optimizer(IExecutor executor)
 {
-    private readonly IExecutor executor;
-
-    public Optimizer(IExecutor executor)
-    {
-        this.executor = executor;
-    }
-
     public Operation Optimize(Operation operation, IFunctionRegistry functionRegistry, IConstantRegistry constantRegistry)
     {
-        if (operation is { DependsOnVariables: false, IsIdempotent: true } && operation.GetType() != typeof(IntegerConstant)
-                                                                           && operation.GetType() != typeof(FloatingPointConstant))
+        // TODO: Consider adding more optimization rules here.
+        // TODO: Refactor to make it non-recursive
+        switch (operation)
         {
-            var result = executor.Execute(operation, functionRegistry, constantRegistry);
-            return new FloatingPointConstant(result);
-        }
+            case { DependsOnVariables: false, IsIdempotent: true } and (not IntegerConstant or FloatingPointConstant):
+                var result = executor.Execute(operation, functionRegistry, constantRegistry);
+                return new FloatingPointConstant(result);
+            case Function function:
+                function.Arguments = function.Arguments
+                                             .Select(arg => Optimize(arg, functionRegistry, constantRegistry))
+                                             .ToList();
+                break;
+            case Multiplication multiplication:
+                multiplication.Argument1 = Optimize(multiplication.Argument1, functionRegistry, constantRegistry);
+                multiplication.Argument2 = Optimize(multiplication.Argument2, functionRegistry, constantRegistry);
 
-        if (operation.GetType() == typeof(Addition))
-        {
-            var addition = (Addition)operation;
-            addition.Argument1 = Optimize(addition.Argument1, functionRegistry, constantRegistry);
-            addition.Argument2 = Optimize(addition.Argument2, functionRegistry, constantRegistry);
+                if (multiplication.Argument1 is Constant { DoubleValue: 0.0 }
+                 || multiplication.Argument2 is Constant { DoubleValue: 0.0 })
+                    return new FloatingPointConstant(0.0);
+                break;
+            case UnaryOperation unaryOperation:
+                unaryOperation.Argument = Optimize(unaryOperation.Argument, functionRegistry, constantRegistry);
+                break;
+            case BinaryOperation binaryOperation:
+                binaryOperation.Argument1 = Optimize(binaryOperation.Argument1, functionRegistry, constantRegistry);
+                binaryOperation.Argument2 = Optimize(binaryOperation.Argument2, functionRegistry, constantRegistry);
+                break;
         }
-        else if (operation.GetType() == typeof(Subtraction))
-        {
-            var substraction = (Subtraction)operation;
-            substraction.Argument1 = Optimize(substraction.Argument1, functionRegistry, constantRegistry);
-            substraction.Argument2 = Optimize(substraction.Argument2, functionRegistry, constantRegistry);
-        }
-        else if (operation.GetType() == typeof(Multiplication))
-        {
-            var multiplication = (Multiplication)operation;
-            multiplication.Argument1 = Optimize(multiplication.Argument1, functionRegistry, constantRegistry);
-            multiplication.Argument2 = Optimize(multiplication.Argument2, functionRegistry, constantRegistry);
-
-            if ((multiplication.Argument1.GetType() == typeof(FloatingPointConstant) && ((FloatingPointConstant)multiplication.Argument1).Value == 0.0)
-             || (multiplication.Argument2.GetType() == typeof(FloatingPointConstant) && ((FloatingPointConstant)multiplication.Argument2).Value == 0.0))
-            {
-                return new FloatingPointConstant(0.0);
-            }
-        }
-        else if (operation.GetType() == typeof(Division))
-        {
-            var division = (Division)operation;
-            division.Argument1 = Optimize(division.Argument1, functionRegistry, constantRegistry);
-            division.Argument2 = Optimize(division.Argument2, functionRegistry, constantRegistry);
-        }
-        else if (operation.GetType() == typeof(Exponentiation))
-        {
-            var division = (Exponentiation)operation;
-            division.Argument1 = Optimize(division.Argument1, functionRegistry, constantRegistry);
-            division.Argument2 = Optimize(division.Argument2, functionRegistry, constantRegistry);
-        }
-        else if(operation.GetType() == typeof(Function))
-        {
-            var function = (Function)operation;
-            IList<Operation> arguments = function.Arguments.Select(a => Optimize(a, functionRegistry, constantRegistry)).ToList();
-            function.Arguments = arguments;
-        }
-
         return operation;
     }
 }

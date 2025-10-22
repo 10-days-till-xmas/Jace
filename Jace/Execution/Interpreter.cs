@@ -30,7 +30,7 @@ public sealed class Interpreter(bool caseSensitive) : IExecutor
         return operation switch
         {
             null => throw new ArgumentNullException(nameof(operation)),
-            Constant constant => constant.Evaluate(),
+            Constant constant => constant.DoubleValue,
             Variable variable => variables?.TryGetValue(variable.Name, out var value)
                               ?? throw new VariableNotDefinedException("No variables were provided.")
                                      ? value

@@ -2,7 +2,7 @@
 
 public abstract class Constant(DataType dataType) : Operation(dataType, false, true)
 {
-    public abstract double Evaluate();
+    public abstract double DoubleValue { get; }
 }
 
 public abstract class Constant<T>(DataType dataType, T value)
@@ -24,10 +24,10 @@ public abstract class Constant<T>(DataType dataType, T value)
 
 public sealed class IntegerConstant(int value) : Constant<int>(DataType.Integer, value)
 {
-    public override double Evaluate() => Value;
+    public override double DoubleValue => Value;
 }
 
 public sealed class FloatingPointConstant(double value) : Constant<double>(DataType.FloatingPoint, value)
 {
-    public override double Evaluate() => Value;
+    public override double DoubleValue => Value;
 }

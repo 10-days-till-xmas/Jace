@@ -64,7 +64,7 @@ public sealed class DynamicCompiler(bool caseSensitive) : IExecutor
                 throw new ArgumentNullException(nameof(operation));
             case Constant constant:
             {
-                return Expression.Constant(constant.Evaluate());
+                return Expression.Constant(constant.DoubleValue);
             }
             case Variable variable1:
             {
