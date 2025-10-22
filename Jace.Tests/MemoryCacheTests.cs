@@ -3,7 +3,7 @@ using Xunit;
 
 namespace Jace.Tests;
 
-public class MemoryCacheTests
+public sealed class MemoryCacheTests
 {
     [Fact]
     public void TestCacheCleanupOnlyAdd()

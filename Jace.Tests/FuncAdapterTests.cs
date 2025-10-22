@@ -6,13 +6,11 @@ using Xunit;
 
 namespace Jace.Tests;
 
-public class FuncAdapterTests
+public sealed class FuncAdapterTests
 {
     [Fact]
     public void TestFuncAdapterWrap()
     {
-        var adapter = new FuncAdapter();
-
         var parameters = new List<ParameterInfo>
         {
             new() { Name = "test1", DataType = DataType.Integer },
@@ -24,41 +22,36 @@ public class FuncAdapterTests
             return dictionary["test1"] + dictionary["test2"];
         }
 
-        var wrappedFunction = (Func<int, double, double>)adapter.Wrap(parameters, TestFunc);
+        var wrappedFunction = (Func<int, double, double>)FuncAdapter.Wrap(parameters, TestFunc);
 
         Assert.Equal(3.0, wrappedFunction(1, 2.0));
     }
 
     [Fact]
-    public void TestFuncAdapterWrapAndGC() // TODO: Verify whether this actually tests anything
+    public void TestFuncAdapterWrap_NoUnnecessaryClosures()
     {
-
-        var adapter = new FuncAdapter();
-
         var parameters = new List<ParameterInfo>
         {
             new() { Name = "test1", DataType = DataType.Integer },
             new() { Name = "test2", DataType = DataType.FloatingPoint }
         };
+        static double TestFunc(IDictionary<string, double> dictionary) => dictionary["test1"] + dictionary["test2"];
 
-        double TestFunc(IDictionary<string, double> dictionary) => dictionary["test1"] + dictionary["test2"];
-
-        var wrappedFunction = (Func<int, double, double>)adapter.Wrap(parameters, TestFunc);
-        // ReSharper disable once RedundantAssignment
-        adapter = null;
-
-        GC.Collect();
-        GC.WaitForPendingFinalizers();
-        GC.Collect();
+        var wrappedFunction = (Func<int, double, double>)FuncAdapter.Wrap(parameters, TestFunc);
 
         Assert.Equal(3.0, wrappedFunction(1, 2.0));
+
+        dynamic targetObj = wrappedFunction.Target!;
+        var constants = (object[]) targetObj.Constants;
+        Assert.Single(constants);
+        Assert.Null((object[]) targetObj.Locals); // No locals should be defined
+        // The constant should be the original function delegate (perhaps do IL manipulation instead to improve this?)
+        Assert.IsType<Func<IDictionary<string, double>, double>>(constants[0]);
     }
 
     [Fact]
     public void TestFourArguments()
     {
-        var adapter = new FuncAdapter();
-
         var parameters = new List<ParameterInfo>
         {
             new() { Name = "test1", DataType = DataType.Integer },
@@ -68,16 +61,9 @@ public class FuncAdapterTests
         };
 
         var wrappedFunction =
-            (Func<int, int, int, int, double>)adapter.Wrap(parameters, dictionary => dictionary["test4"]);
+            (Func<int, int, int, int, double>)FuncAdapter.Wrap(parameters, dictionary => dictionary["test4"]);
 
         Assert.Equal(8.0, wrappedFunction(2, 4, 6, 8));
     }
 
-    // Uncomment for debugging purposes
-    //[TestMethod]
-    //public void SaveToDisk()
-    //{
-    //    FuncAdapter adapter = new FuncAdapter();
-    //    adapter.CreateDynamicModuleBuilder();
-    //}
 }

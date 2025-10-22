@@ -104,9 +104,8 @@ public class FormulaBuilder
 
         var formula = engine.Build(formulaText, constants);
 
-        var adapter = new FuncAdapter();
         var constantRegistry = new ReadOnlyConstantRegistry(engine.ConstantRegistry);
-        return adapter.Wrap(parameters, variables => {
+        return FuncAdapter.Wrap(parameters, variables => {
 
             if(!caseSensitive)
                 variables = EngineUtil.ConvertVariableNamesToLowerCase(variables);

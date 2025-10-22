@@ -5,6 +5,7 @@
     <TargetFrameworks>net5.0;net9.0</TargetFrameworks>
     <LangVersion>13.0</LangVersion>
     <IsPackable>false</IsPackable>
+    <Nullable>enable</Nullable>
     
   </PropertyGroup>
 

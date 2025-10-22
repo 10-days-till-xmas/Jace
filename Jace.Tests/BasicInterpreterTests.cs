@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Jace.Tests;
 
-public class BasicInterpreterTests
+public sealed class BasicInterpreterTests
 {
     [Fact]
     public void TestBasicInterpreterSubstraction()

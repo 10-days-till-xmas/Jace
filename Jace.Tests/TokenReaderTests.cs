@@ -4,7 +4,7 @@ using Xunit;
 
 namespace Jace.Tests;
 
-public class TokenReaderTests
+public sealed class TokenReaderTests
 {
     [Fact]
     public void TestTokenReader1()

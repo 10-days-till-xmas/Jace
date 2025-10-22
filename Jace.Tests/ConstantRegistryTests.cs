@@ -4,7 +4,7 @@ using Xunit;
 
 namespace Jace.Tests;
 
-public class ConstantRegistryTests
+public sealed class ConstantRegistryTests
 {
     [Fact]
     public void TestAddConstant()

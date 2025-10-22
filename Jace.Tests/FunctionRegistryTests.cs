@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Jace.Tests;
 
-public class FunctionRegistryTests
+public sealed class FunctionRegistryTests
 {
     [Fact]
     public void TestAddFunc2()

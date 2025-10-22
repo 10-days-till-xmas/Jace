@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Jace.Tests;
 
-public class AstBuilderTests
+public sealed class AstBuilderTests
 {
     [Fact]
     public void TestBuildFormula1()

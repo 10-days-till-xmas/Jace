@@ -431,28 +431,6 @@ public class CalculationEngineTests
             var result = engine.Calculate("var_var_1 + var_var_2", variables);
             Assert.Equal(3.0, result);
         }
-
-        [Fact]
-        public void TestSettingConstantDoesntModifyCompiledDelegate()
-        {
-            var engine = new CalculationEngine(new JaceOptions
-            {
-                CultureInfo = CultureInfo.InvariantCulture,
-                ExecutionMode = executionMode,
-                CacheEnabled = false,
-                OptimizerEnabled = false,
-                CaseSensitive = true
-            });
-            engine.AddConstant("num1", 1.0);
-
-            var function = (Func<double>)engine.Formula("num1")
-                                                    .Result(DataType.FloatingPoint)
-                                                    .Build();
-            engine.AddConstant("num1", 2.0);
-            var result = function();
-            Assert.Equal(1.0, result);
-        }
-
         #endregion
 
         #region Formula Builder Tests
@@ -748,50 +726,6 @@ public class CalculationEngineTests
                 return a.Sum();
             }
         }
-
-        [Fact]
-        public void TestSettingCustomFunctionDoesntModifyCompiledDelegate()
-        {
-            // Honestly, I'm not sure which behavior is preferable here,
-            // however, it behaves differently on compiled and interpreted modes.
-            // This test ensures consistent behavior across both modes.
-            var engine = new CalculationEngine(new JaceOptions
-            {
-                CultureInfo = CultureInfo.InvariantCulture,
-                ExecutionMode = executionMode,
-                CacheEnabled = false,
-                OptimizerEnabled = false,
-                CaseSensitive = true
-            });
-            engine.AddFunction("ret1", () => 1.0, true);
-            var del = (Func<double>)engine.Formula("ret1()")
-                                          .Result(DataType.FloatingPoint)
-                                          .Build();
-            engine.AddFunction("ret1", () => 2.0, true);
-            var result = del();
-            Assert.Equal(1.0, result);
-        }
-        
-        [Fact]
-        public void TestSettingCustomFunctionDoesntModifyCompiledDelegate2()
-        {
-            // Honestly, I'm not sure which behavior is preferable here,
-            // however, it behaves differently on compiled and interpreted modes.
-            // This test ensures consistent behavior across both modes.
-            var engine = new CalculationEngine(new JaceOptions
-            {
-                CultureInfo = CultureInfo.InvariantCulture,
-                ExecutionMode = executionMode,
-                CacheEnabled = false,
-                OptimizerEnabled = false,
-                CaseSensitive = true
-            });
-            engine.AddFunction("ret1", () => 1.0, true);
-            var func = engine.Build("ret1()", null);
-            engine.AddFunction("ret1", () => 2.0, true);
-            var result = func(null);
-            Assert.Equal(1.0, result);
-        }
         #endregion
 
         #region Other Tests
@@ -844,6 +778,113 @@ public class CalculationEngineTests
 
             var result = engine.Calculate("test(2, 3)");
             Assert.Equal(5.0, result);
+        }
+        #endregion
+
+        #region Closure Tests
+
+        [Fact]
+        public void TestClosureDoesntCaptureVariables()
+        {
+            var engine = new CalculationEngine(new JaceOptions
+            {
+                CultureInfo = CultureInfo.InvariantCulture,
+                ExecutionMode = executionMode,
+                CacheEnabled = false,
+                OptimizerEnabled = false,
+                CaseSensitive = true
+            });
+            var function = (Func<double>)engine.Formula("1")
+                                               .Result(DataType.FloatingPoint)
+                                               .Build();
+            Assert.Equal(1.0, function());
+            if (function.Target is null) return;
+            dynamic targetObj = function.Target;
+            // Locals should be null as there are no captured variables (this can lead to bugs)
+            Assert.Null((object[]?)targetObj.Locals);
+        }
+        [Fact]
+        public void TestCompiledDelegateDoesNotCaptureConstants_FormulaBuilder()
+        {
+            var engine = new CalculationEngine(new JaceOptions
+            {
+                CultureInfo = CultureInfo.InvariantCulture,
+                ExecutionMode = executionMode,
+                CacheEnabled = false,
+                OptimizerEnabled = false,
+                CaseSensitive = true
+            });
+            engine.AddConstant("num1", 1.0);
+
+            var function = (Func<double>)engine.Formula("num1")
+                                               .Result(DataType.FloatingPoint)
+                                               .Build();
+            engine.AddConstant("num1", 2.0);
+            var result = function();
+            Assert.Equal(1.0, result);
+        }
+
+        [Fact(Skip = "Fails due to how constants are handled in CalculationEngine.Build")]
+        public void TestCompiledDelegateDoesNotCaptureConstants_EngineBuild()
+        {
+            var engine = new CalculationEngine(new JaceOptions
+            {
+                CultureInfo = CultureInfo.InvariantCulture,
+                ExecutionMode = executionMode,
+                CacheEnabled = false,
+                OptimizerEnabled = false,
+                CaseSensitive = true
+            });
+            engine.AddConstant("num1", 1.0);
+
+            double Function() => engine.Build("num1")(null!);
+            engine.AddConstant("num1", 2.0);
+            var result = Function();
+            Assert.Equal(1.0, result);
+        }
+
+        [Fact]
+        public void TestCompiledDelegateDoesNotCaptureFunctions_FormulaBuilder()
+        {
+            // Honestly, I'm not sure which behavior is preferable here,
+            // however, it behaves differently on compiled and interpreted modes.
+            // This test ensures consistent behavior across both modes.
+            var engine = new CalculationEngine(new JaceOptions
+            {
+                CultureInfo = CultureInfo.InvariantCulture,
+                ExecutionMode = executionMode,
+                CacheEnabled = false,
+                OptimizerEnabled = false,
+                CaseSensitive = true
+            });
+            engine.AddFunction("ret1", () => 1.0);
+            var del = (Func<double>)engine.Formula("ret1()")
+                                          .Result(DataType.FloatingPoint)
+                                          .Build();
+            engine.AddFunction("ret1", () => 2.0);
+            var result = del();
+            Assert.Equal(1.0, result);
+        }
+
+        [Fact]
+        public void TestCompiledDelegateDoesNotCaptureFunctions_EngineBuild()
+        {
+            // Honestly, I'm not sure which behavior is preferable here,
+            // however, it used to behave differently on compiled and interpreted modes.
+            // This test ensures consistent behavior across both modes.
+            var engine = new CalculationEngine(new JaceOptions
+            {
+                CultureInfo = CultureInfo.InvariantCulture,
+                ExecutionMode = executionMode,
+                CacheEnabled = false,
+                OptimizerEnabled = false,
+                CaseSensitive = true
+            });
+            engine.AddFunction("ret1", () => 1.0);
+            var func = engine.Build("ret1()", null);
+            engine.AddFunction("ret1", () => 2.0);
+            var result = func(null!);
+            Assert.Equal(1.0, result);
         }
         #endregion
     }

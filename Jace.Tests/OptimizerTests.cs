@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Jace.Tests;
 
-public class OptimizerTests
+public sealed class OptimizerTests
 {
     [Fact]
     public void TestOptimizerIdempotentFunction()

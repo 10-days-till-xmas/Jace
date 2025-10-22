@@ -5,7 +5,7 @@ using Jace.Execution;
 
 namespace Jace.Tests.Mocks;
 
-public class MockFunctionRegistry(IEnumerable<string> functionNames) : IFunctionRegistry
+public sealed class MockFunctionRegistry(IEnumerable<string> functionNames) : IFunctionRegistry
 {
     public bool CaseSensitive => false;
     private HashSet<string> functionNames = [..functionNames];
