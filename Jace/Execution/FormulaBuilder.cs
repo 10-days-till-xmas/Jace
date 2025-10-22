@@ -5,26 +5,24 @@ using Jace.Util;
 
 namespace Jace.Execution;
 
-public class FormulaBuilder
+public sealed class FormulaBuilder : IUsesText
 {
     private readonly CalculationEngine engine;
 
-    private string formulaText;
-    private bool caseSensitive;
+    private readonly string formulaText;
+    public bool CaseSensitive { get; }
     private DataType? resultDataType;
-    private List<ParameterInfo> parameters;
-    private IDictionary<string, double> constants;
+    private readonly List<ParameterInfo> parameters = [];
+    private readonly Dictionary<string, double> constants = [];
 
     /// <summary>
     /// Creates a new instance of the FormulaBuilder class.
     /// </summary>
     internal FormulaBuilder(string formulaText, bool caseSensitive, CalculationEngine engine)
     {
-        parameters = [];
-        constants = new Dictionary<string, double>();
         this.formulaText = formulaText;
         this.engine = engine;
-        this.caseSensitive = caseSensitive;
+        CaseSensitive = caseSensitive;
     }
 
     /// <summary>
@@ -107,7 +105,7 @@ public class FormulaBuilder
         var constantRegistry = new ReadOnlyConstantRegistry(engine.ConstantRegistry);
         return FuncAdapter.Wrap(parameters, variables => {
 
-            if(!caseSensitive)
+            if(!CaseSensitive)
                 variables = EngineUtil.ConvertVariableNamesToLowerCase(variables);
 
             engine.VerifyVariableNames(variables);
