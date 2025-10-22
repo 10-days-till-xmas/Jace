@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using JetBrains.Annotations;
 
 namespace Jace.Execution;
 
-public interface IFunctionRegistry : IEnumerable<FunctionInfo>
+[PublicAPI]
+public interface IFunctionRegistry : IEnumerable<FunctionInfo>, IUsesText
 {
     FunctionInfo GetFunctionInfo(string functionName);
-    bool IsFunctionName(string functionName);
-    void RegisterFunction(string functionName, Delegate function);
-    void RegisterFunction(string functionName, Delegate function, bool isIdempotent, bool isOverWritable);
+    bool TryGetFunctionInfo(string functionName, [NotNullWhen(true)] out FunctionInfo? functionInfo);
+    bool ContainsFunctionName(string functionName);
+    void RegisterFunction(string functionName, Delegate function, bool isIdempotent = true, bool isOverWritable = true);
+    void RegisterFunction(FunctionInfo functionInfo);
 }

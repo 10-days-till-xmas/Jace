@@ -1,7 +1,12 @@
 ﻿namespace Jace.Operations;
 
+public abstract class Constant(DataType dataType) : Operation(dataType, false, true)
+{
+    public abstract double Evaluate();
+}
+
 public abstract class Constant<T>(DataType dataType, T value)
-    : Operation(dataType, false, true) where T : notnull
+    : Constant(dataType) where T : struct
 {
     public T Value { get; } = value;
 
@@ -17,6 +22,12 @@ public abstract class Constant<T>(DataType dataType, T value)
     }
 }
 
-public sealed class IntegerConstant(int value) : Constant<int>(DataType.Integer, value);
+public sealed class IntegerConstant(int value) : Constant<int>(DataType.Integer, value)
+{
+    public override double Evaluate() => Value;
+}
 
-public sealed class FloatingPointConstant(double value) : Constant<double>(DataType.FloatingPoint, value);
+public sealed class FloatingPointConstant(double value) : Constant<double>(DataType.FloatingPoint, value)
+{
+    public override double Evaluate() => Value;
+}

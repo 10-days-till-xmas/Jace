@@ -39,7 +39,7 @@ public class FormulaBuilder
         if (string.IsNullOrEmpty(name))
             throw new ArgumentNullException(nameof(name));
 
-        if (engine.FunctionRegistry.IsFunctionName(name))
+        if (engine.FunctionRegistry.ContainsFunctionName(name))
             throw new ArgumentException($"The name \"{name}\" is a function name. Parameters cannot have this name.", nameof(name));
 
         if (parameters.Any(p => p.Name == name))
@@ -105,6 +105,7 @@ public class FormulaBuilder
         var formula = engine.Build(formulaText, constants);
 
         var adapter = new FuncAdapter();
+        var constantRegistry = new ReadOnlyConstantRegistry(engine.ConstantRegistry);
         return adapter.Wrap(parameters, variables => {
 
             if(!caseSensitive)
@@ -113,7 +114,7 @@ public class FormulaBuilder
             engine.VerifyVariableNames(variables);
 
             // Add the reserved variables to the dictionary
-            foreach (var constant in engine.ConstantRegistry)
+            foreach (var constant in constantRegistry)
                 variables.Add(constant.ConstantName, constant.Value);
 
             return formula(variables);

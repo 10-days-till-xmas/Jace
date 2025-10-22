@@ -7,7 +7,7 @@ using Jace.Execution;
 
 namespace Jace.Tests.Mocks;
 // I'm not sure how this'll be tested. TODO: Add tests for MockConstantRegistry
-public class MockConstantRegistry(bool caseSensitive, Dictionary<string, ConstantInfo> constants) : IConstantRegistry
+public sealed class MockConstantRegistry(bool caseSensitive, Dictionary<string, ConstantInfo> constants) : IConstantRegistry
 {
     public MockConstantRegistry(bool caseSensitive = false)
         : this(caseSensitive, new Dictionary<string, ConstantInfo>
@@ -18,6 +18,7 @@ public class MockConstantRegistry(bool caseSensitive, Dictionary<string, Constan
     {
     }
 
+    public bool CaseSensitive { get; } = caseSensitive;
     public ConstantInfo GetConstantInfo(string constantName)
     {
         return constants[ConvertConstantName(constantName)];
@@ -52,7 +53,7 @@ public class MockConstantRegistry(bool caseSensitive, Dictionary<string, Constan
         var constantInfo = new ConstantInfo(constantName, value, isOverWritable);
 
         if (TryGetConstantInfo(constantName, out var oldInfo))
-            if (oldInfo.IsOverWritable)
+            if (oldInfo!.IsOverWritable)
                 constants[constantName] = constantInfo;
             else
                 throw new Exception($"The constant \"{constantName}\" cannot be overwritten.");
@@ -67,6 +68,6 @@ public class MockConstantRegistry(bool caseSensitive, Dictionary<string, Constan
 
     private string ConvertConstantName(string constantName)
     {
-        return caseSensitive ? constantName : constantName.ToLower();
+        return CaseSensitive ? constantName : constantName.ToLower();
     }
 }

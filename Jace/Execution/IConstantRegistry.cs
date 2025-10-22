@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 namespace Jace.Execution;
 
 [PublicAPI]
-public interface IConstantRegistry : IEnumerable<ConstantInfo>
+public interface IConstantRegistry : IEnumerable<ConstantInfo>, IUsesText
 {
     ConstantInfo GetConstantInfo(string constantName);
     bool TryGetConstantInfo(string constantName, [NotNullWhen(true)] out ConstantInfo? constantInfo);

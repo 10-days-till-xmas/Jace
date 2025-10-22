@@ -7,6 +7,7 @@ namespace Jace.Tests.Mocks;
 
 public class MockFunctionRegistry(IEnumerable<string> functionNames) : IFunctionRegistry
 {
+    public bool CaseSensitive => false;
     private HashSet<string> functionNames = [..functionNames];
 
     public MockFunctionRegistry()
@@ -25,7 +26,12 @@ public class MockFunctionRegistry(IEnumerable<string> functionNames) : IFunction
         return new FunctionInfo(functionName, 1, true, false, false, null);
     }
 
-    public bool IsFunctionName(string functionName)
+    public bool TryGetFunctionInfo(string functionName, out FunctionInfo functionInfo)
+    {
+        throw new NotImplementedException();
+    }
+
+    public bool ContainsFunctionName(string functionName)
     {
         return functionNames.Contains(functionName);
     }
@@ -36,6 +42,11 @@ public class MockFunctionRegistry(IEnumerable<string> functionNames) : IFunction
     }
 
     public void RegisterFunction(string functionName, Delegate function, bool isIdempotent, bool isOverWritable)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void RegisterFunction(FunctionInfo functionInfo)
     {
         throw new NotImplementedException();
     }

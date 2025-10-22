@@ -472,7 +472,7 @@ public sealed class CalculationEngine
             if (ConstantRegistry.TryGetConstantInfo(variableName, out var constantInfo) && !constantInfo.IsOverWritable)
                 throw new ArgumentException($"The name \"{variableName}\" is a reserved variable name that cannot be overwritten.", nameof(variables));
 
-            if (FunctionRegistry.IsFunctionName(variableName))
+            if (FunctionRegistry.ContainsFunctionName(variableName))
                 throw new ArgumentException($"The name \"{variableName}\" is a function name. Parameters cannot have this name.", nameof(variables));
         }
     }

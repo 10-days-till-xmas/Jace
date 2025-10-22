@@ -432,6 +432,27 @@ public class CalculationEngineTests
             Assert.Equal(3.0, result);
         }
 
+        [Fact]
+        public void TestSettingConstantDoesntModifyCompiledDelegate()
+        {
+            var engine = new CalculationEngine(new JaceOptions
+            {
+                CultureInfo = CultureInfo.InvariantCulture,
+                ExecutionMode = executionMode,
+                CacheEnabled = false,
+                OptimizerEnabled = false,
+                CaseSensitive = true
+            });
+            engine.AddConstant("num1", 1.0);
+
+            var function = (Func<double>)engine.Formula("num1")
+                                                    .Result(DataType.FloatingPoint)
+                                                    .Build();
+            engine.AddConstant("num1", 2.0);
+            var result = function();
+            Assert.Equal(1.0, result);
+        }
+
         #endregion
 
         #region Formula Builder Tests
@@ -727,6 +748,50 @@ public class CalculationEngineTests
                 return a.Sum();
             }
         }
+
+        [Fact]
+        public void TestSettingCustomFunctionDoesntModifyCompiledDelegate()
+        {
+            // Honestly, I'm not sure which behavior is preferable here,
+            // however, it behaves differently on compiled and interpreted modes.
+            // This test ensures consistent behavior across both modes.
+            var engine = new CalculationEngine(new JaceOptions
+            {
+                CultureInfo = CultureInfo.InvariantCulture,
+                ExecutionMode = executionMode,
+                CacheEnabled = false,
+                OptimizerEnabled = false,
+                CaseSensitive = true
+            });
+            engine.AddFunction("ret1", () => 1.0, true);
+            var del = (Func<double>)engine.Formula("ret1()")
+                                          .Result(DataType.FloatingPoint)
+                                          .Build();
+            engine.AddFunction("ret1", () => 2.0, true);
+            var result = del();
+            Assert.Equal(1.0, result);
+        }
+        
+        [Fact]
+        public void TestSettingCustomFunctionDoesntModifyCompiledDelegate2()
+        {
+            // Honestly, I'm not sure which behavior is preferable here,
+            // however, it behaves differently on compiled and interpreted modes.
+            // This test ensures consistent behavior across both modes.
+            var engine = new CalculationEngine(new JaceOptions
+            {
+                CultureInfo = CultureInfo.InvariantCulture,
+                ExecutionMode = executionMode,
+                CacheEnabled = false,
+                OptimizerEnabled = false,
+                CaseSensitive = true
+            });
+            engine.AddFunction("ret1", () => 1.0, true);
+            var func = engine.Build("ret1()", null);
+            engine.AddFunction("ret1", () => 2.0, true);
+            var result = func(null);
+            Assert.Equal(1.0, result);
+        }
         #endregion
 
         #region Other Tests
@@ -783,6 +848,6 @@ public class CalculationEngineTests
         #endregion
     }
 
-    public class TestCalculationEngine_Interpreted() : TestExecutionModeBase(ExecutionMode.Interpreted);
-    public class TestCalculationEngine_Compiled() : TestExecutionModeBase(ExecutionMode.Compiled);
+    public sealed class TestCalculationEngine_Interpreted() : TestExecutionModeBase(ExecutionMode.Interpreted);
+    public sealed class TestCalculationEngine_Compiled() : TestExecutionModeBase(ExecutionMode.Compiled);
 }

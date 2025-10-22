@@ -1,15 +1,24 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Jace.Util;
 
 namespace Jace.Execution;
 
-public sealed class ConstantRegistry(bool caseSensitive) : IConstantRegistry
+public sealed class ReadOnlyConstantRegistry : IConstantRegistry
 {
-    public bool CaseSensitive { get; } = caseSensitive;
-    private readonly Dictionary<string, ConstantInfo> constants = new();
+    public bool CaseSensitive { get; }
+    private readonly ReadOnlyDictionary<string, ConstantInfo> constants;
+
+    public ReadOnlyConstantRegistry(IConstantRegistry innerRegistry)
+    {
+        CaseSensitive = innerRegistry.CaseSensitive;
+        constants = new ReadOnlyDictionary<string, ConstantInfo>(innerRegistry.ToDictionary(c => c.ConstantName, c => c));
+    }
 
     public IEnumerator<ConstantInfo> GetEnumerator()
     {
@@ -44,30 +53,12 @@ public sealed class ConstantRegistry(bool caseSensitive) : IConstantRegistry
 
     public void RegisterConstant(string constantName, double value, bool isOverWritable = true)
     {
-        if (string.IsNullOrEmpty(constantName))
-            throw new ArgumentNullException(nameof(constantName));
-
-        constantName = ConvertConstantName(constantName);
-
-        if (constants.TryGetValue(constantName, out var oldConstantInfo) && !oldConstantInfo.IsOverWritable)
-            throw new Exception($"The constant \"{constantName}\" cannot be overwritten.");
-
-        constants[constantName] = new ConstantInfo(constantName, value, isOverWritable);
+        throw new ReadOnlyException("This ConstantRegistry is read-only.");
     }
 
     public void RegisterConstant(ConstantInfo constantInfo)
     {
-        var constantName = constantInfo.ConstantName;
-        if (string.IsNullOrEmpty(constantName))
-            throw new ArgumentNullException(nameof(constantName));
-
-        if (TryConvertConstantName(ref constantName))
-            constantInfo = constantInfo with { ConstantName = constantName };
-
-        if (constants.TryGetValue(constantName, out var oldConstantInfo) && !oldConstantInfo.IsOverWritable)
-            throw new Exception($"The constant \"{constantName}\" cannot be overwritten.");
-
-        constants[constantName] = constantInfo;
+        throw new ReadOnlyException("This ConstantRegistry is read-only.");
     }
 
     private string ConvertConstantName(string constantName)
@@ -75,12 +66,5 @@ public sealed class ConstantRegistry(bool caseSensitive) : IConstantRegistry
         return CaseSensitive
                    ? constantName
                    : constantName.ToLowerFast();
-    }
-
-    private bool TryConvertConstantName(ref string constantName)
-    {
-        if (CaseSensitive) return false;
-        constantName = constantName.ToLowerFast();
-        return true;
     }
 }

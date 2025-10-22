@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using Jace.Util;
@@ -11,12 +12,12 @@ public class FunctionRegistry : IFunctionRegistry
 {
     private const string DynamicFuncName = "Jace.DynamicFunc";
 
-    private readonly bool caseSensitive;
+    public bool CaseSensitive { get; }
     private readonly Dictionary<string, FunctionInfo> functions;
 
     public FunctionRegistry(bool caseSensitive)
     {
-        this.caseSensitive = caseSensitive;
+        CaseSensitive = caseSensitive;
         functions = new Dictionary<string, FunctionInfo>();
     }
 
@@ -32,18 +33,19 @@ public class FunctionRegistry : IFunctionRegistry
 
     public FunctionInfo GetFunctionInfo(string functionName)
     {
-        if (string.IsNullOrEmpty(functionName))
-            throw new ArgumentNullException(nameof(functionName));
-
-        return functions.TryGetValue(ConvertFunctionName(functionName), out var functionInfo) ? functionInfo : null;
+        return TryGetFunctionInfo(functionName, out var functionInfo)
+                   ? functionInfo
+                   : throw new KeyNotFoundException(functionName);
     }
-
-    public void RegisterFunction(string functionName, Delegate function)
+    
+    public bool TryGetFunctionInfo(string functionName, [NotNullWhen(true)] out FunctionInfo? functionInfo)
     {
-        RegisterFunction(functionName, function, true, true);
+        return string.IsNullOrEmpty(functionName)
+                   ? throw new ArgumentNullException(nameof(functionName))
+                   : functions.TryGetValue(ConvertFunctionName(functionName), out functionInfo);
     }
 
-    public void RegisterFunction(string functionName, Delegate function, bool isIdempotent, bool isOverWritable)
+    public void RegisterFunction(string functionName, Delegate function, bool isIdempotent = true, bool isOverWritable = true)
     {
         if (string.IsNullOrEmpty(functionName))
             throw new ArgumentNullException(nameof(functionName));
@@ -87,7 +89,21 @@ public class FunctionRegistry : IFunctionRegistry
         functions[functionName] = newFuncInfo;
     }
 
-    public bool IsFunctionName(string functionName)
+    public void RegisterFunction(FunctionInfo functionInfo)
+    {
+        var functionName = functionInfo.FunctionName;
+        if (string.IsNullOrEmpty(functionName))
+            throw new ArgumentNullException(nameof(functionInfo));
+        if (TryConvertFunctionName(ref functionName))
+            functionInfo = functionInfo with { FunctionName = functionName };
+
+        if (functions.TryGetValue(functionName, out var oldFunctionInfo) && !oldFunctionInfo.IsOverWritable)
+            throw new Exception($"The function \"{functionName}\" cannot be overwritten.");
+
+        functions[functionName] = functionInfo;
+    }
+
+    public bool ContainsFunctionName(string functionName)
     {
         if (string.IsNullOrEmpty(functionName))
             throw new ArgumentNullException(nameof(functionName));
@@ -97,6 +113,13 @@ public class FunctionRegistry : IFunctionRegistry
 
     private string ConvertFunctionName(string functionName)
     {
-        return caseSensitive ? functionName : functionName.ToLowerFast();
+        return CaseSensitive ? functionName : functionName.ToLowerFast();
+    }
+    
+    private bool TryConvertFunctionName(ref string functionName)
+    {
+        if (CaseSensitive) return false;
+        functionName = functionName.ToLowerFast();
+        return true;
     }
 }

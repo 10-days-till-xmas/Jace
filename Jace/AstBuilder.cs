@@ -60,7 +60,7 @@ public sealed class AstBuilder
                     resultStack.Push(new FloatingPointConstant((double)token.Value));
                     break;
                 case TokenType.Text:
-                    if (functionRegistry.IsFunctionName((string)token.Value))
+                    if (functionRegistry.ContainsFunctionName((string)token.Value))
                     {
                         operatorStack.Push(token);
                         parameterCount.Push(1);
@@ -266,7 +266,7 @@ public sealed class AstBuilder
         {
             var functionName = ((string)functionToken.Value).ToLowerInvariant();
 
-            if (!functionRegistry.IsFunctionName(functionName))
+            if (!functionRegistry.ContainsFunctionName(functionName))
                 throw new ArgumentException($"Unknown function \"{functionToken.Value}\".", nameof(functionToken));
 
             var functionInfo = functionRegistry.GetFunctionInfo(functionName);
