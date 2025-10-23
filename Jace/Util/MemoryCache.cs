@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
 
 namespace Jace.Util;
 
@@ -12,35 +9,49 @@ namespace Jace.Util;
 /// </summary>
 /// <typeparam name="TKey">The type of the keys.</typeparam>
 /// <typeparam name="TValue">The type of the values.</typeparam>
-public class MemoryCache<TKey, TValue>
+public sealed class MemoryCache<TKey, TValue> where TKey : notnull
 {
-    private readonly int maximumSize;
-    private readonly int reductionSize;
+    private readonly uint maximumSize;
+    private readonly uint reductionSize;
 
-    private long counter; // We can't use DateTime.Now, because the precision is not high enough.
+    private readonly Dictionary<TKey, LinkedListNode<TValue>> dictionary;
+    private readonly LinkedList<TValue> lruList;
+    private readonly object _lock = new();
 
-    private readonly ConcurrentDictionary<TKey, CacheItem> dictionary;
 
     /// <summary>
-    /// Create a new instance of the <see cref="MemoryCache"/>.
+    /// Create a new instance of the <see cref="MemoryCache{TKey,TValue}"/>.
     /// </summary>
     /// <param name="maximumSize">The maximum allowed number of items in the cache.</param>
     /// <param name="reductionSize">The number of items to be deleted per cleanup of the cache.</param>
-    public MemoryCache(int maximumSize, int reductionSize)
+    public MemoryCache(uint maximumSize, uint reductionSize)
     {
         if (maximumSize < 1)
             throw new ArgumentOutOfRangeException(nameof(maximumSize),
-                                                  "The maximum allowed number of items in the cache must be at least one.");
+                "The maximum allowed number of items in the cache must be at least one.");
 
         if (reductionSize < 1)
             throw new ArgumentOutOfRangeException(nameof(reductionSize),
-                                                  "The cache reduction size must be at least one.");
+                "The cache reduction size must be at least one.");
 
         this.maximumSize = maximumSize;
         this.reductionSize = reductionSize;
 
-        dictionary = new ConcurrentDictionary<TKey, CacheItem>();
+        dictionary = new Dictionary<TKey, LinkedListNode<TValue>>();
+        lruList = [];
     }
+
+    public MemoryCache(int maximumSize, int reductionSize)
+        : this(maximumSize >= 1
+                   ? (uint)maximumSize
+                   : throw new ArgumentOutOfRangeException(nameof(maximumSize),
+                         "The maximum allowed number of items in the cache must be at least one."),
+            reductionSize >= 1
+                ? (uint)reductionSize
+                : throw new ArgumentOutOfRangeException(nameof(reductionSize),
+                      "The cache reduction size must be at least one."))
+
+    { }
 
     /// <summary>
     /// Get the value in the cache for the given key.
@@ -51,16 +62,26 @@ public class MemoryCache<TKey, TValue>
     {
         get
         {
-            var cacheItem = dictionary[key];
-            cacheItem.Accessed();
-            return cacheItem.Value;
+            lock (_lock)
+            {
+                var cacheNode = dictionary[key];
+                lruList.Remove(cacheNode);
+                lruList.AddFirst(cacheNode);
+                return cacheNode.Value;
+            }
         }
     }
 
     /// <summary>
     /// Gets the number of items in the cache.
     /// </summary>
-    public int Count => dictionary.Count;
+    public int Count
+    {
+        get
+        {
+            lock (_lock) return dictionary.Count;
+        }
+    }
 
     /// <summary>
     /// Returns true if an item with the given key is present in the cache.
@@ -69,19 +90,19 @@ public class MemoryCache<TKey, TValue>
     /// <returns>True if an item is present in the cache for the given key.</returns>
     public bool ContainsKey(TKey key)
     {
-        return dictionary.ContainsKey(key);
+        lock (_lock) return dictionary.ContainsKey(key);
     }
-
-    public bool TryGetValue (TKey key, out TValue result)
+    public bool TryGetValue(TKey key, out TValue? value)
     {
-        if (dictionary.TryGetValue(key, out var cachedItem))
-        {
-            cachedItem.Accessed();
-            result = cachedItem.Value;
-            return true;
-        }
-
-        result = default(TValue);
+        lock (_lock)
+            if (dictionary.TryGetValue(key, out var node))
+            {
+                lruList.Remove(node);
+                lruList.AddFirst(node);
+                value = node.Value;
+                return true;
+            }
+        value = default;
         return false;
     }
 
@@ -94,19 +115,22 @@ public class MemoryCache<TKey, TValue>
     /// <param name="key">The key to lookup in the cache.</param>
     /// <param name="valueFactory">The factory to produce the value matching with the key.</param>
     /// <returns>The value for the given key.</returns>
-    public TValue GetOrAdd(TKey key, Func<TKey, TValue> valueFactory)
+    public TValue? GetOrAdd(TKey key, Func<TKey, TValue> valueFactory)
     {
         if (valueFactory == null)
             throw new ArgumentNullException(nameof(valueFactory));
 
-        var cacheItem = dictionary.GetOrAdd(key, k =>
+        lock (_lock)
         {
-            EnsureCacheStorageAvailable();
-
-            var value = valueFactory(k);
-            return new CacheItem(this, valueFactory(k));
-        });
-        return cacheItem.Value;
+            if (TryGetValue(key, out var val))
+                return val;
+            TrimIfFull();
+            var value = valueFactory(key);
+            var newNode = new LinkedListNode<TValue>(value);
+            lruList.AddFirst(newNode);
+            dictionary[key] = newNode;
+            return value;
+        }
     }
 
     /// <summary>
@@ -114,42 +138,33 @@ public class MemoryCache<TKey, TValue>
     /// If there is not enough room anymore, force a removal of oldest
     /// accessed items in the cache.
     /// </summary>
-    private void EnsureCacheStorageAvailable()
+    private void TrimIfFull()
     {
-        if (dictionary.Count >= maximumSize) // >= because we want to add an item after this method
-        {
-            IList<TKey> keysToDelete = (from p in dictionary.ToArray()
-                                        where p.Key != null && p.Value != null
-                                        orderby p.Value.LastAccessed
-                                        select p.Key).Take(reductionSize).ToList();
-
-            foreach (var key in keysToDelete)
+        if (dictionary.Count < maximumSize) return;
+        lock (_lock)
+            for (var i = 0; i < reductionSize; i++)
             {
-                CacheItem cacheItem;
-                dictionary.TryRemove(key, out cacheItem);
+                var lruNode = lruList.Last;
+                if (lruNode == null) break;
+                lruList.RemoveLast();
+                foreach (var kvp in dictionary)
+                {
+                    if (kvp.Value != lruNode) continue;
+                    var keyToRemove = kvp.Key;
+                    dictionary.Remove(keyToRemove);
+                    break;
+                }
             }
-        }
     }
 
-    private class CacheItem
+    public bool Remove(TKey key)
     {
-        private MemoryCache<TKey, TValue> cache;
-
-        public CacheItem(MemoryCache<TKey, TValue> cache, TValue value)
+        lock (_lock)
         {
-            this.cache = cache;
-            Value = value;
-
-            Accessed();
-        }
-
-        public TValue Value { get; private set; }
-
-        public long LastAccessed { get; private set; }
-
-        public void Accessed()
-        {
-            LastAccessed = Interlocked.Increment(ref cache.counter);
+            if (!dictionary.TryGetValue(key, out var node)) return false;
+            lruList.Remove(node);
+            dictionary.Remove(key);
+            return true;
         }
     }
 }

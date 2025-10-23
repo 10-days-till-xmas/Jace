@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Jace.Tests;
 
-public class CalculationEngineTests
+public static class CalculationEngineTests
 {
     public abstract class TestExecutionModeBase(ExecutionMode executionMode)
     {
@@ -824,7 +824,7 @@ public class CalculationEngineTests
             Assert.Equal(1.0, result);
         }
 
-        [Fact(Skip = "Fails due to how constants are handled in CalculationEngine.Build")]
+        [Fact]
         public void TestCompiledDelegateDoesNotCaptureConstants_EngineBuild()
         {
             var engine = new CalculationEngine(new JaceOptions
@@ -837,9 +837,9 @@ public class CalculationEngineTests
             });
             engine.AddConstant("num1", 1.0);
 
-            double Function() => engine.Build("num1")(null!);
+            var func = engine.Build("num1");
             engine.AddConstant("num1", 2.0);
-            var result = Function();
+            var result = func(new Dictionary<string, double>());
             Assert.Equal(1.0, result);
         }
 

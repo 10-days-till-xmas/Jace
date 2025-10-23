@@ -26,7 +26,7 @@ public sealed class MemoryCacheTests
         cache.GetOrAdd("test2", _ => 2);
         cache.GetOrAdd("test3", _ => 3);
 
-        Assert.Equal(1, cache["test1"]);
+        Assert.Equal(1, cache["test1"]); // order is now test2, test3, test1
 
         cache.GetOrAdd("test4", _ => 3);
 
