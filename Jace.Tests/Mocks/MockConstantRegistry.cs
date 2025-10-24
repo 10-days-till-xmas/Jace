@@ -23,7 +23,7 @@ public sealed class MockConstantRegistry(bool caseSensitive, Dictionary<string, 
     {
         return constants[ConvertConstantName(constantName)];
     }
-    public bool TryGetConstantInfo(string constantName, [NotNullWhen(true)] out ConstantInfo constantInfo)
+    public bool TryGetConstantInfo(string constantName, out ConstantInfo? constantInfo)
     {
         return constants.TryGetValue(ConvertConstantName(constantName), out constantInfo);
     }

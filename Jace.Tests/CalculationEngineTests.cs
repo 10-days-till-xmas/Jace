@@ -17,7 +17,7 @@ public static class CalculationEngineTests
         [InlineData("2.0+3.0", 5.0)]
         public void TestCalculateFormula1(string formula, double expected)
         {
-            var engine = new CalculationEngine(new JaceOptions{ExecutionMode = executionMode});
+            var engine = new CalculationEngine(new JaceOptions { ExecutionMode = executionMode });
             var result = engine.Calculate(formula);
 
             Assert.Equal(expected, result);
@@ -27,10 +27,8 @@ public static class CalculationEngineTests
         [Fact]
         public void TestCalculateModulo()
         {
-            var engine = new CalculationEngine(new JaceOptions
+            var engine = new CalculationEngine(new JaceOptions(CultureInfo.InvariantCulture, executionMode)
             {
-                CultureInfo = CultureInfo.InvariantCulture,
-                ExecutionMode = executionMode,
                 CacheEnabled = false,
                 OptimizerEnabled = false,
                 CaseSensitive = false
@@ -148,10 +146,8 @@ public static class CalculationEngineTests
         [Fact]
         public void TestAnd()
         {
-            var engine = new CalculationEngine(new JaceOptions
+            var engine = new CalculationEngine(new JaceOptions(CultureInfo.InvariantCulture, executionMode)
             {
-                CultureInfo = CultureInfo.InvariantCulture,
-                ExecutionMode = executionMode,
                 CacheEnabled = true,
                 OptimizerEnabled = false,
                 CaseSensitive = false
@@ -165,10 +161,8 @@ public static class CalculationEngineTests
         [InlineData("(0 || 0)", 0)]
         public void TestOr1(string formula, double expected)
         {
-            var engine = new CalculationEngine(new JaceOptions
+            var engine = new CalculationEngine(new JaceOptions(CultureInfo.InvariantCulture, executionMode)
             {
-                CultureInfo = CultureInfo.InvariantCulture,
-                ExecutionMode = executionMode,
                 CacheEnabled = true,
                 OptimizerEnabled = false,
                 CaseSensitive = false
@@ -186,10 +180,8 @@ public static class CalculationEngineTests
         [InlineData("-(1*2)^3", -8.0)]
         public void TestUnaryMinus(string formula, double expected)
         {
-            var engine = new CalculationEngine(new JaceOptions
+            var engine = new CalculationEngine(new JaceOptions(CultureInfo.InvariantCulture, executionMode)
             {
-                CultureInfo = CultureInfo.InvariantCulture,
-                ExecutionMode = executionMode,
                 CacheEnabled = true,
                 OptimizerEnabled = false,
                 CaseSensitive = false
@@ -202,10 +194,8 @@ public static class CalculationEngineTests
         [Fact]
         public void TestNegativeConstant()
         {
-            var engine = new CalculationEngine(new JaceOptions
+            var engine = new CalculationEngine(new JaceOptions(CultureInfo.InvariantCulture, executionMode)
             {
-                CultureInfo = CultureInfo.InvariantCulture,
-                ExecutionMode = executionMode,
                 CacheEnabled = true,
                 OptimizerEnabled = false,
                 CaseSensitive = false
@@ -218,10 +208,8 @@ public static class CalculationEngineTests
         [Fact]
         public void TestMultiplicationWithNegativeConstant()
         {
-            var engine = new CalculationEngine(new JaceOptions
+            var engine = new CalculationEngine(new JaceOptions(CultureInfo.InvariantCulture, executionMode)
             {
-                CultureInfo = CultureInfo.InvariantCulture,
-                ExecutionMode = executionMode,
                 CacheEnabled = true,
                 OptimizerEnabled = false,
                 CaseSensitive = false
@@ -254,10 +242,8 @@ public static class CalculationEngineTests
         [Fact]
         public void TestCalculateLognFunction()
         {
-            var engine = new CalculationEngine(new JaceOptions
+            var engine = new CalculationEngine(new JaceOptions(CultureInfo.InvariantCulture, executionMode)
             {
-                CultureInfo = CultureInfo.InvariantCulture,
-                ExecutionMode = executionMode,
                 CacheEnabled = true,
                 OptimizerEnabled = true,
                 CaseSensitive = false
@@ -272,10 +258,8 @@ public static class CalculationEngineTests
         [InlineData("median(3,1,5,4)", 3)]
         public void TestMedian(string formula, double expected)
         {
-            var engine = new CalculationEngine(new JaceOptions
+            var engine = new CalculationEngine(new JaceOptions(CultureInfo.InvariantCulture, executionMode)
             {
-                CultureInfo = CultureInfo.InvariantCulture,
-                ExecutionMode = executionMode,
                 CacheEnabled = true,
                 OptimizerEnabled = false,
                 CaseSensitive = false
@@ -303,7 +287,7 @@ public static class CalculationEngineTests
                 { "var1", 2.5 },
                 { "var2", 3.4 }
             };
-            var engine = new CalculationEngine(new JaceOptions{ExecutionMode = executionMode});
+            var engine = new CalculationEngine(new JaceOptions { ExecutionMode = executionMode });
             var result = engine.Calculate("var1*var2", variables);
 
             Assert.Equal(8.5, result);
@@ -320,10 +304,8 @@ public static class CalculationEngineTests
                 { "var2", 1 }
             };
 
-            var engine = new CalculationEngine(new JaceOptions
+            var engine = new CalculationEngine(new JaceOptions(CultureInfo.InvariantCulture, executionMode)
             {
-                CultureInfo = CultureInfo.InvariantCulture,
-                ExecutionMode = executionMode,
                 CacheEnabled = false,
                 OptimizerEnabled = false,
                 CaseSensitive = true
@@ -373,10 +355,8 @@ public static class CalculationEngineTests
         {
             var variables = new Dictionary<string, double> { { "BlAbLa", 42.5 } };
 
-            var engine = new CalculationEngine(new JaceOptions
+            var engine = new CalculationEngine(new JaceOptions(CultureInfo.InvariantCulture, executionMode)
             {
-                CultureInfo = CultureInfo.InvariantCulture,
-                ExecutionMode = executionMode,
                 CacheEnabled = false,
                 OptimizerEnabled = false,
                 CaseSensitive = true
@@ -437,7 +417,7 @@ public static class CalculationEngineTests
         [Fact]
         public void TestBuild()
         {
-            var engine = new CalculationEngine(new JaceOptions{ExecutionMode = executionMode});
+            var engine = new CalculationEngine(new JaceOptions {ExecutionMode = executionMode});
             Func<Dictionary<string, double>, double> function = engine.Build("var1+2*(3*age)");
 
             var variables = new Dictionary<string, double>
@@ -532,10 +512,8 @@ public static class CalculationEngineTests
         [Fact]
         public void TestCalculationFormulaBuildingWithConstants3()
         {
-            var engine = new CalculationEngine(new JaceOptions
+            var engine = new CalculationEngine(new JaceOptions(CultureInfo.InvariantCulture, executionMode)
             {
-                CultureInfo = CultureInfo.InvariantCulture,
-                ExecutionMode = executionMode,
                 CacheEnabled = true,
                 OptimizerEnabled = true,
                 CaseSensitive = true
@@ -554,7 +532,7 @@ public static class CalculationEngineTests
         [Fact]
         public void TestCalculationFormulaBuildingWithConstantsCache1()
         {
-            var engine = new CalculationEngine(new JaceOptions { CacheEnabled = true });
+            var engine = new CalculationEngine(new JaceOptions { CacheEnabled = false });
 
             var fn = engine.Build("a+b+c", new Dictionary<string, double> { { "a", 1 } });
             var result = fn(new Dictionary<string, double> { { "b", 2 }, { "c", 2 } });
@@ -570,7 +548,7 @@ public static class CalculationEngineTests
         [Fact]
         public void TestCalculationFormulaBuildingWithConstantsCache2()
         {
-            var engine = new CalculationEngine(new JaceOptions { CacheEnabled = true });
+            var engine = new CalculationEngine(new JaceOptions { CacheEnabled = false });
             var fn = engine.Build("a+b+c");
             var result = fn(new Dictionary<string, double> { { "a", 1 }, { "b", 2 }, { "c", 2 } });
             Assert.Equal(5.0, result);
@@ -584,10 +562,8 @@ public static class CalculationEngineTests
         [Fact]
         public void TestCalculationFormulaBuildingWithConstantsCache3()
         {
-            var engine = new CalculationEngine(new JaceOptions
+            var engine = new CalculationEngine(new JaceOptions(CultureInfo.InvariantCulture, executionMode)
             {
-                CultureInfo = CultureInfo.InvariantCulture,
-                ExecutionMode = executionMode,
                 CacheEnabled = true,
                 OptimizerEnabled = true,
                 CaseSensitive = true
@@ -627,7 +603,7 @@ public static class CalculationEngineTests
         [Fact]
         public void TestCalculationFormulaBuildingWithConstantsCache5()
         {
-            var engine = new CalculationEngine(new JaceOptions { CacheEnabled = true });
+            var engine = new CalculationEngine(new JaceOptions { CacheEnabled = false });
 
             var fn = engine.Build("a+b+c");
             var result = fn(new Dictionary<string, double> { { "a", 1 }, { "b", 2 }, { "c", 2 } });
@@ -644,10 +620,8 @@ public static class CalculationEngineTests
         [Fact]
         public void TestCustomFunction()
         {
-            var engine = new CalculationEngine(new JaceOptions
+            var engine = new CalculationEngine(new JaceOptions(CultureInfo.InvariantCulture, executionMode)
             {
-                CultureInfo = CultureInfo.InvariantCulture,
-                ExecutionMode = executionMode,
                 CacheEnabled = false,
                 OptimizerEnabled = false,
                 CaseSensitive = true
@@ -661,10 +635,8 @@ public static class CalculationEngineTests
         [Fact]
         public void TestCustomFunctionFunc11()
         {
-            var engine = new CalculationEngine(new JaceOptions
+            var engine = new CalculationEngine(new JaceOptions(CultureInfo.InvariantCulture, executionMode)
             {
-                CultureInfo = CultureInfo.InvariantCulture,
-                ExecutionMode = executionMode,
                 CacheEnabled = false,
                 OptimizerEnabled = false,
                 CaseSensitive = true
@@ -682,10 +654,8 @@ public static class CalculationEngineTests
         [Fact]
         public void TestCustomFunctionDynamicFunc()
         {
-            var engine = new CalculationEngine(new JaceOptions
+            var engine = new CalculationEngine(new JaceOptions(CultureInfo.InvariantCulture, executionMode)
             {
-                CultureInfo = CultureInfo.InvariantCulture,
-                ExecutionMode = executionMode,
                 CacheEnabled = false,
                 OptimizerEnabled = false,
                 CaseSensitive = true
@@ -705,10 +675,8 @@ public static class CalculationEngineTests
         [Fact]
         public void TestCustomFunctionDynamicFuncNested()
         {
-            var engine = new CalculationEngine(new JaceOptions
+            var engine = new CalculationEngine(new JaceOptions(CultureInfo.InvariantCulture, executionMode)
             {
-                CultureInfo = CultureInfo.InvariantCulture,
-                ExecutionMode = executionMode,
                 CacheEnabled = false,
                 OptimizerEnabled = false,
                 CaseSensitive = true
@@ -763,10 +731,8 @@ public static class CalculationEngineTests
         [Fact]
         public void TestCalculationCompiledExpression()
         {
-            var engine = new CalculationEngine(new JaceOptions
+            var engine = new CalculationEngine(new JaceOptions(CultureInfo.InvariantCulture, executionMode)
             {
-                CultureInfo = CultureInfo.InvariantCulture,
-                ExecutionMode = executionMode,
                 CacheEnabled = true,
                 OptimizerEnabled = true,
                 CaseSensitive = true
@@ -786,10 +752,8 @@ public static class CalculationEngineTests
         [Fact]
         public void TestClosureDoesntCaptureVariables()
         {
-            var engine = new CalculationEngine(new JaceOptions
+            var engine = new CalculationEngine(new JaceOptions(CultureInfo.InvariantCulture, executionMode)
             {
-                CultureInfo = CultureInfo.InvariantCulture,
-                ExecutionMode = executionMode,
                 CacheEnabled = false,
                 OptimizerEnabled = false,
                 CaseSensitive = true
@@ -806,10 +770,8 @@ public static class CalculationEngineTests
         [Fact]
         public void TestCompiledDelegateDoesNotCaptureConstants_FormulaBuilder()
         {
-            var engine = new CalculationEngine(new JaceOptions
+            var engine = new CalculationEngine(new JaceOptions(CultureInfo.InvariantCulture, executionMode)
             {
-                CultureInfo = CultureInfo.InvariantCulture,
-                ExecutionMode = executionMode,
                 CacheEnabled = false,
                 OptimizerEnabled = false,
                 CaseSensitive = true
@@ -827,10 +789,8 @@ public static class CalculationEngineTests
         [Fact(Skip = "Fails due to how constants are handled in CalculationEngine.Build")]
         public void TestCompiledDelegateDoesNotCaptureConstants_EngineBuild()
         {
-            var engine = new CalculationEngine(new JaceOptions
+            var engine = new CalculationEngine(new JaceOptions(CultureInfo.InvariantCulture, executionMode)
             {
-                CultureInfo = CultureInfo.InvariantCulture,
-                ExecutionMode = executionMode,
                 CacheEnabled = false,
                 OptimizerEnabled = false,
                 CaseSensitive = true
@@ -849,10 +809,10 @@ public static class CalculationEngineTests
             // Honestly, I'm not sure which behavior is preferable here,
             // however, it behaves differently on compiled and interpreted modes.
             // This test ensures consistent behavior across both modes.
-            var engine = new CalculationEngine(new JaceOptions
+            // TODO: Consider making this an option instead of hardcoding the behavior.
+            // Optionally being able to capture and thus update functions and constants after building a formula could be useful.
+            var engine = new CalculationEngine(new JaceOptions(CultureInfo.InvariantCulture, executionMode)
             {
-                CultureInfo = CultureInfo.InvariantCulture,
-                ExecutionMode = executionMode,
                 CacheEnabled = false,
                 OptimizerEnabled = false,
                 CaseSensitive = true
@@ -872,10 +832,8 @@ public static class CalculationEngineTests
             // Honestly, I'm not sure which behavior is preferable here,
             // however, it used to behave differently on compiled and interpreted modes.
             // This test ensures consistent behavior across both modes.
-            var engine = new CalculationEngine(new JaceOptions
+            var engine = new CalculationEngine(new JaceOptions(CultureInfo.InvariantCulture, executionMode)
             {
-                CultureInfo = CultureInfo.InvariantCulture,
-                ExecutionMode = executionMode,
                 CacheEnabled = false,
                 OptimizerEnabled = false,
                 CaseSensitive = true

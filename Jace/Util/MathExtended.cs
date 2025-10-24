@@ -1,11 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace Jace.Util;
 
 internal static class MathExtended
 {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static bool HasFlagFast(this int value, int flag)
+    {
+        return (value & flag) == flag;
+    }
+    
     /// <summary>
     /// Partitions the given list around a pivot element such that all elements on left of pivot are &lt;= pivot
     /// and the ones at the right are &gt; pivot. This method can be used for sorting, N-order statistics such as
@@ -54,7 +61,7 @@ internal static class MathExtended
         }
     }
 
-    public static void Swap<T>(this IList<T> list, int i, int j)
+    private static void Swap<T>(this IList<T> list, int i, int j)
     {
         if (i == j)   //This check is not required, but Partition function may make many calls so its for perf reason
             return;

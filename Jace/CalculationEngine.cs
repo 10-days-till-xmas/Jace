@@ -17,7 +17,7 @@ public delegate TResult DynamicFunc<in T, out TResult>(params T[] values);
 /// mathematical formulas into .NET Delegates and to calculate the result.
 /// It can be configured to run in a number of modes based on the constructor parameters chosen.
 /// </summary>
-public sealed class CalculationEngine
+public sealed class CalculationEngine : IUsesText
 {
     private readonly IExecutor executor;
     private readonly Optimizer optimizer;
@@ -25,7 +25,7 @@ public sealed class CalculationEngine
     private readonly MemoryCache<string, Func<IDictionary<string, double>, double>> executionFormulaCache;
     private readonly bool cacheEnabled;
     private readonly bool optimizerEnabled;
-    private readonly bool caseSensitive;
+    public bool CaseSensitive { get; }
 
     private readonly Random random;
 
@@ -66,45 +66,6 @@ public sealed class CalculationEngine
     /// <summary>
     /// Creates a new instance of the <see cref="CalculationEngine"/> class.
     /// </summary>
-    /// <param name="cultureInfo">
-    /// The <see cref="CultureInfo"/> required for correctly reading floating point numbers.
-    /// </param>
-    /// <param name="executionMode">The execution mode that must be used for formula execution.</param>
-    /// <param name="cacheEnabled">Enable or disable caching of mathematical formulas.</param>
-    /// <param name="optimizerEnabled">Enable or disable optimizing of formulas.</param>
-    /// <param name="adjustVariableCaseEnabled">Enable or disable auto lowercasing of variables.</param>
-    [Obsolete]
-    public CalculationEngine(CultureInfo cultureInfo, ExecutionMode executionMode, bool cacheEnabled, bool optimizerEnabled, bool adjustVariableCaseEnabled)
-        : this(new JaceOptions { CultureInfo = cultureInfo, ExecutionMode = executionMode, CacheEnabled = cacheEnabled, OptimizerEnabled = optimizerEnabled, CaseSensitive = !adjustVariableCaseEnabled })
-    {
-    }
-
-    /// <summary>
-    /// Creates a new instance of the <see cref="CalculationEngine"/> class.
-    /// </summary>
-    /// <param name="cultureInfo">
-    /// The <see cref="CultureInfo"/> required for correctly reading floating point numbers.
-    /// </param>
-    /// <param name="executionMode">The execution mode that must be used for formula execution.</param>
-    /// <param name="cacheEnabled">Enable or disable caching of mathematical formulas.</param>
-    /// <param name="optimizerEnabled">Enable or disable optimizing of formulas.</param>
-    /// <param name="adjustVariableCaseEnabled">Enable or disable converting to lower case.</param>
-    /// <param name="defaultFunctions">Enable or disable the default functions.</param>
-    /// <param name="defaultConstants">Enable or disable the default constants.</param>
-    /// <param name="cacheMaximumSize">Configure the maximum cache size for mathematical formulas.</param>
-    /// <param name="cacheReductionSize">Configure the cache reduction size for mathematical formulas.</param>
-    [Obsolete]
-    public CalculationEngine(CultureInfo cultureInfo, ExecutionMode executionMode, bool cacheEnabled,
-                             bool optimizerEnabled, bool adjustVariableCaseEnabled, bool defaultFunctions, bool defaultConstants, int cacheMaximumSize, int cacheReductionSize)
-        : this(new JaceOptions { CultureInfo = cultureInfo, ExecutionMode = executionMode, CacheEnabled = cacheEnabled, OptimizerEnabled = optimizerEnabled,
-                   CaseSensitive = !adjustVariableCaseEnabled, DefaultFunctions = defaultFunctions, DefaultConstants = defaultConstants,
-                   CacheMaximumSize = cacheMaximumSize, CacheReductionSize = cacheReductionSize })
-    {
-    }
-
-    /// <summary>
-    /// Creates a new instance of the <see cref="CalculationEngine"/> class.
-    /// </summary>
     /// <param name="options">The <see cref="JaceOptions"/> to configure the behaviour of the engine.</param>
     public CalculationEngine(JaceOptions options)
     {
@@ -114,19 +75,20 @@ public sealed class CalculationEngine
         cultureInfo = options.CultureInfo;
         cacheEnabled = options.CacheEnabled;
         optimizerEnabled = options.OptimizerEnabled;
-        caseSensitive = options.CaseSensitive;
+        CaseSensitive = options.CaseSensitive;
 
         random = new Random();
 
         executor = options.ExecutionMode switch
         {
-            ExecutionMode.Interpreted => new Interpreter(caseSensitive),
-            ExecutionMode.Compiled    => new DynamicCompiler(caseSensitive),
+            ExecutionMode.Interpreted => new Interpreter(CaseSensitive),
+            ExecutionMode.Compiled    => new DynamicCompiler(CaseSensitive),
             _ => throw new ArgumentException($"Unsupported execution mode \"{options.ExecutionMode}\".",
                                              nameof(options))
         };
 
         optimizer = new Optimizer(new Interpreter()); // We run the optimizer with the interpreter
+        // why the interpreter? Maybe write optimizers for each executor?
 
         // Register the default constants of Jace.NET into the constant registry
         if (options.DefaultConstants)
@@ -137,9 +99,9 @@ public sealed class CalculationEngine
             RegisterDefaultFunctions();
     }
 
-    internal IFunctionRegistry FunctionRegistry { get; private set; }
+    internal IFunctionRegistry FunctionRegistry { get; }
 
-    internal IConstantRegistry ConstantRegistry { get; private set; }
+    internal IConstantRegistry ConstantRegistry { get; }
 
     public IEnumerable<FunctionInfo> Functions => FunctionRegistry;
 
@@ -158,7 +120,7 @@ public sealed class CalculationEngine
         if (variables == null)
             throw new ArgumentNullException(nameof(variables));
 
-        if (!caseSensitive)
+        if (!CaseSensitive)
         {
             variables = EngineUtil.ConvertVariableNamesToLowerCase(variables);
         }
@@ -173,7 +135,7 @@ public sealed class CalculationEngine
             return function(variables);
         }
 
-        var operation = BuildAbstractSyntaxTree(formulaText, new ConstantRegistry(caseSensitive));
+        var operation = BuildAbstractSyntaxTree(formulaText, new ConstantRegistry(CaseSensitive));
         function = BuildFormula(formulaText, null, operation);
         return function(variables);
     }
@@ -183,7 +145,7 @@ public sealed class CalculationEngine
         if (string.IsNullOrEmpty(formulaText))
             throw new ArgumentNullException(nameof(formulaText));
 
-        return new FormulaBuilder(formulaText, caseSensitive, this);
+        return new FormulaBuilder(formulaText, CaseSensitive, this);
     }
 
     /// <summary>
@@ -201,7 +163,7 @@ public sealed class CalculationEngine
             return result;
         }
 
-        var operation = BuildAbstractSyntaxTree(formulaText, new ConstantRegistry(caseSensitive));
+        var operation = BuildAbstractSyntaxTree(formulaText, new ConstantRegistry(CaseSensitive));
         return BuildFormula(formulaText, null, operation);
     }
 
@@ -217,7 +179,7 @@ public sealed class CalculationEngine
             throw new ArgumentNullException(nameof(formulaText));
 
 
-        var compiledConstants = new ConstantRegistry(caseSensitive);
+        var compiledConstants = new ConstantRegistry(CaseSensitive);
         if (constants != null)
         {
             foreach (var constant in constants)
@@ -432,7 +394,7 @@ public sealed class CalculationEngine
         var tokenReader = new TokenReader(cultureInfo);
         var tokens = tokenReader.Read(formulaText);
 
-        var astBuilder = new AstBuilder(FunctionRegistry, caseSensitive, compiledConstants);
+        var astBuilder = new AstBuilder(FunctionRegistry, CaseSensitive, compiledConstants);
         var operation = astBuilder.Build(tokens);
 
         return optimizerEnabled
