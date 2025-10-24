@@ -8,9 +8,9 @@ using Xunit;
 
 namespace Jace.Tests;
 
-public static class CalculationEngineTests
+public static partial class CalculationEngineTests
 {
-    public abstract class TestExecutionModeBase(ExecutionMode executionMode)
+    public abstract partial class TestExecutionModeBase(ExecutionMode executionMode)
     {
         [Theory]
         [InlineData("2+3", 5.0)]
@@ -65,7 +65,7 @@ public static class CalculationEngineTests
         [Theory]
         [InlineData("var1 <= var2", 1.0)]
         [InlineData("var1 ≤ var2", 1.0)]
-        public void TestLessOrEqualThan1(string formula, double expected)
+        public void TestLessOrEqualThan(string formula, double expected)
         {
             var engine = new CalculationEngine(CultureInfo.InvariantCulture, executionMode);
 
@@ -97,7 +97,7 @@ public static class CalculationEngineTests
         [Theory]
         [InlineData("var1 >= var2", 1.0)]
         [InlineData("var1 ≥ var2", 1.0)]
-        public void TestGreaterOrEqualThan1(string formula, double expected)
+        public void TestGreaterOrEqualThan(string formula, double expected)
         {
             var engine = new CalculationEngine(CultureInfo.InvariantCulture, executionMode);
 
@@ -159,7 +159,7 @@ public static class CalculationEngineTests
         [Theory]
         [InlineData("(1 || 0)", 1)]
         [InlineData("(0 || 0)", 0)]
-        public void TestOr1(string formula, double expected)
+        public void TestOr(string formula, double expected)
         {
             var engine = new CalculationEngine(new JaceOptions(CultureInfo.InvariantCulture, executionMode)
             {

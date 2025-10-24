@@ -56,7 +56,7 @@ public sealed class TokenReader(CultureInfo cultureInfo)
                     {
                         isScientific = IsScientificNotation(characters[i]);
 
-                        if (characters[i + 1] == '-')
+                        if (characters[i + 1] is '-' or '+')
                             buffer.Append(characters[i++]);
                     }
 

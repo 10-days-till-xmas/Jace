@@ -35,7 +35,6 @@ public class ConstantFormulaBenchmarks : JaceBenchmarkBase
         "2+3*7",
         "20-3^2"
     ];
-
     public static FunctionInfo[] SimpleFunctionInfos { get; } = [
         new("logn(var1, (2+3) * 500)"),
         new("(var1 + var2 * 3)/(2+3) - something")
