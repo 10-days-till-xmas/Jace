@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using FsCheck.Xunit;
 using Jace.Tests.Helpers;
 using Jace.Util;
@@ -7,6 +8,7 @@ using Xunit;
 namespace Jace.Tests;
 public static partial class CalculationEngineTests
 {
+    [SuppressMessage("ReSharper", "SpecifyACultureInStringConversionExplicitly")]
     public abstract partial class TestExecutionModeBase
     {
         private CalculationEngine Engine => new(new JaceOptions { ExecutionMode = executionMode });
@@ -28,7 +30,7 @@ public static partial class CalculationEngineTests
         [Property]
         public void Evaluate_Subtraction_Int(int a, int b)
         {
-            
+
             var result = Engine.Calculate($"{a} - {b}");
             Assert.Equal(a - b, result);
         }
@@ -110,7 +112,7 @@ public static partial class CalculationEngineTests
             var result = Engine.Calculate($"{a} < {b}");
             Assert.Equal((a < b).AsDouble(), result);
         }
-        
+
         [Property]
         public void Evaluate_LessThan_Double(double a, double b)
         {
@@ -127,7 +129,7 @@ public static partial class CalculationEngineTests
             Assert.Equal((a <= b).AsDouble(), result);
             Assert.Equal((a <= b).AsDouble(), result2);
         }
-        
+
         [Property]
         public void Evaluate_LessThanOrEqual_Double(double a, double b)
         {
@@ -160,7 +162,7 @@ public static partial class CalculationEngineTests
             Assert.Equal((a >= b).AsDouble(), result);
             Assert.Equal((a >= b).AsDouble(), result2);
         }
-        
+
         [Property]
         public void Evaluate_GreaterThanOrEqual_Double(double a, double b)
         {
@@ -179,7 +181,7 @@ public static partial class CalculationEngineTests
             Assert.Equal((a != b).AsDouble(), result);
             Assert.Equal((a != b).AsDouble(), result2);
         }
-        
+
         [Property]
         public void Evaluate_NotEqual_Double(double a, double b)
         {
@@ -210,7 +212,7 @@ public static partial class CalculationEngineTests
             var result = Engine.Calculate($"{a} && {b}");
             Assert.Equal(((a != 0) && (b != 0)).AsDouble(), result);
         }
-        
+
         [Property]
         public void Evaluate_And_Double(double a, double b)
         {
@@ -232,7 +234,7 @@ public static partial class CalculationEngineTests
             var result = Engine.Calculate($"-{a}");
             Assert.Equal(-a, result);
         }
-        
+
         [Property]
         public void Evaluate_UnaryMinus_Double(double a)
         {

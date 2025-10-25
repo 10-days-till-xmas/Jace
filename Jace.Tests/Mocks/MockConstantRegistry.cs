@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Jace.Execution;
 
@@ -23,7 +22,9 @@ public sealed class MockConstantRegistry(bool caseSensitive, Dictionary<string, 
     {
         return constants[ConvertConstantName(constantName)];
     }
+#pragma warning disable CS8767 // Nullability of reference types in type of parameter doesn't match implicitly implemented member (possibly because of nullability attributes).
     public bool TryGetConstantInfo(string constantName, out ConstantInfo? constantInfo)
+#pragma warning restore CS8767 // Nullability of reference types in type of parameter doesn't match implicitly implemented member (possibly because of nullability attributes).
     {
         return constants.TryGetValue(ConvertConstantName(constantName), out constantInfo);
     }

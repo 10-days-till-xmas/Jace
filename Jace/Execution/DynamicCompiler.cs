@@ -14,7 +14,7 @@ public sealed class DynamicCompiler(bool caseSensitive) : IExecutor
     public bool CaseSensitive { get; } = caseSensitive;
     public DynamicCompiler(): this(false) { }
 
-    public double Execute(Operation operation, IFunctionRegistry functionRegistry, IConstantRegistry constantRegistry,
+    public double Execute(Operation operation, IFunctionRegistry? functionRegistry, IConstantRegistry? constantRegistry,
                           IDictionary<string, double>? variables = null)
     {
         variables ??= new Dictionary<string, double>();

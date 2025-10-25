@@ -23,7 +23,7 @@ public sealed class MockFunctionRegistry(IEnumerable<string> functionNames) : IF
 
     public FunctionInfo GetFunctionInfo(string functionName)
     {
-        return new FunctionInfo(functionName, 1, true, false, false, null);
+        return new FunctionInfo(functionName, 1, true, false, false, null!);
     }
 
     public bool TryGetFunctionInfo(string functionName, out FunctionInfo functionInfo)

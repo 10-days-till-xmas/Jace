@@ -24,7 +24,7 @@ public abstract class JaceBenchmarkBase
     [Params(true, false)]
     public bool OptimizerEnabled;
 
-    protected EngineWrapper Engine { get; set; }
+    protected EngineWrapper Engine { get; set; } = null!;
 
     protected void GlobalSetup_Engine()
     {

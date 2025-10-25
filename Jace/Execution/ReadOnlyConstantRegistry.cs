@@ -22,7 +22,8 @@ public sealed class ReadOnlyConstantRegistry : IConstantRegistry
 
     public IEnumerator<ConstantInfo> GetEnumerator()
     {
-        return constants.Values.GetEnumerator();
+        // ReSharper disable once RedundantSuppressNullableWarningExpression
+        return constants.Values!.GetEnumerator();
     }
 
     IEnumerator IEnumerable.GetEnumerator()

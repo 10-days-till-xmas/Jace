@@ -22,6 +22,7 @@ public sealed class ReadOnlyFunctionRegistry : IFunctionRegistry
 
     public IEnumerator<FunctionInfo> GetEnumerator()
     {
+        // ReSharper disable once RedundantSuppressNullableWarningExpression
         return functions.Values!.GetEnumerator();
     }
 

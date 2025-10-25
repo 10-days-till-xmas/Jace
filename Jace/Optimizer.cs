@@ -6,7 +6,7 @@ namespace Jace;
 
 public sealed class Optimizer(IExecutor executor)
 {
-    public Operation Optimize(Operation operation, IFunctionRegistry functionRegistry, IConstantRegistry constantRegistry)
+    public Operation Optimize(Operation operation, IFunctionRegistry? functionRegistry, IConstantRegistry? constantRegistry)
     {
         // TODO: Consider adding more optimization rules here.
         // TODO: Refactor to make it non-recursive

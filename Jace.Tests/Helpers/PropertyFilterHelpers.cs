@@ -1,6 +1,4 @@
-﻿using FsCheck;
-using FsCheck.Fluent;
-
+﻿
 namespace Jace.Tests.Helpers;
 
 public static class PropertyFilterHelpers

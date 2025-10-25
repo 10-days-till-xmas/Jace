@@ -24,7 +24,7 @@ public sealed class OptimizerTests
         var astBuilder = new AstBuilder(functionRegistry, true);
         var operation = astBuilder.Build(tokens);
 
-        var optimizedFunction = (Function)optimizer.Optimize(operation, functionRegistry, null);
+        var optimizedFunction = (Function)optimizer.Optimize(operation, functionRegistry, null!);
 
         Assert.Equal(typeof(FloatingPointConstant), optimizedFunction.Arguments[1].GetType());
     }
@@ -43,7 +43,7 @@ public sealed class OptimizerTests
         var astBuilder = new AstBuilder(functionRegistry, true);
         var operation = astBuilder.Build(tokens);
 
-        var optimizedFunction = optimizer.Optimize(operation, functionRegistry, null);
+        var optimizedFunction = optimizer.Optimize(operation, functionRegistry, null!);
 
         Assert.Equal(typeof(Function), optimizedFunction.GetType());
         Assert.Equal(typeof(IntegerConstant), ((Function)optimizedFunction).Arguments[0].GetType());

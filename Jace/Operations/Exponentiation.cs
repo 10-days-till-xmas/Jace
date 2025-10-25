@@ -11,7 +11,7 @@ public sealed class Exponentiation(DataType dataType, Operation argument1, Opera
     {
         return Math.Pow(argument1, argument2);
     }
-    private static readonly MethodInfo PowMethodInfo = typeof(Math).GetRuntimeMethod(nameof(Math.Pow), [typeof(double), typeof(double)]);
+    private static readonly MethodInfo PowMethodInfo = typeof(Math).GetRuntimeMethod(nameof(Math.Pow), [typeof(double), typeof(double)])!;
     public override Expression GenerateExpression(Expression argument1, Expression argument2)
     {
         return Expression.Call(null, PowMethodInfo, argument1, argument2);

@@ -23,8 +23,8 @@ public sealed class Interpreter(bool caseSensitive) : IExecutor
     }
 
     public double Execute(Operation operation,
-                          IFunctionRegistry functionRegistry,
-                          IConstantRegistry constantRegistry,
+                          IFunctionRegistry? functionRegistry,
+                          IConstantRegistry? constantRegistry,
                           IDictionary<string, double>? variables = null)
     {
         return operation switch
@@ -36,7 +36,7 @@ public sealed class Interpreter(bool caseSensitive) : IExecutor
                                      ? value
                                      : throw new VariableNotDefinedException(
                                            $"The variable \"{variable.Name}\" used is not defined."),
-            Function function => function.Invoke(functionRegistry, _Execute),
+            Function function => function.Invoke(functionRegistry ?? throw new InvalidOperationException("functionRegistry is null."), _Execute),
             UnaryOperation unaryOperation => unaryOperation.Evaluate(_Execute(unaryOperation.Argument)),
             BinaryOperation binaryOperation => binaryOperation.Evaluate(_Execute(binaryOperation.Argument1),
                                                                         _Execute(binaryOperation.Argument2)),

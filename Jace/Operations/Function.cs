@@ -114,15 +114,16 @@ public sealed class Function(DataType dataType, string functionName, IList<Opera
         }
 
         return Call(funcInstance,
-                    funcType.GetRuntimeMethod(nameof(Func<double>.Invoke), parameterTypes),
+                    funcType.GetRuntimeMethod(nameof(Func<double>.Invoke), parameterTypes)!,
                     arguments);
     }
 
     private static readonly string FuncAssemblyQualifiedName =
-        typeof(Func<double, double, double, double, double, double, double, double, double, double>).GetTypeInfo().Assembly.FullName;
+        typeof(Func<double, double, double, double, double, double, double, double, double, double>).GetTypeInfo().Assembly.FullName
+     ?? throw new InvalidOperationException("Could not get assembly qualified name for Func type.");
 
     private static readonly MethodInfo m_IFunctionRegistry_GetFunctionInfo = typeof(IFunctionRegistry)
-       .GetRuntimeMethod(nameof(IFunctionRegistry.GetFunctionInfo), [typeof(string)]);
+       .GetRuntimeMethod(nameof(IFunctionRegistry.GetFunctionInfo), [typeof(string)])!;
 
     private static Type GetFuncType(int numberOfParameters)
     {
