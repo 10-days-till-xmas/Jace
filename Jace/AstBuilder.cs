@@ -8,12 +8,16 @@ using Jace.Util;
 
 namespace Jace;
 
-public sealed class AstBuilder
+public sealed class AstBuilder : IUsesText
 {
     private readonly IFunctionRegistry functionRegistry;
     private readonly IConstantRegistry localConstantRegistry;
-    private readonly bool caseSensitive;
-    private readonly Dictionary<char, int> operationPrecedence = new();
+    public bool CaseSensitive { get; }
+    private readonly Dictionary<char, int> operationPrecedence = new()
+    {
+        { '(', 0 }, { '&', 1 }, { '|', 1 }, { '<', 2 }, { '>', 2 }, { '≤', 2 }, { '≥', 2 }, { '≠', 2 },
+        { '=', 2 }, { '+', 3 }, { '-', 3 }, { '*', 4 }, { '/', 4 }, { '%', 4 }, { '^', 5 }, { '_', 6 }
+    };
     private readonly Stack<Operation> resultStack = new();
     private readonly Stack<Token> operatorStack = new();
     private readonly Stack<int> parameterCount = new();
@@ -22,24 +26,7 @@ public sealed class AstBuilder
     {
         this.functionRegistry = functionRegistry ?? throw new ArgumentNullException(nameof(functionRegistry));
         localConstantRegistry = compiledConstants ?? new ConstantRegistry(caseSensitive);
-        this.caseSensitive = caseSensitive;
-
-        operationPrecedence.Add('(', 0);
-        operationPrecedence.Add('&', 1);
-        operationPrecedence.Add('|', 1);
-        operationPrecedence.Add('<', 2);
-        operationPrecedence.Add('>', 2);
-        operationPrecedence.Add('≤', 2);
-        operationPrecedence.Add('≥', 2);
-        operationPrecedence.Add('≠', 2);
-        operationPrecedence.Add('=', 2);
-        operationPrecedence.Add('+', 3);
-        operationPrecedence.Add('-', 3);
-        operationPrecedence.Add('*', 4);
-        operationPrecedence.Add('/', 4);
-        operationPrecedence.Add('%', 4);
-        operationPrecedence.Add('_', 6);
-        operationPrecedence.Add('^', 5);
+        CaseSensitive = caseSensitive;
     }
 
     public Operation Build(IList<Token> tokens)
@@ -72,7 +59,7 @@ public sealed class AstBuilder
                             resultStack.Push(new FloatingPointConstant(info.Value));
                         else
                         {
-                            if (!caseSensitive)
+                            if (!CaseSensitive)
                                 tokenValue = tokenValue.ToLowerFast();
                             resultStack.Push(new Variable(tokenValue));
                         }

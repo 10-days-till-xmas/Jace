@@ -22,9 +22,11 @@ public sealed class DynamicCompiler(bool caseSensitive) : IExecutor
     }
 
     public Func<IDictionary<string, double>, double> BuildFormula(Operation operation,
-                                                                  IFunctionRegistry functionRegistry,
-                                                                  IConstantRegistry constantRegistry)
+                                                                  IFunctionRegistry? functionRegistry,
+                                                                  IConstantRegistry? constantRegistry)
     {
+        functionRegistry ??= new ReadOnlyFunctionRegistry(new FunctionRegistry(CaseSensitive));
+        constantRegistry ??= new ReadOnlyConstantRegistry(new ConstantRegistry(CaseSensitive));
         var func = BuildFormulaInternal(operation, functionRegistry);
         return CaseSensitive
                    ? variables => func(new FormulaContext(variables, functionRegistry, constantRegistry))

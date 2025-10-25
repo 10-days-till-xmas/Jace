@@ -70,13 +70,13 @@ public sealed class CalculationEngine : IUsesText
     public CalculationEngine(JaceOptions options)
     {
         executionFormulaCache = new MemoryCache<string, Func<IDictionary<string, double>, double>>(options.CacheMaximumSize, options.CacheReductionSize);
-        FunctionRegistry = new FunctionRegistry(false);
-        ConstantRegistry = new ConstantRegistry(false);
+        
         cultureInfo = options.CultureInfo;
         cacheEnabled = options.CacheEnabled;
         optimizerEnabled = options.OptimizerEnabled;
         CaseSensitive = options.CaseSensitive;
-
+        FunctionRegistry = new FunctionRegistry(CaseSensitive);
+        ConstantRegistry = new ConstantRegistry(CaseSensitive);
         random = new Random();
 
         executor = options.ExecutionMode switch
@@ -127,6 +127,8 @@ public sealed class CalculationEngine : IUsesText
         VerifyVariableNames(variables);
 
         // Add the reserved variables to the dictionary
+        var compiledConstants = new ReadOnlyConstantRegistry(ConstantRegistry);
+        var compiledFunctions = new ReadOnlyFunctionRegistry(FunctionRegistry);
         foreach (var constant in ConstantRegistry)
             variables.Add(constant.ConstantName, constant.Value);
 
@@ -135,8 +137,8 @@ public sealed class CalculationEngine : IUsesText
             return function(variables);
         }
 
-        var operation = BuildAbstractSyntaxTree(formulaText, new ConstantRegistry(CaseSensitive));
-        function = BuildFormula(formulaText, null, operation);
+        var operation = BuildAbstractSyntaxTree(formulaText, compiledFunctions, compiledConstants);
+        function = BuildFormula(formulaText, compiledConstants, operation);
         return function(variables);
     }
 
@@ -145,7 +147,7 @@ public sealed class CalculationEngine : IUsesText
         if (string.IsNullOrEmpty(formulaText))
             throw new ArgumentNullException(nameof(formulaText));
 
-        return new FormulaBuilder(formulaText, CaseSensitive, this);
+        return new FormulaBuilder(formulaText, this);
     }
 
     /// <summary>
@@ -158,12 +160,15 @@ public sealed class CalculationEngine : IUsesText
         if (string.IsNullOrEmpty(formulaText))
             throw new ArgumentNullException(nameof(formulaText));
 
-        if (TryGetFromFormulaCache(formulaText, null, out var result))
+        var compiledFunctions = new ReadOnlyFunctionRegistry(FunctionRegistry);
+        var compiledConstants = new ReadOnlyConstantRegistry(ConstantRegistry);
+
+        if (TryGetFromFormulaCache(formulaText, compiledConstants, out var result))
         {
             return result;
         }
 
-        var operation = BuildAbstractSyntaxTree(formulaText, new ConstantRegistry(CaseSensitive));
+        var operation = BuildAbstractSyntaxTree(formulaText, compiledFunctions, compiledConstants);
         return BuildFormula(formulaText, null, operation);
     }
 
@@ -179,24 +184,41 @@ public sealed class CalculationEngine : IUsesText
             throw new ArgumentNullException(nameof(formulaText));
 
 
-        var compiledConstants = new ConstantRegistry(CaseSensitive);
+        IConstantRegistry compiledConstants = new ConstantRegistry(ConstantRegistry);
+        var compiledFunctions = new ReadOnlyFunctionRegistry(FunctionRegistry);
         if (constants != null)
-        {
             foreach (var constant in constants)
-            {
                 compiledConstants.RegisterConstant(constant.Key, constant.Value);
-            }
-        }
-
+        compiledConstants = new ReadOnlyConstantRegistry(compiledConstants);
         if (TryGetFromFormulaCache(formulaText, compiledConstants, out var result))
-        {
             return result;
-        }
 
-        var operation = BuildAbstractSyntaxTree(formulaText, compiledConstants);
+        var operation = BuildAbstractSyntaxTree(formulaText, compiledFunctions, compiledConstants);
         return BuildFormula(formulaText, compiledConstants, operation);
     }
 
+    
+    /// <summary>
+    /// Build a .NET func for the provided formula.
+    /// </summary>
+    /// <param name="formulaText">The formula that must be converted into a .NET func.</param>
+    /// <param name="constantRegistryOverride">Overrides the Engine's ConstantRegistry</param>
+    /// <returns>A .NET func for the provided formula.</returns>
+    internal Func<IDictionary<string, double>, double> Build(string formulaText, IConstantRegistry constantRegistryOverride)
+    {
+        if (string.IsNullOrEmpty(formulaText))
+            throw new ArgumentNullException(nameof(formulaText));
+
+
+        var compiledConstants = new ReadOnlyConstantRegistry(constantRegistryOverride);
+        var compiledFunctions = new ReadOnlyFunctionRegistry(FunctionRegistry);
+        if (TryGetFromFormulaCache(formulaText, compiledConstants, out var result))
+            return result;
+
+        var operation = BuildAbstractSyntaxTree(formulaText, compiledFunctions, compiledConstants);
+        return BuildFormula(formulaText, compiledConstants, operation);
+    }
+    
     /// <summary>
     /// Add a function to the calculation engine.
     /// </summary>
@@ -387,34 +409,35 @@ public sealed class CalculationEngine : IUsesText
     /// </summary>
     /// <param name="formulaText">A string containing the mathematical formula that must be converted
     /// into an abstract syntax tree.</param>
-    /// <param name="compiledConstants">A registry containing the constant values that should be used during compilation of the formula.</param>
+    /// /// <param name="functions">A registry containing the functions that should be used during compilation of the formula.</param>
+    /// <param name="constants">A registry containing the constant values that should be used during compilation of the formula.</param>
     /// <returns>The abstract syntax tree of the formula.</returns>
-    private Operation BuildAbstractSyntaxTree(string formulaText, ConstantRegistry compiledConstants)
+    private Operation BuildAbstractSyntaxTree(string formulaText, IFunctionRegistry functions, IConstantRegistry constants)
     {
         var tokenReader = new TokenReader(cultureInfo);
         var tokens = tokenReader.Read(formulaText);
 
-        var astBuilder = new AstBuilder(FunctionRegistry, CaseSensitive, compiledConstants);
+        var astBuilder = new AstBuilder(functions, CaseSensitive, constants);
         var operation = astBuilder.Build(tokens);
 
         return optimizerEnabled
-                   ? optimizer.Optimize(operation, FunctionRegistry, ConstantRegistry)
+                   ? optimizer.Optimize(operation, functions, constants)
                    : operation;
     }
 
-    private Func<IDictionary<string, double>, double> BuildFormula(string formulaText, ConstantRegistry? compiledConstants, Operation operation)
+    private Func<IDictionary<string, double>, double> BuildFormula(string formulaText, IConstantRegistry? compiledConstants, Operation operation)
     {
         return executionFormulaCache.GetOrAdd(GenerateFormulaCacheKey(formulaText, compiledConstants),
-                                              _ => executor.BuildFormula(operation, FunctionRegistry, ConstantRegistry));
+                                              _ => executor.BuildFormula(operation, FunctionRegistry, compiledConstants))!;
     }
 
-    private bool TryGetFromFormulaCache(string formulaText, ConstantRegistry? compiledConstants, [NotNullWhen(true)] out Func<IDictionary<string, double>, double>? function)
+    private bool TryGetFromFormulaCache(string formulaText, IConstantRegistry? compiledConstants, [NotNullWhen(true)] out Func<IDictionary<string, double>, double>? function)
     {
         function = null;
         return cacheEnabled && executionFormulaCache.TryGetValue(GenerateFormulaCacheKey(formulaText, compiledConstants), out function);
     }
 
-    private string GenerateFormulaCacheKey(string formulaText, ConstantRegistry? compiledConstants)
+    private string GenerateFormulaCacheKey(string formulaText, IConstantRegistry? compiledConstants)
     {
         return (compiledConstants != null && compiledConstants.Any())
                    ? $"{formulaText}@{string.Join(",", compiledConstants.Select(x => $"{x.ConstantName}:{x.Value}"))}"

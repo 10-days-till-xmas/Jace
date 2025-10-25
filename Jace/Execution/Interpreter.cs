@@ -12,11 +12,11 @@ public sealed class Interpreter(bool caseSensitive) : IExecutor
     public Interpreter(): this(false) { }
 
     public Func<IDictionary<string, double>, double> BuildFormula(Operation operation,
-                                                                  IFunctionRegistry functionRegistry,
-                                                                  IConstantRegistry constantRegistry)
+                                                                  IFunctionRegistry? functionRegistry,
+                                                                  IConstantRegistry? constantRegistry)
     {
-        functionRegistry = new ReadOnlyFunctionRegistry(functionRegistry);
-        constantRegistry = new ReadOnlyConstantRegistry(constantRegistry);
+        functionRegistry = new ReadOnlyFunctionRegistry(functionRegistry ?? new FunctionRegistry(CaseSensitive));
+        constantRegistry = new ReadOnlyConstantRegistry(constantRegistry ?? new ConstantRegistry(CaseSensitive));
         return CaseSensitive
                    ? variables => Execute(operation, functionRegistry, constantRegistry, variables)
                    : variables => Execute(operation, functionRegistry, constantRegistry, EngineUtil.ConvertVariableNamesToLowerCase(variables));

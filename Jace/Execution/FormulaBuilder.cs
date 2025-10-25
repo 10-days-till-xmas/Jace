@@ -13,16 +13,17 @@ public sealed class FormulaBuilder : IUsesText
     public bool CaseSensitive { get; }
     private DataType? resultDataType;
     private readonly List<ParameterInfo> parameters = [];
-    private readonly Dictionary<string, double> constants = [];
+    private readonly IConstantRegistry constantRegistry;
 
     /// <summary>
     /// Creates a new instance of the FormulaBuilder class.
     /// </summary>
-    internal FormulaBuilder(string formulaText, bool caseSensitive, CalculationEngine engine)
+    internal FormulaBuilder(string formulaText, CalculationEngine engine)
     {
         this.formulaText = formulaText;
         this.engine = engine;
-        CaseSensitive = caseSensitive;
+        CaseSensitive = engine.CaseSensitive;
+        constantRegistry = new ConstantRegistry(engine.ConstantRegistry);
     }
 
     /// <summary>
@@ -39,7 +40,6 @@ public sealed class FormulaBuilder : IUsesText
 
         if (engine.FunctionRegistry.ContainsFunctionName(name))
             throw new ArgumentException($"The name \"{name}\" is a function name. Parameters cannot have this name.", nameof(name));
-
         if (parameters.Any(p => p.Name == name))
             throw new ArgumentException($"A parameter with the name \"{name}\" was already defined.", nameof(name));
 
@@ -68,11 +68,10 @@ public sealed class FormulaBuilder : IUsesText
     {
         if (string.IsNullOrEmpty(name))
             throw new ArgumentNullException(nameof(name));
-
-        if (constants.Any(p => p.Key == name))
+        if (constantRegistry.ContainsConstantName(name))
             throw new ArgumentException($"A constant with the name \"{name}\" was already defined.", nameof(name));
 
-        constants[name] = constantValue;
+        constantRegistry.RegisterConstant(name, constantValue);
         return this;
     }
 
@@ -99,10 +98,9 @@ public sealed class FormulaBuilder : IUsesText
     {
         if (!resultDataType.HasValue)
             throw new Exception("Please define a result data type for the formula.");
-
+        var constants = new ReadOnlyConstantRegistry(constantRegistry);
         var formula = engine.Build(formulaText, constants);
-
-        var constantRegistry = new ReadOnlyConstantRegistry(engine.ConstantRegistry);
+        
         return FuncAdapter.Wrap(parameters, variables => {
 
             if(!CaseSensitive)
@@ -111,8 +109,8 @@ public sealed class FormulaBuilder : IUsesText
             engine.VerifyVariableNames(variables);
 
             // Add the reserved variables to the dictionary
-            foreach (var constant in constantRegistry)
-                variables.Add(constant.ConstantName, constant.Value);
+            // foreach (var constant in constantRegistry)
+            //     variables.Add(constant.ConstantName, constant.Value);
 
             return formula(variables);
         });
