@@ -18,13 +18,13 @@ public sealed class AstBuilderTests
         var builder = new AstBuilder(registry, false);
         var operation = builder.Build(new List<Token>
         {
-            new(Value: '(', TokenType.LeftBracket),
-            new(Value: 42, TokenType.Integer),
-            new(Value: '+', TokenType.Operation),
-            new(Value: 8, TokenType.Integer),
-            new(Value: ')', TokenType.RightBracket),
-            new(Value: '*', TokenType.Operation),
-            new(Value: 2, TokenType.Integer)
+            new(value: '(', TokenType.LeftBracket),
+            new(value: 42, TokenType.Integer),
+            new(value: '+', TokenType.Operation),
+            new(value: 8, TokenType.Integer),
+            new(value: ')', TokenType.RightBracket),
+            new(value: '*', TokenType.Operation),
+            new(value: 2, TokenType.Integer)
         });
 
         var multiplication = (Multiplication)operation;
@@ -43,11 +43,11 @@ public sealed class AstBuilderTests
         var builder = new AstBuilder(registry, false);
         var operation = builder.Build(new List<Token>
         {
-            new(Value: 2, TokenType.Integer),
-            new(Value: '+', TokenType.Operation),
-            new(Value: 8, TokenType.Integer),
-            new(Value: '*', TokenType.Operation),
-            new(Value: 3, TokenType.Integer)
+            new(value: 2, TokenType.Integer),
+            new(value: '+', TokenType.Operation),
+            new(value: 8, TokenType.Integer),
+            new(value: '*', TokenType.Operation),
+            new(value: 3, TokenType.Integer)
         });
 
         var addition = (Addition)operation;
@@ -66,11 +66,11 @@ public sealed class AstBuilderTests
         var builder = new AstBuilder(registry, false);
         var operation = builder.Build(new List<Token>
         {
-            new(Value: 2, TokenType.Integer),
-            new(Value: '*', TokenType.Operation),
-            new(Value: 8, TokenType.Integer),
-            new(Value: '-', TokenType.Operation),
-            new(Value: 3, TokenType.Integer)
+            new(value: 2, TokenType.Integer),
+            new(value: '*', TokenType.Operation),
+            new(value: 8, TokenType.Integer),
+            new(value: '-', TokenType.Operation),
+            new(value: 3, TokenType.Integer)
         });
 
         var substraction = (Subtraction)operation;
@@ -89,9 +89,9 @@ public sealed class AstBuilderTests
         var builder = new AstBuilder(registry, false);
         var operation = builder.Build(new List<Token>
         {
-            new(Value: 10, TokenType.Integer),
-            new(Value: '/', TokenType.Operation),
-            new(Value: 2, TokenType.Integer)
+            new(value: 10, TokenType.Integer),
+            new(value: '/', TokenType.Operation),
+            new(value: 2, TokenType.Integer)
         });
 
         var division = (Division)operation;
@@ -108,9 +108,9 @@ public sealed class AstBuilderTests
         var builder = new AstBuilder(registry, false);
         var operation = builder.Build(new List<Token>
         {
-            new(Value: 10, TokenType.Integer),
-            new(Value: '*', TokenType.Operation),
-            new(Value: 2.0, TokenType.FloatingPoint)
+            new(value: 10, TokenType.Integer),
+            new(value: '*', TokenType.Operation),
+            new(value: 2.0, TokenType.FloatingPoint)
         });
 
         var multiplication = (Multiplication)operation;
@@ -127,9 +127,9 @@ public sealed class AstBuilderTests
         var builder = new AstBuilder(registry, false);
         var operation = builder.Build(new List<Token>
         {
-            new(Value: 2, TokenType.Integer),
-            new(Value: '^', TokenType.Operation),
-            new(Value: 3, TokenType.Integer)
+            new(value: 2, TokenType.Integer),
+            new(value: '^', TokenType.Operation),
+            new(value: 3, TokenType.Integer)
         });
 
         var exponentiation = (Exponentiation)operation;
@@ -146,9 +146,9 @@ public sealed class AstBuilderTests
         var builder = new AstBuilder(registry, false);
         var operation = builder.Build(new List<Token>
         {
-            new(Value: 2.7, TokenType.FloatingPoint),
-            new(Value: '%', TokenType.Operation),
-            new(Value: 3, TokenType.Integer)
+            new(value: 2.7, TokenType.FloatingPoint),
+            new(value: '%', TokenType.Operation),
+            new(value: 3, TokenType.Integer)
         });
 
         var modulo = (Modulo)operation;
@@ -165,9 +165,9 @@ public sealed class AstBuilderTests
         var builder = new AstBuilder(registry, false);
         var operation = builder.Build(new List<Token>
         {
-            new(Value: 10, TokenType.Integer),
-            new(Value: '*', TokenType.Operation),
-            new(Value: "var1", TokenType.Text)
+            new(value: 10, TokenType.Integer),
+            new(value: '*', TokenType.Operation),
+            new(value: "var1", TokenType.Text)
         });
 
         var multiplication = (Multiplication)operation;
@@ -184,15 +184,15 @@ public sealed class AstBuilderTests
         var builder = new AstBuilder(registry, false);
         var operation = builder.Build(new List<Token>
         {
-            new(Value: "var1", TokenType.Text),
-            new(Value: '+', TokenType.Operation),
-            new(Value: 2, TokenType.Integer),
-            new(Value: '*', TokenType.Operation),
-            new(Value: '(', TokenType.LeftBracket),
-            new(Value: 3, TokenType.Integer),
-            new(Value: '*', TokenType.Operation),
-            new(Value: "age", TokenType.Text),
-            new(Value: ')', TokenType.RightBracket)
+            new(value: "var1", TokenType.Text),
+            new(value: '+', TokenType.Operation),
+            new(value: 2, TokenType.Integer),
+            new(value: '*', TokenType.Operation),
+            new(value: '(', TokenType.LeftBracket),
+            new(value: 3, TokenType.Integer),
+            new(value: '*', TokenType.Operation),
+            new(value: "age", TokenType.Text),
+            new(value: ')', TokenType.RightBracket)
         });
 
         var addition = (Addition)operation;
@@ -213,10 +213,10 @@ public sealed class AstBuilderTests
         var builder = new AstBuilder(registry, false);
         var operation = builder.Build(new List<Token>
         {
-            new(Value: "sin", TokenType.Text),
-            new(Value: '(', TokenType.LeftBracket),
-            new(Value: 2, TokenType.Integer),
-            new(Value: ')', TokenType.RightBracket)
+            new(value: "sin", TokenType.Text),
+            new(value: '(', TokenType.LeftBracket),
+            new(value: 2, TokenType.Integer),
+            new(value: ')', TokenType.RightBracket)
         });
 
         var sineFunction = (Function)operation;
@@ -232,12 +232,12 @@ public sealed class AstBuilderTests
         var builder = new AstBuilder(registry, false);
         var operation = builder.Build(new List<Token>
         {
-            new(Value: "sin", TokenType.Text),
-            new(Value: '(', TokenType.LeftBracket),
-            new(Value: 2, TokenType.Integer),
-            new(Value: '+', TokenType.Operation),
-            new(Value: 3, TokenType.Integer),
-            new(Value: ')', TokenType.RightBracket)
+            new(value: "sin", TokenType.Text),
+            new(value: '(', TokenType.LeftBracket),
+            new(value: 2, TokenType.Integer),
+            new(value: '+', TokenType.Operation),
+            new(value: 3, TokenType.Integer),
+            new(value: ')', TokenType.RightBracket)
         });
 
         var sineFunction = (Function)operation;
@@ -255,14 +255,14 @@ public sealed class AstBuilderTests
         var builder = new AstBuilder(registry, false);
         var operation = builder.Build(new List<Token>
         {
-            new(Value: "sin", TokenType.Text),
-            new(Value: '(', TokenType.LeftBracket),
-            new(Value: 2, TokenType.Integer),
-            new(Value: '+', TokenType.Operation),
-            new(Value: 3, TokenType.Integer),
-            new(Value: ')', TokenType.RightBracket),
-            new(Value: '*', TokenType.Operation),
-            new(Value: 4.9, TokenType.FloatingPoint)
+            new(value: "sin", TokenType.Text),
+            new(value: '(', TokenType.LeftBracket),
+            new(value: 2, TokenType.Integer),
+            new(value: '+', TokenType.Operation),
+            new(value: 3, TokenType.Integer),
+            new(value: ')', TokenType.RightBracket),
+            new(value: '*', TokenType.Operation),
+            new(value: 4.9, TokenType.FloatingPoint)
         });
 
         var multiplication = (Multiplication)operation;
@@ -284,14 +284,14 @@ public sealed class AstBuilderTests
         var builder = new AstBuilder(registry, false);
         var operation = builder.Build(new List<Token>
         {
-            new(Value: 5.3, TokenType.FloatingPoint),
-            new(Value: '*', TokenType.Operation),
-            new(Value: '_', TokenType.Operation),
-            new(Value: '(', TokenType.LeftBracket),
-            new(Value: 5, TokenType.Integer),
-            new(Value: '+', TokenType.Operation),
-            new(Value: 42, TokenType.Integer),
-            new(Value: ')', TokenType.RightBracket)
+            new(value: 5.3, TokenType.FloatingPoint),
+            new(value: '*', TokenType.Operation),
+            new(value: '_', TokenType.Operation),
+            new(value: '(', TokenType.LeftBracket),
+            new(value: 5, TokenType.Integer),
+            new(value: '+', TokenType.Operation),
+            new(value: 42, TokenType.Integer),
+            new(value: ')', TokenType.RightBracket)
         });
 
         var multiplication = (Multiplication)operation;
@@ -315,12 +315,12 @@ public sealed class AstBuilderTests
         {
             builder.Build(new List<Token>
             {
-                new(Value: '(', TokenType.LeftBracket, StartPosition: 0),
-                new(Value: 42, TokenType.Integer, StartPosition: 1),
-                new(Value: '+', TokenType.Operation, StartPosition: 3),
-                new(Value: 8, TokenType.Integer, StartPosition: 4),
-                new(Value: ')', TokenType.RightBracket, StartPosition: 5),
-                new(Value: '*', TokenType.Operation, StartPosition: 6)
+                new(value: '(', TokenType.LeftBracket, startPosition: 0),
+                new(value: 42, TokenType.Integer, startPosition: 1),
+                new(value: '+', TokenType.Operation, startPosition: 3),
+                new(value: 8, TokenType.Integer, startPosition: 4),
+                new(value: ')', TokenType.RightBracket, startPosition: 5),
+                new(value: '*', TokenType.Operation, startPosition: 6)
             });
         });
     }
@@ -336,12 +336,12 @@ public sealed class AstBuilderTests
         {
             builder.Build(new List<Token>
             {
-                new(Value: 42, TokenType.Integer, StartPosition: 0),
-                new(Value: '+', TokenType.Operation, StartPosition: 2),
-                new(Value: 8, TokenType.Integer, StartPosition: 3),
-                new(Value: ')', TokenType.RightBracket, StartPosition: 4),
-                new(Value: '*', TokenType.Operation, StartPosition: 5),
-                new(Value: 2, TokenType.Integer, StartPosition: 6)
+                new(value: 42, TokenType.Integer, startPosition: 0),
+                new(value: '+', TokenType.Operation, startPosition: 2),
+                new(value: 8, TokenType.Integer, startPosition: 3),
+                new(value: ')', TokenType.RightBracket, startPosition: 4),
+                new(value: '*', TokenType.Operation, startPosition: 5),
+                new(value: 2, TokenType.Integer, startPosition: 6)
             });
         });
     }
@@ -357,10 +357,10 @@ public sealed class AstBuilderTests
         {
             builder.Build(new List<Token>
             {
-                new(Value: '(', TokenType.LeftBracket, StartPosition: 0),
-                new(Value: 42, TokenType.Integer, StartPosition: 1),
-                new(Value: '+', TokenType.Operation, StartPosition: 3),
-                new(Value: 8, TokenType.Integer, StartPosition: 4)
+                new(value: '(', TokenType.LeftBracket, startPosition: 0),
+                new(value: 42, TokenType.Integer, startPosition: 1),
+                new(value: '+', TokenType.Operation, startPosition: 3),
+                new(value: 8, TokenType.Integer, startPosition: 4)
             });
         });
     }
@@ -376,10 +376,10 @@ public sealed class AstBuilderTests
         {
             builder.Build(new List<Token>
             {
-                new(Value: 5, TokenType.Integer, StartPosition: 0),
-                new(Value: 42, TokenType.Integer, StartPosition: 1),
-                new(Value: '+', TokenType.Operation, StartPosition: 3),
-                new(Value: 8, TokenType.Integer, StartPosition: 4)
+                new(value: 5, TokenType.Integer, startPosition: 0),
+                new(value: 42, TokenType.Integer, startPosition: 1),
+                new(value: '+', TokenType.Operation, startPosition: 3),
+                new(value: 8, TokenType.Integer, startPosition: 4)
             });
         });
     }
@@ -395,10 +395,10 @@ public sealed class AstBuilderTests
         {
             builder.Build(new List<Token>
             {
-                new(Value: 42, TokenType.Integer, StartPosition: 0),
-                new(Value: '+', TokenType.Operation, StartPosition: 2),
-                new(Value: 8, TokenType.Integer, StartPosition: 3),
-                new(Value: 5, TokenType.Integer, StartPosition: 4)
+                new(value: 42, TokenType.Integer, startPosition: 0),
+                new(value: '+', TokenType.Operation, startPosition: 2),
+                new(value: 8, TokenType.Integer, startPosition: 3),
+                new(value: 5, TokenType.Integer, startPosition: 4)
             });
         });
     }

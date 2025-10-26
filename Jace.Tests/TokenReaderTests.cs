@@ -15,16 +15,16 @@ public sealed class TokenReaderTests
         Assert.Equal(3, tokens.Count);
 
         Assert.Equal(42, tokens[0].Value);
-        Assert.Equal(0, tokens[0].StartPosition);
-        Assert.Equal(2, tokens[0].Length);
+        Assert.Equal((uint)0, tokens[0].StartPosition);
+        Assert.Equal((uint)2, tokens[0].Length);
 
         Assert.Equal('+', tokens[1].Value);
-        Assert.Equal(2, tokens[1].StartPosition);
-        Assert.Equal(1, tokens[1].Length);
+        Assert.Equal((uint)2, tokens[1].StartPosition);
+        Assert.Equal((uint)1, tokens[1].Length);
 
         Assert.Equal(31, tokens[2].Value);
-        Assert.Equal(3, tokens[2].StartPosition);
-        Assert.Equal(2, tokens[2].Length);
+        Assert.Equal((uint)3, tokens[2].StartPosition);
+        Assert.Equal((uint)2, tokens[2].Length);
     }
 
     [Fact]
@@ -36,24 +36,24 @@ public sealed class TokenReaderTests
         Assert.Equal(5, tokens.Count);
 
         Assert.Equal('(', tokens[0].Value);
-        Assert.Equal(0, tokens[0].StartPosition);
-        Assert.Equal(1, tokens[0].Length);
+        Assert.Equal((uint)0, tokens[0].StartPosition);
+        Assert.Equal((uint)1, tokens[0].Length);
 
         Assert.Equal(42, tokens[1].Value);
-        Assert.Equal(1, tokens[1].StartPosition);
-        Assert.Equal(2, tokens[1].Length);
+        Assert.Equal((uint)1, tokens[1].StartPosition);
+        Assert.Equal((uint)2, tokens[1].Length);
 
         Assert.Equal('+', tokens[2].Value);
-        Assert.Equal(3, tokens[2].StartPosition);
-        Assert.Equal(1, tokens[2].Length);
+        Assert.Equal((uint)3, tokens[2].StartPosition);
+        Assert.Equal((uint)1, tokens[2].Length);
 
         Assert.Equal(31, tokens[3].Value);
-        Assert.Equal(4, tokens[3].StartPosition);
-        Assert.Equal(2, tokens[3].Length);
+        Assert.Equal((uint)4, tokens[3].StartPosition);
+        Assert.Equal((uint)2, tokens[3].Length);
 
         Assert.Equal(')', tokens[4].Value);
-        Assert.Equal(6, tokens[4].StartPosition);
-        Assert.Equal(1, tokens[4].Length);
+        Assert.Equal((uint)6, tokens[4].StartPosition);
+        Assert.Equal((uint)1, tokens[4].Length);
     }
 
     [Fact]
@@ -65,20 +65,20 @@ public sealed class TokenReaderTests
         Assert.Equal(4, tokens.Count);
 
         Assert.Equal('(', tokens[0].Value);
-        Assert.Equal(0, tokens[0].StartPosition);
-        Assert.Equal(1, tokens[0].Length);
+        Assert.Equal((uint)0, tokens[0].StartPosition);
+        Assert.Equal((uint)1, tokens[0].Length);
 
         Assert.Equal(42, tokens[1].Value);
-        Assert.Equal(1, tokens[1].StartPosition);
-        Assert.Equal(2, tokens[1].Length);
+        Assert.Equal((uint)1, tokens[1].StartPosition);
+        Assert.Equal((uint)2, tokens[1].Length);
 
         Assert.Equal('+', tokens[2].Value);
-        Assert.Equal(3, tokens[2].StartPosition);
-        Assert.Equal(1, tokens[2].Length);
+        Assert.Equal((uint)3, tokens[2].StartPosition);
+        Assert.Equal((uint)1, tokens[2].Length);
 
         Assert.Equal(31.0, tokens[3].Value);
-        Assert.Equal(4, tokens[3].StartPosition);
-        Assert.Equal(4, tokens[3].Length);
+        Assert.Equal((uint)4, tokens[3].StartPosition);
+        Assert.Equal((uint)4, tokens[3].Length);
     }
 
     [Fact]
@@ -90,32 +90,32 @@ public sealed class TokenReaderTests
         Assert.Equal(7, tokens.Count);
 
         Assert.Equal('(', tokens[0].Value);
-        Assert.Equal(0, tokens[0].StartPosition);
-        Assert.Equal(1, tokens[0].Length);
+        Assert.Equal((uint)0, tokens[0].StartPosition);
+        Assert.Equal((uint)1, tokens[0].Length);
 
         Assert.Equal(42, tokens[1].Value);
-        Assert.Equal(1, tokens[1].StartPosition);
-        Assert.Equal(2, tokens[1].Length);
+        Assert.Equal((uint)1, tokens[1].StartPosition);
+        Assert.Equal((uint)2, tokens[1].Length);
 
         Assert.Equal('+', tokens[2].Value);
-        Assert.Equal(3, tokens[2].StartPosition);
-        Assert.Equal(1, tokens[2].Length);
+        Assert.Equal((uint)3, tokens[2].StartPosition);
+        Assert.Equal((uint)1, tokens[2].Length);
 
         Assert.Equal(8, tokens[3].Value);
-        Assert.Equal(5, tokens[3].StartPosition);
-        Assert.Equal(1, tokens[3].Length);
+        Assert.Equal((uint)5, tokens[3].StartPosition);
+        Assert.Equal((uint)1, tokens[3].Length);
 
         Assert.Equal(')', tokens[4].Value);
-        Assert.Equal(6, tokens[4].StartPosition);
-        Assert.Equal(1, tokens[4].Length);
+        Assert.Equal((uint)6, tokens[4].StartPosition);
+        Assert.Equal((uint)1, tokens[4].Length);
 
         Assert.Equal('*', tokens[5].Value);
-        Assert.Equal(8, tokens[5].StartPosition);
-        Assert.Equal(1, tokens[5].Length);
+        Assert.Equal((uint)8, tokens[5].StartPosition);
+        Assert.Equal((uint)1, tokens[5].Length);
 
         Assert.Equal(2, tokens[6].Value);
-        Assert.Equal(9, tokens[6].StartPosition);
-        Assert.Equal(1, tokens[6].Length);
+        Assert.Equal((uint)9, tokens[6].StartPosition);
+        Assert.Equal((uint)1, tokens[6].Length);
     }
 
     [Fact]
@@ -127,20 +127,20 @@ public sealed class TokenReaderTests
         Assert.Equal(4, tokens.Count);
 
         Assert.Equal('(', tokens[0].Value);
-        Assert.Equal(0, tokens[0].StartPosition);
-        Assert.Equal(1, tokens[0].Length);
+        Assert.Equal((uint)0, tokens[0].StartPosition);
+        Assert.Equal((uint)1, tokens[0].Length);
 
         Assert.Equal(42.87, tokens[1].Value);
-        Assert.Equal(1, tokens[1].StartPosition);
-        Assert.Equal(5, tokens[1].Length);
+        Assert.Equal((uint)1, tokens[1].StartPosition);
+        Assert.Equal((uint)5, tokens[1].Length);
 
         Assert.Equal('+', tokens[2].Value);
-        Assert.Equal(6, tokens[2].StartPosition);
-        Assert.Equal(1, tokens[2].Length);
+        Assert.Equal((uint)6, tokens[2].StartPosition);
+        Assert.Equal((uint)1, tokens[2].Length);
 
         Assert.Equal(31.0, tokens[3].Value);
-        Assert.Equal(7, tokens[3].StartPosition);
-        Assert.Equal(4, tokens[3].Length);
+        Assert.Equal((uint)7, tokens[3].StartPosition);
+        Assert.Equal((uint)4, tokens[3].Length);
     }
 
     [Fact]
@@ -152,20 +152,20 @@ public sealed class TokenReaderTests
         Assert.Equal(4, tokens.Count);
 
         Assert.Equal('(', tokens[0].Value);
-        Assert.Equal(0, tokens[0].StartPosition);
-        Assert.Equal(1, tokens[0].Length);
+        Assert.Equal((uint)0, tokens[0].StartPosition);
+        Assert.Equal((uint)1, tokens[0].Length);
 
         Assert.Equal("var", tokens[1].Value);
-        Assert.Equal(1, tokens[1].StartPosition);
-        Assert.Equal(3, tokens[1].Length);
+        Assert.Equal((uint)1, tokens[1].StartPosition);
+        Assert.Equal((uint)3, tokens[1].Length);
 
         Assert.Equal('+', tokens[2].Value);
-        Assert.Equal(4, tokens[2].StartPosition);
-        Assert.Equal(1, tokens[2].Length);
+        Assert.Equal((uint)4, tokens[2].StartPosition);
+        Assert.Equal((uint)1, tokens[2].Length);
 
         Assert.Equal(31.0, tokens[3].Value);
-        Assert.Equal(5, tokens[3].StartPosition);
-        Assert.Equal(4, tokens[3].Length);
+        Assert.Equal((uint)5, tokens[3].StartPosition);
+        Assert.Equal((uint)4, tokens[3].Length);
     }
 
     [Fact]
@@ -178,8 +178,8 @@ public sealed class TokenReaderTests
         Assert.Single(tokens);
 
         Assert.Equal("varb", tokens[0].Value);
-        Assert.Equal(0, tokens[0].StartPosition);
-        Assert.Equal(4, tokens[0].Length);
+        Assert.Equal((uint)0, tokens[0].StartPosition);
+        Assert.Equal((uint)4, tokens[0].Length);
     }
 
     [Fact]
@@ -191,12 +191,12 @@ public sealed class TokenReaderTests
         Assert.Equal(2, tokens.Count);
 
         Assert.Equal("varb", tokens[0].Value);
-        Assert.Equal(0, tokens[0].StartPosition);
-        Assert.Equal(4, tokens[0].Length);
+        Assert.Equal((uint)0, tokens[0].StartPosition);
+        Assert.Equal((uint)4, tokens[0].Length);
 
         Assert.Equal('(', tokens[1].Value);
-        Assert.Equal(4, tokens[1].StartPosition);
-        Assert.Equal(1, tokens[1].Length);
+        Assert.Equal((uint)4, tokens[1].StartPosition);
+        Assert.Equal((uint)1, tokens[1].Length);
     }
 
     [Fact]
@@ -208,16 +208,16 @@ public sealed class TokenReaderTests
         Assert.Equal(3, tokens.Count);
 
         Assert.Equal('+', tokens[0].Value);
-        Assert.Equal(0, tokens[0].StartPosition);
-        Assert.Equal(1, tokens[0].Length);
+        Assert.Equal((uint)0, tokens[0].StartPosition);
+        Assert.Equal((uint)1, tokens[0].Length);
 
         Assert.Equal("varb", tokens[1].Value);
-        Assert.Equal(1, tokens[1].StartPosition);
-        Assert.Equal(4, tokens[1].Length);
+        Assert.Equal((uint)1, tokens[1].StartPosition);
+        Assert.Equal((uint)4, tokens[1].Length);
 
         Assert.Equal('(', tokens[2].Value);
-        Assert.Equal(5, tokens[2].StartPosition);
-        Assert.Equal(1, tokens[2].Length);
+        Assert.Equal((uint)5, tokens[2].StartPosition);
+        Assert.Equal((uint)1, tokens[2].Length);
     }
 
     [Fact]
@@ -229,16 +229,16 @@ public sealed class TokenReaderTests
         Assert.Equal(3, tokens.Count);
 
         Assert.Equal("var1", tokens[0].Value);
-        Assert.Equal(0, tokens[0].StartPosition);
-        Assert.Equal(4, tokens[0].Length);
+        Assert.Equal((uint)0, tokens[0].StartPosition);
+        Assert.Equal((uint)4, tokens[0].Length);
 
         Assert.Equal('+', tokens[1].Value);
-        Assert.Equal(4, tokens[1].StartPosition);
-        Assert.Equal(1, tokens[1].Length);
+        Assert.Equal((uint)4, tokens[1].StartPosition);
+        Assert.Equal((uint)1, tokens[1].Length);
 
         Assert.Equal(2, tokens[2].Value);
-        Assert.Equal(5, tokens[2].StartPosition);
-        Assert.Equal(1, tokens[2].Length);
+        Assert.Equal((uint)5, tokens[2].StartPosition);
+        Assert.Equal((uint)1, tokens[2].Length);
     }
 
     [Fact]
@@ -250,16 +250,16 @@ public sealed class TokenReaderTests
         Assert.Equal(3, tokens.Count);
 
         Assert.Equal(5.1, tokens[0].Value);
-        Assert.Equal(0, tokens[0].StartPosition);
-        Assert.Equal(3, tokens[0].Length);
+        Assert.Equal((uint)0, tokens[0].StartPosition);
+        Assert.Equal((uint)3, tokens[0].Length);
 
         Assert.Equal('%', tokens[1].Value);
-        Assert.Equal(3, tokens[1].StartPosition);
-        Assert.Equal(1, tokens[1].Length);
+        Assert.Equal((uint)3, tokens[1].StartPosition);
+        Assert.Equal((uint)1, tokens[1].Length);
 
         Assert.Equal(2, tokens[2].Value);
-        Assert.Equal(4, tokens[2].StartPosition);
-        Assert.Equal(1, tokens[2].Length);
+        Assert.Equal((uint)4, tokens[2].StartPosition);
+        Assert.Equal((uint)1, tokens[2].Length);
     }
 
     [Fact]
@@ -271,8 +271,8 @@ public sealed class TokenReaderTests
         Assert.Single(tokens);
 
         Assert.Equal(-2.1, tokens[0].Value);
-        Assert.Equal(0, tokens[0].StartPosition);
-        Assert.Equal(4, tokens[0].Length);
+        Assert.Equal((uint)0, tokens[0].StartPosition);
+        Assert.Equal((uint)4, tokens[0].Length);
     }
 
     [Fact]
@@ -284,16 +284,16 @@ public sealed class TokenReaderTests
         Assert.Equal(3, tokens.Count);
 
         Assert.Equal(5, tokens[0].Value);
-        Assert.Equal(0, tokens[0].StartPosition);
-        Assert.Equal(1, tokens[0].Length);
+        Assert.Equal((uint)0, tokens[0].StartPosition);
+        Assert.Equal((uint)1, tokens[0].Length);
 
         Assert.Equal('-', tokens[1].Value);
-        Assert.Equal(1, tokens[1].StartPosition);
-        Assert.Equal(1, tokens[1].Length);
+        Assert.Equal((uint)1, tokens[1].StartPosition);
+        Assert.Equal((uint)1, tokens[1].Length);
 
         Assert.Equal(2, tokens[2].Value);
-        Assert.Equal(2, tokens[2].StartPosition);
-        Assert.Equal(1, tokens[2].Length);
+        Assert.Equal((uint)2, tokens[2].StartPosition);
+        Assert.Equal((uint)1, tokens[2].Length);
     }
 
     [Fact]
@@ -305,16 +305,16 @@ public sealed class TokenReaderTests
         Assert.Equal(3, tokens.Count);
 
         Assert.Equal(5, tokens[0].Value);
-        Assert.Equal(0, tokens[0].StartPosition);
-        Assert.Equal(1, tokens[0].Length);
+        Assert.Equal((uint)0, tokens[0].StartPosition);
+        Assert.Equal((uint)1, tokens[0].Length);
 
         Assert.Equal('*', tokens[1].Value);
-        Assert.Equal(1, tokens[1].StartPosition);
-        Assert.Equal(1, tokens[1].Length);
+        Assert.Equal((uint)1, tokens[1].StartPosition);
+        Assert.Equal((uint)1, tokens[1].Length);
 
         Assert.Equal(-2, tokens[2].Value);
-        Assert.Equal(2, tokens[2].StartPosition);
-        Assert.Equal(2, tokens[2].Length);
+        Assert.Equal((uint)2, tokens[2].StartPosition);
+        Assert.Equal((uint)2, tokens[2].Length);
     }
 
     [Fact]
@@ -326,24 +326,24 @@ public sealed class TokenReaderTests
         Assert.Equal(5, tokens.Count);
 
         Assert.Equal(5, tokens[0].Value);
-        Assert.Equal(0, tokens[0].StartPosition);
-        Assert.Equal(1, tokens[0].Length);
+        Assert.Equal((uint)0, tokens[0].StartPosition);
+        Assert.Equal((uint)1, tokens[0].Length);
 
         Assert.Equal('*', tokens[1].Value);
-        Assert.Equal(1, tokens[1].StartPosition);
-        Assert.Equal(1, tokens[1].Length);
+        Assert.Equal((uint)1, tokens[1].StartPosition);
+        Assert.Equal((uint)1, tokens[1].Length);
 
         Assert.Equal('(', tokens[2].Value);
-        Assert.Equal(2, tokens[2].StartPosition);
-        Assert.Equal(1, tokens[2].Length);
+        Assert.Equal((uint)2, tokens[2].StartPosition);
+        Assert.Equal((uint)1, tokens[2].Length);
 
         Assert.Equal(-2, tokens[3].Value);
-        Assert.Equal(3, tokens[3].StartPosition);
-        Assert.Equal(2, tokens[3].Length);
+        Assert.Equal((uint)3, tokens[3].StartPosition);
+        Assert.Equal((uint)2, tokens[3].Length);
 
         Assert.Equal(')', tokens[4].Value);
-        Assert.Equal(5, tokens[4].StartPosition);
-        Assert.Equal(1, tokens[4].Length);
+        Assert.Equal((uint)5, tokens[4].StartPosition);
+        Assert.Equal((uint)1, tokens[4].Length);
     }
 
     [Fact]
@@ -355,36 +355,36 @@ public sealed class TokenReaderTests
         Assert.Equal(8, tokens.Count);
 
         Assert.Equal(5, tokens[0].Value);
-        Assert.Equal(0, tokens[0].StartPosition);
-        Assert.Equal(1, tokens[0].Length);
+        Assert.Equal((uint)0, tokens[0].StartPosition);
+        Assert.Equal((uint)1, tokens[0].Length);
 
         Assert.Equal('*', tokens[1].Value);
-        Assert.Equal(1, tokens[1].StartPosition);
-        Assert.Equal(1, tokens[1].Length);
+        Assert.Equal((uint)1, tokens[1].StartPosition);
+        Assert.Equal((uint)1, tokens[1].Length);
 
         Assert.Equal('_', tokens[2].Value);
-        Assert.Equal(2, tokens[2].StartPosition);
-        Assert.Equal(1, tokens[2].Length);
+        Assert.Equal((uint)2, tokens[2].StartPosition);
+        Assert.Equal((uint)1, tokens[2].Length);
 
         Assert.Equal('(', tokens[3].Value);
-        Assert.Equal(3, tokens[3].StartPosition);
-        Assert.Equal(1, tokens[3].Length);
+        Assert.Equal((uint)3, tokens[3].StartPosition);
+        Assert.Equal((uint)1, tokens[3].Length);
 
         Assert.Equal(2, tokens[4].Value);
-        Assert.Equal(4, tokens[4].StartPosition);
-        Assert.Equal(1, tokens[4].Length);
+        Assert.Equal((uint)4, tokens[4].StartPosition);
+        Assert.Equal((uint)1, tokens[4].Length);
 
         Assert.Equal('+', tokens[5].Value);
-        Assert.Equal(5, tokens[5].StartPosition);
-        Assert.Equal(1, tokens[5].Length);
+        Assert.Equal((uint)5, tokens[5].StartPosition);
+        Assert.Equal((uint)1, tokens[5].Length);
 
         Assert.Equal(43, tokens[6].Value);
-        Assert.Equal(6, tokens[6].StartPosition);
-        Assert.Equal(2, tokens[6].Length);
+        Assert.Equal((uint)6, tokens[6].StartPosition);
+        Assert.Equal((uint)2, tokens[6].Length);
 
         Assert.Equal(')', tokens[7].Value);
-        Assert.Equal(8, tokens[7].StartPosition);
-        Assert.Equal(1, tokens[7].Length);
+        Assert.Equal((uint)8, tokens[7].StartPosition);
+        Assert.Equal((uint)1, tokens[7].Length);
     }
 
     [Fact]
@@ -396,30 +396,30 @@ public sealed class TokenReaderTests
         Assert.Equal(6, tokens.Count);
 
         Assert.Equal("logn", tokens[0].Value);
-        Assert.Equal(0, tokens[0].StartPosition);
-        Assert.Equal(4, tokens[0].Length);
+        Assert.Equal((uint)0, tokens[0].StartPosition);
+        Assert.Equal((uint)4, tokens[0].Length);
 
         Assert.Equal('(', tokens[1].Value);
-        Assert.Equal(4, tokens[1].StartPosition);
-        Assert.Equal(1, tokens[1].Length);
+        Assert.Equal((uint)4, tokens[1].StartPosition);
+        Assert.Equal((uint)1, tokens[1].Length);
         Assert.Equal(TokenType.LeftBracket, tokens[1].TokenType);
 
         Assert.Equal(2, tokens[2].Value);
-        Assert.Equal(5, tokens[2].StartPosition);
-        Assert.Equal(1, tokens[2].Length);
+        Assert.Equal((uint)5, tokens[2].StartPosition);
+        Assert.Equal((uint)1, tokens[2].Length);
 
         Assert.Equal(',', tokens[3].Value);
-        Assert.Equal(6, tokens[3].StartPosition);
-        Assert.Equal(1, tokens[3].Length);
+        Assert.Equal((uint)6, tokens[3].StartPosition);
+        Assert.Equal((uint)1, tokens[3].Length);
         Assert.Equal(TokenType.ArgumentSeparator, tokens[3].TokenType);
 
         Assert.Equal(5, tokens[4].Value);
-        Assert.Equal(7, tokens[4].StartPosition);
-        Assert.Equal(1, tokens[4].Length);
+        Assert.Equal((uint)7, tokens[4].StartPosition);
+        Assert.Equal((uint)1, tokens[4].Length);
 
         Assert.Equal(')', tokens[5].Value);
-        Assert.Equal(8, tokens[5].StartPosition);
-        Assert.Equal(1, tokens[5].Length);
+        Assert.Equal((uint)8, tokens[5].StartPosition);
+        Assert.Equal((uint)1, tokens[5].Length);
         Assert.Equal(TokenType.RightBracket, tokens[5].TokenType);
     }
 
@@ -432,16 +432,16 @@ public sealed class TokenReaderTests
         Assert.Equal(3, tokens.Count);
 
         Assert.Equal("var_1", tokens[0].Value);
-        Assert.Equal(0, tokens[0].StartPosition);
-        Assert.Equal(5, tokens[0].Length);
+        Assert.Equal((uint)0, tokens[0].StartPosition);
+        Assert.Equal((uint)5, tokens[0].Length);
 
         Assert.Equal('+', tokens[1].Value);
-        Assert.Equal(5, tokens[1].StartPosition);
-        Assert.Equal(1, tokens[1].Length);
+        Assert.Equal((uint)5, tokens[1].StartPosition);
+        Assert.Equal((uint)1, tokens[1].Length);
 
         Assert.Equal(2, tokens[2].Value);
-        Assert.Equal(6, tokens[2].StartPosition);
-        Assert.Equal(1, tokens[2].Length);
+        Assert.Equal((uint)6, tokens[2].StartPosition);
+        Assert.Equal((uint)1, tokens[2].Length);
     }
 
     [Fact]
@@ -463,8 +463,8 @@ public sealed class TokenReaderTests
         Assert.Single(tokens);
 
         Assert.Equal(2.11E-3, tokens[0].Value);
-        Assert.Equal(0, tokens[0].StartPosition);
-        Assert.Equal(7, tokens[0].Length);
+        Assert.Equal((uint)0, tokens[0].StartPosition);
+        Assert.Equal((uint)7, tokens[0].Length);
     }
 
     [Fact]
@@ -476,16 +476,16 @@ public sealed class TokenReaderTests
         Assert.Equal(3, tokens.Count);
 
         Assert.Equal("var_1", tokens[0].Value);
-        Assert.Equal(0, tokens[0].StartPosition);
-        Assert.Equal(5, tokens[0].Length);
+        Assert.Equal((uint)0, tokens[0].StartPosition);
+        Assert.Equal((uint)5, tokens[0].Length);
 
         Assert.Equal('+', tokens[1].Value);
-        Assert.Equal(5, tokens[1].StartPosition);
-        Assert.Equal(1, tokens[1].Length);
+        Assert.Equal((uint)5, tokens[1].StartPosition);
+        Assert.Equal((uint)1, tokens[1].Length);
 
         Assert.Equal(2.11E-3, tokens[2].Value);
-        Assert.Equal(6, tokens[2].StartPosition);
-        Assert.Equal(7, tokens[2].Length);
+        Assert.Equal((uint)6, tokens[2].StartPosition);
+        Assert.Equal((uint)7, tokens[2].Length);
     }
 
     [Fact]
@@ -507,8 +507,8 @@ public sealed class TokenReaderTests
         Assert.Single(tokens);
 
         Assert.Equal(2.11E3, tokens[0].Value);
-        Assert.Equal(0, tokens[0].StartPosition);
-        Assert.Equal(6, tokens[0].Length);
+        Assert.Equal((uint)0, tokens[0].StartPosition);
+        Assert.Equal((uint)6, tokens[0].Length);
     }
 
     [Fact]
@@ -520,16 +520,16 @@ public sealed class TokenReaderTests
         Assert.Equal(3, tokens.Count);
 
         Assert.Equal(1, tokens[0].Value);
-        Assert.Equal(0, tokens[0].StartPosition);
-        Assert.Equal(1, tokens[0].Length);
+        Assert.Equal((uint)0, tokens[0].StartPosition);
+        Assert.Equal((uint)1, tokens[0].Length);
 
         Assert.Equal('*', tokens[1].Value);
-        Assert.Equal(2, tokens[1].StartPosition);
-        Assert.Equal(1, tokens[1].Length);
+        Assert.Equal((uint)2, tokens[1].StartPosition);
+        Assert.Equal((uint)1, tokens[1].Length);
 
         Assert.Equal("e", tokens[2].Value);
-        Assert.Equal(4, tokens[2].StartPosition);
-        Assert.Equal(1, tokens[2].Length);
+        Assert.Equal((uint)4, tokens[2].StartPosition);
+        Assert.Equal((uint)1, tokens[2].Length);
     }
 
     [Fact]
@@ -541,8 +541,8 @@ public sealed class TokenReaderTests
         Assert.Single(tokens);
 
         Assert.Equal("e", tokens[0].Value);
-        Assert.Equal(0, tokens[0].StartPosition);
-        Assert.Equal(1, tokens[0].Length);
+        Assert.Equal((uint)0, tokens[0].StartPosition);
+        Assert.Equal((uint)1, tokens[0].Length);
     }
 
     [Fact]
@@ -554,13 +554,13 @@ public sealed class TokenReaderTests
         Assert.Equal(3, tokens.Count);
 
         Assert.Equal(2.11E3, tokens[0].Value);
-        Assert.Equal(0, tokens[0].StartPosition);
-        Assert.Equal(6, tokens[0].Length);
+        Assert.Equal((uint)0, tokens[0].StartPosition);
+        Assert.Equal((uint)6, tokens[0].Length);
 
         Assert.Equal('+', tokens[1].Value);
 
         Assert.Equal(1.23E4, tokens[2].Value);
-        Assert.Equal(7, tokens[2].StartPosition);
-        Assert.Equal(6, tokens[2].Length);
+        Assert.Equal((uint)7, tokens[2].StartPosition);
+        Assert.Equal((uint)6, tokens[2].Length);
     }
 }

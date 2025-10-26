@@ -1,6 +1,6 @@
 ﻿namespace Jace.Tokenizer;
 
-public enum TokenType
+public enum TokenType : byte
 {
     Integer,
     FloatingPoint,

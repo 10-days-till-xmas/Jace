@@ -6,21 +6,21 @@ namespace Jace.Tokenizer;
 [StructLayout(LayoutKind.Explicit)]
 public readonly record struct FastToken
 {
-    public FastToken(double floatValue, int startPosition = 0, int length = 0)
+    public FastToken(double floatValue, ushort startPosition = 0, ushort length = 0)
     {
         _floatValue_unsafe = floatValue;
         TokenType = TokenType.FloatingPoint;
         StartPosition = startPosition;
         Length = length;
     }
-    public FastToken(int intValue, int startPosition = 0, int length = 0)
+    public FastToken(int intValue, ushort startPosition = 0, ushort length = 0)
     {
         _intValue_unsafe = intValue;
         TokenType = TokenType.Integer;
         StartPosition = startPosition;
         Length = length;
     }
-    public FastToken(string stringValue, TokenType tokenType, int startPosition = 0, int length = 0)
+    public FastToken(string stringValue, TokenType tokenType, ushort startPosition = 0, ushort length = 0)
     {
         _stringValue_unsafe = stringValue;
         TokenType = tokenType;
@@ -28,19 +28,19 @@ public readonly record struct FastToken
         Length = length;
     }
 
-    [FieldOffset(0)]
-    public readonly int StartPosition;
-    [FieldOffset(4)]
-    public readonly int Length;
-    [FieldOffset(8)]
+    [FieldOffset(0)] // bytes 0,1
+    public readonly ushort StartPosition;
+    [FieldOffset(2)] // bytes 2,3
+    public readonly ushort Length;
+    [FieldOffset(4)] // bytes 4
     public readonly TokenType TokenType;
-    [FieldOffset(12)]
+    [FieldOffset(5)] // bytes 5,6,7,8,9,10,11,12
     private readonly double _floatValue_unsafe;
-    [FieldOffset(12)]
+    [FieldOffset(5)] // bytes 5,6,7,8
     private readonly int _intValue_unsafe;
-    [FieldOffset(12)]
+    [FieldOffset(5)] // bytes 5,6
     private readonly char _charValue_unsafe;
-    [FieldOffset(12)]
+    [FieldOffset(16)] // bytes 12,13,14,15 (reference)
     private readonly string _stringValue_unsafe = null!;
 
     public object Value
@@ -78,10 +78,10 @@ public readonly record struct FastToken
     {
         return token.TokenType switch
         {
-            TokenType.Integer       => new FastToken((int)token.Value, token.StartPosition, token.Length),
-            TokenType.FloatingPoint => new FastToken((double)token.Value, token.StartPosition, token.Length),
+            TokenType.Integer       => new FastToken((int)token.Value, (ushort)token.StartPosition, (ushort)token.Length),
+            TokenType.FloatingPoint => new FastToken((double)token.Value, (ushort)token.StartPosition, (ushort)token.Length),
             TokenType.Text or TokenType.Operation or TokenType.LeftBracket or TokenType.RightBracket
-             or TokenType.ArgumentSeparator => new FastToken((string)token.Value, token.TokenType, token.StartPosition, token.Length),
+             or TokenType.ArgumentSeparator => new FastToken((string)token.Value, token.TokenType, (ushort)token.StartPosition, (ushort)token.Length),
             _ => throw new InvalidOperationException("Invalid token type for conversion to FastToken")
         };
     }
