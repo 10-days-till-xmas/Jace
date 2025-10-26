@@ -37,7 +37,7 @@ public class FunctionRegistry : IFunctionRegistry
                    ? functionInfo
                    : throw new KeyNotFoundException(functionName);
     }
-    
+
     public bool TryGetFunctionInfo(string functionName, [NotNullWhen(true)] out FunctionInfo? functionInfo)
     {
         return string.IsNullOrEmpty(functionName)
@@ -115,7 +115,7 @@ public class FunctionRegistry : IFunctionRegistry
     {
         return CaseSensitive ? functionName : functionName.ToLowerFast();
     }
-    
+
     private bool TryConvertFunctionName(ref string functionName)
     {
         if (CaseSensitive) return false;

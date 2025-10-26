@@ -37,7 +37,7 @@ public sealed class ReadOnlyFunctionRegistry : IFunctionRegistry
                    ? functionInfo
                    : throw new KeyNotFoundException(functionName);
     }
-    
+
     public bool TryGetFunctionInfo(string functionName, [NotNullWhen(true)] out FunctionInfo? functionInfo)
     {
         return string.IsNullOrEmpty(functionName)

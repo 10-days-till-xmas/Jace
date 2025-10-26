@@ -5,15 +5,6 @@ namespace Jace;
 /// <summary>
 /// An exception thrown when a formula must be executed with a variable that is not defined.
 /// </summary>
-public class VariableNotDefinedException : Exception
-{
-    public VariableNotDefinedException(string message)
-        : base(message)
-    {
-    }
-
-    public VariableNotDefinedException(string message, Exception innerException)
-        : base(message, innerException)
-    {
-    }
-}
+#pragma warning disable RCS1194
+public sealed class VariableNotDefinedException(string message) : Exception(message);
+#pragma warning restore RCS1194

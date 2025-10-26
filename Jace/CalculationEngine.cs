@@ -70,7 +70,7 @@ public sealed class CalculationEngine : IUsesText
     public CalculationEngine(JaceOptions options)
     {
         executionFormulaCache = new MemoryCache<string, Func<IDictionary<string, double>, double>>(options.CacheMaximumSize, options.CacheReductionSize);
-        
+
         cultureInfo = options.CultureInfo;
         cacheEnabled = options.CacheEnabled;
         optimizerEnabled = options.OptimizerEnabled;
@@ -197,7 +197,7 @@ public sealed class CalculationEngine : IUsesText
         return BuildFormula(formulaText, compiledConstants, operation);
     }
 
-    
+
     /// <summary>
     /// Build a .NET func for the provided formula.
     /// </summary>
@@ -218,7 +218,7 @@ public sealed class CalculationEngine : IUsesText
         var operation = BuildAbstractSyntaxTree(formulaText, compiledFunctions, compiledConstants);
         return BuildFormula(formulaText, compiledConstants, operation);
     }
-    
+
     /// <summary>
     /// Add a function to the calculation engine.
     /// </summary>
@@ -437,7 +437,7 @@ public sealed class CalculationEngine : IUsesText
         return cacheEnabled && executionFormulaCache.TryGetValue(GenerateFormulaCacheKey(formulaText, compiledConstants), out function);
     }
 
-    private string GenerateFormulaCacheKey(string formulaText, IConstantRegistry? compiledConstants)
+    private static string GenerateFormulaCacheKey(string formulaText, IConstantRegistry? compiledConstants)
     {
         return (compiledConstants != null && compiledConstants.Any())
                    ? $"{formulaText}@{string.Join(",", compiledConstants.Select(x => $"{x.ConstantName}:{x.Value}"))}"

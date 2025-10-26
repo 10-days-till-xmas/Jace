@@ -12,7 +12,7 @@ internal static class MathExtended
     {
         return (value & flag) == flag;
     }
-    
+
     /// <summary>
     /// Partitions the given list around a pivot element such that all elements on left of pivot are &lt;= pivot
     /// and the ones at the right are &gt; pivot. This method can be used for sorting, N-order statistics such as

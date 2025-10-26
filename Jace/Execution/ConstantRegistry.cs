@@ -16,12 +16,12 @@ public sealed class ConstantRegistry(bool caseSensitive) : IConstantRegistry
     {
         constants = new Dictionary<string, ConstantInfo>(constantRegistry.ToDictionary(ci=> ci.ConstantName, ci=> ci));
     }
-    
+
     public ConstantRegistry(ConstantRegistry constantRegistry) : this(constantRegistry.CaseSensitive)
     {
         constants = new Dictionary<string, ConstantInfo>(constantRegistry.constants);
     }
-    
+
     public IEnumerator<ConstantInfo> GetEnumerator()
     {
         return constants.Values.GetEnumerator();
