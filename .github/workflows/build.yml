@@ -31,10 +31,10 @@ jobs:
           5.0.x
         
     - name: Restore solution
-      run: dotnet restore Jace.sln
+      run: dotnet restore Yace.sln
         
     - name: Build solution
-      run: dotnet build Jace.sln -c Release
+      run: dotnet build Yace.sln -c Release
 
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4

@@ -53,7 +53,7 @@ jobs:
         run: |
           dotnet run \
             -c Release \
-            --project Jace.Benchmark \
+            --project Yace.Benchmark \
             -- -j Short
 
       - name: Export Benchmark Results to Bencher
@@ -63,8 +63,8 @@ jobs:
           echo "Using benchmark results file: $file"
 
           bencher run \
-            --project jace \
-            --branch jace-manual \
+            --project yace \
+            --branch yace-manual \
             --testbed ${{ inputs.os }} \
             --threshold-measure latency \
             --threshold-test t_test \

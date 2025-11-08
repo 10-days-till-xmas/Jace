@@ -1,4 +1,4 @@
-name: Manual Test Jace
+name: Manual Test Yace
 on:
   workflow_dispatch:
     inputs:
@@ -41,12 +41,12 @@ jobs:
             5.0.x
       
       - name: Restore solution
-        run: dotnet restore Jace.sln
+        run: dotnet restore Yace.sln
 
       - name: Build and run tests
         shell: bash
         run: |
-          dotnet test Jace.sln \
+          dotnet test Yace.sln \
             -f ${{ github.event.inputs.target-framework }} \
             --results-directory ./test-results/${{ github.event.inputs.target-framework }}
 
