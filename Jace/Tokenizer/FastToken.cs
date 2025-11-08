@@ -6,34 +6,15 @@ namespace Jace.Tokenizer;
 [StructLayout(LayoutKind.Explicit)]
 public readonly record struct FastToken
 {
-    public FastToken(double floatValue, ushort startPosition = 0, ushort length = 0)
-    {
-        _floatValue_unsafe = floatValue;
-        TokenType = TokenType.FloatingPoint;
-        StartPosition = startPosition;
-        Length = length;
-    }
-    public FastToken(int intValue, ushort startPosition = 0, ushort length = 0)
-    {
-        _intValue_unsafe = intValue;
-        TokenType = TokenType.Integer;
-        StartPosition = startPosition;
-        Length = length;
-    }
-    public FastToken(string stringValue, TokenType tokenType, ushort startPosition = 0, ushort length = 0)
-    {
-        _stringValue_unsafe = stringValue;
-        TokenType = tokenType;
-        StartPosition = startPosition;
-        Length = length;
-    }
-
-    [FieldOffset(0)] // bytes 0,1
-    public readonly ushort StartPosition;
-    [FieldOffset(2)] // bytes 2,3
-    public readonly ushort Length;
-    [FieldOffset(4)] // bytes 4
-    public readonly TokenType TokenType;
+    /// <summary>The start position of the token in the input function text</summary>
+    [field: FieldOffset(0)] // bytes 0,1
+    public ushort StartPosition { get; init; }
+    /// <summary>The length of token in the input function text</summary>
+    [field: FieldOffset(2)] // bytes 2,3
+    public ushort Length { get; init; }
+    /// <summary>The type of the token</summary>
+    [field: FieldOffset(4)] // bytes 4
+    public TokenType TokenType { get; }
     [FieldOffset(5)] // bytes 5,6,7,8,9,10,11,12
     private readonly double _floatValue_unsafe;
     [FieldOffset(5)] // bytes 5,6,7,8
@@ -43,6 +24,67 @@ public readonly record struct FastToken
     [FieldOffset(16)] // bytes 12,13,14,15 (reference)
     private readonly string _stringValue_unsafe = null!;
 
+    /// <summary>
+    /// Represents an input token
+    /// </summary>
+    /// <param name="value">The value of the token</param>
+    /// <param name="tokenType">The type of the token</param>
+    /// <param name="startPosition">The start position of the token in the input function text</param>
+    /// <param name="length">The length of token in the input function text</param>
+    public FastToken(char value, TokenType tokenType, ushort startPosition = 0, ushort length = 0)
+    {
+        if (tokenType is not (TokenType.ArgumentSeparator or TokenType.LeftBracket or TokenType.RightBracket
+             or TokenType.Operation))
+            throw new InvalidOperationException("Invalid token type for char value");
+        _charValue_unsafe = value;
+        TokenType = tokenType;
+        StartPosition = startPosition;
+        Length = length;
+    }
+
+    /// <summary>
+    /// Represents an input token
+    /// </summary>
+    /// <param name="value">The value of the token</param>
+    /// <param name="startPosition">The start position of the token in the input function text</param>
+    /// <param name="length">The length of token in the input function text</param>
+    public FastToken(int value, ushort startPosition = 0, ushort length = 0)
+    {
+        _intValue_unsafe = value;
+        TokenType = TokenType.Integer;
+        StartPosition = startPosition;
+        Length = length;
+    }
+
+    /// <summary>
+    /// Represents an input token
+    /// </summary>
+    /// <param name="value">The value of the token</param>
+    /// <param name="startPosition">The start position of the token in the input function text</param>
+    /// <param name="length">The length of token in the input function text</param>
+    public FastToken(double value, ushort startPosition = 0, ushort length = 0)
+    {
+        _floatValue_unsafe = value;
+        TokenType = TokenType.FloatingPoint;
+        StartPosition = startPosition;
+        Length = length;
+    }
+
+    /// <summary>
+    /// Represents an input token
+    /// </summary>
+    /// <param name="value">The value of the token</param>
+    /// <param name="startPosition">The start position of the token in the input function text</param>
+    /// <param name="length">The length of token in the input function text</param>
+    public FastToken(string value, ushort startPosition = 0, ushort length = 0)
+    {
+        _stringValue_unsafe = value;
+        TokenType = TokenType.Text;
+        StartPosition = startPosition;
+        Length = length;
+    }
+
+    /// <summary>The value of the token</summary>
     public object Value
     {
         get
@@ -51,9 +93,9 @@ public readonly record struct FastToken
             {
                 TokenType.Integer       => _intValue_unsafe,
                 TokenType.FloatingPoint => _floatValue_unsafe,
-                TokenType.Operation => _charValue_unsafe,
-                TokenType.Text or TokenType.LeftBracket or TokenType.RightBracket
-                 or TokenType.ArgumentSeparator => _stringValue_unsafe,
+                TokenType.Operation or TokenType.LeftBracket or TokenType.RightBracket
+                 or TokenType.ArgumentSeparator => _charValue_unsafe,
+                TokenType.Text  => _stringValue_unsafe,
                 _ => throw new InvalidOperationException("Token does not have a value")
             };
         }
@@ -71,18 +113,4 @@ public readonly record struct FastToken
     public char CharValue => TokenType is TokenType.Operation or TokenType.LeftBracket or TokenType.RightBracket or TokenType.ArgumentSeparator
                                  ? _charValue_unsafe
                                  : throw new InvalidOperationException("Token isn't a char");
-
-    public static implicit operator Token(FastToken fastToken) => new(fastToken.Value, fastToken.TokenType, fastToken.StartPosition, fastToken.Length);
-
-    public static implicit operator FastToken(Token token)
-    {
-        return token.TokenType switch
-        {
-            TokenType.Integer       => new FastToken((int)token.Value, (ushort)token.StartPosition, (ushort)token.Length),
-            TokenType.FloatingPoint => new FastToken((double)token.Value, (ushort)token.StartPosition, (ushort)token.Length),
-            TokenType.Text or TokenType.Operation or TokenType.LeftBracket or TokenType.RightBracket
-             or TokenType.ArgumentSeparator => new FastToken((string)token.Value, token.TokenType, (ushort)token.StartPosition, (ushort)token.Length),
-            _ => throw new InvalidOperationException("Invalid token type for conversion to FastToken")
-        };
-    }
 }

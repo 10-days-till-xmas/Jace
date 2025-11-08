@@ -1,4 +1,6 @@
-﻿namespace Jace.Tokenizer;
+﻿using System;
+
+namespace Jace.Tokenizer;
 
 /// <summary>
 /// Represents an input token
@@ -12,10 +14,71 @@ public readonly record struct Token
     /// <param name="tokenType">The type of the token</param>
     /// <param name="startPosition">The start position of the token in the input function text</param>
     /// <param name="length">The length of token in the input function text</param>
-    public Token(object value, TokenType tokenType, uint startPosition = 0, uint length = 0)
+    [Obsolete("Use the other constructors instead")]
+    public Token(object value, TokenType tokenType, ushort startPosition = 0, ushort length = 0)
     {
         Value = value;
         TokenType = tokenType;
+        StartPosition = startPosition;
+        Length = length;
+    }
+
+    /// <summary>
+    /// Represents an input token
+    /// </summary>
+    /// <param name="value">The value of the token</param>
+    /// <param name="tokenType">The type of the token</param>
+    /// <param name="startPosition">The start position of the token in the input function text</param>
+    /// <param name="length">The length of token in the input function text</param>
+    public Token(char value, TokenType tokenType, ushort startPosition = 0, ushort length = 0)
+    {
+        if (tokenType is not (TokenType.ArgumentSeparator or TokenType.LeftBracket or TokenType.RightBracket
+                           or TokenType.Operation))
+            throw new InvalidOperationException("Invalid token type for char value");
+        Value = value;
+        TokenType = tokenType;
+        StartPosition = startPosition;
+        Length = length;
+    }
+
+    /// <summary>
+    /// Represents an input token
+    /// </summary>
+    /// <param name="value">The value of the token</param>
+    /// <param name="startPosition">The start position of the token in the input function text</param>
+    /// <param name="length">The length of token in the input function text</param>
+    public Token(int value, ushort startPosition = 0, ushort length = 0)
+    {
+        Value = value;
+        TokenType = TokenType.Integer;
+        StartPosition = startPosition;
+        Length = length;
+    }
+
+    /// <summary>
+    /// Represents an input token
+    /// </summary>
+    /// <param name="value">The value of the token</param>
+    /// <param name="startPosition">The start position of the token in the input function text</param>
+    /// <param name="length">The length of token in the input function text</param>
+    public Token(double value, ushort startPosition = 0, ushort length = 0)
+    {
+        Value = value;
+        TokenType = TokenType.FloatingPoint;
+        StartPosition = startPosition;
+        Length = length;
+    }
+
+    /// <summary>
+    /// Represents an input token
+    /// </summary>
+    /// <param name="value">The value of the token</param>
+    /// <param name="startPosition">The start position of the token in the input function text</param>
+    /// <param name="length">The length of token in the input function text</param>
+    public Token(string value, ushort startPosition = 0, ushort length = 0)
+    {
+        Value = value;
+        TokenType = TokenType.Text;
         StartPosition = startPosition;
         Length = length;
     }
@@ -27,8 +90,13 @@ public readonly record struct Token
     public TokenType TokenType { get; init; }
 
     /// <summary>The start position of the token in the input function text</summary>
-    public uint StartPosition { get; init; }
+    public ushort StartPosition { get; init; }
 
     /// <summary>The length of token in the input function text</summary>
-    public uint Length { get; init; }
+    public ushort Length { get; init; }
+    
+    public int IntValue => (int)Value;
+    public string StringValue => (string)Value;
+    public double FloatValue => (double)Value;
+    public char CharValue => (char)Value;
 }
