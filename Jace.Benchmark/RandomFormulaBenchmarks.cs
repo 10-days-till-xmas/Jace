@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if false // Doesn't provide meaningful information
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -18,34 +19,28 @@ public class RandomFormulaBenchmarks
     private const int MaxFormulae = 1000;
     private const int RandomSeed = ':' + '3'; // :3 // (109)
 
-    private static string[]? _randomFormulae;
-    private static Func<int, int, int, double>[]? _randomFormulaeCompiled = null!;
+    private static string[] _randomFormulae = null!;
+    private static Func<int, int, int, double>[] _randomFormulaeCompiled = null!;
     private static int _formulaIndex = 0;
 
     private static int globalCounter = 0;
 
     private readonly Random _random = new(RandomSeed);
 
-    private static string RandomFormula => _randomFormulae![++_formulaIndex % MaxFormulae];
+    private static string RandomFormula => _randomFormulae[++_formulaIndex % MaxFormulae];
 
-    private static Func<int, int, int, double> RandomFormulaCompiled => _randomFormulaeCompiled![++_formulaIndex % MaxFormulae];
+    private static Func<int, int, int, double> RandomFormulaCompiled => _randomFormulaeCompiled[++_formulaIndex % MaxFormulae];
 
-    private static readonly JaceOptions _baseOptions = new()
-    {
-        CultureInfo = CultureInfo.InvariantCulture,
-    };
+    private static readonly JaceOptions _baseOptions = new(CultureInfo.InvariantCulture);
 
     [Params(true, false)]
     public bool CaseSensitive;
-
     [Params(ExecutionMode.Interpreted, ExecutionMode.Compiled)]
     public ExecutionMode Mode;
-
     [Params(true, false)]
     public bool CacheEnabled;
     [Params(true, false)]
     public bool OptimizerEnabled;
-
     private EngineWrapper Engine { get; set; } = null!;
 
     [GlobalSetup]
@@ -134,3 +129,4 @@ public class RandomFormulaBenchmarks
         });
     }
 }
+#endif
