@@ -6,7 +6,7 @@ on:
       os:
         description: 'Operating System'
         required: true
-        default: 'ubuntu-latest'
+        default: 'windows-latest'
         type: choice
         options:
           - ubuntu-latest
@@ -54,7 +54,7 @@ jobs:
           dotnet run \
             -c Release \
             --project Jace.Benchmark \
-            -- --exporters JSON --join -d -j Short
+            -- -j Short
 
       - name: Export Benchmark Results to Bencher
         shell: bash

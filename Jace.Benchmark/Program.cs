@@ -6,6 +6,7 @@ using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Diagnosers;
 using BenchmarkDotNet.Diagnostics.dotTrace;
 using BenchmarkDotNet.Exporters;
+using BenchmarkDotNet.Exporters.Json;
 using BenchmarkDotNet.Exporters.Xml;
 using BenchmarkDotNet.Running;
 using Jace.Benchmark;
@@ -23,19 +24,19 @@ if (args is ["profile"])
 
 var assembly = Assembly.GetEntryAssembly() ?? throw new InvalidOperationException("Entry assembly not found.");
 IConfig config = DefaultConfig.Instance
-                              .AddDiagnoser(
-                                   MemoryDiagnoser.Default,
-                                   ThreadingDiagnoser.Default,
-                                   new DotTraceDiagnoser(),
-                                   new DisassemblyDiagnoser(
-                                       new DisassemblyDiagnoserConfig(
-                                           printSource: true,
-                                           printInstructionAddresses: false,
-                                           exportHtml: true,
-                                           exportCombinedDisassemblyReport: true,
-                                           exportDiff: true)))
-                              .AddExporter(HtmlExporter.Default,
-                                   XmlExporter.Default)
+                              .AddDiagnoser(MemoryDiagnoser.Default)
+                              .AddDiagnoser(ThreadingDiagnoser.Default)
+                              .AddDiagnoser(new DotTraceDiagnoser())
+                              .AddDiagnoser(new DisassemblyDiagnoser(new DisassemblyDiagnoserConfig(
+                                   printSource: true,
+                                   printInstructionAddresses: false,
+                                   exportHtml: true,
+                                   exportCombinedDisassemblyReport: true,
+                                   exportDiff: true)))
+                              .AddExporter(HtmlExporter.Default)
+                              .AddExporter(MarkdownExporter.GitHub)
+                              .AddExporter(XmlExporter.Default)
+                              .AddExporter(JsonExporter.Default)
                               .WithOption(ConfigOptions.JoinSummary, true)
                               .AddColumn(StatisticColumn.AllStatistics)
                               .WithWakeLock(WakeLockType.Display);

@@ -6,14 +6,8 @@ on:
     types: [opened, reopened, synchronize]
 
 jobs:
-  benchmark:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ ubuntu-latest, windows-latest ]
-    
-    runs-on: ${{ matrix.os }}
-  
+  benchmark:    
+    runs-on: windows-latest # ubuntu doesn't seem to work...
 
     steps:
       - name: Checkout code
@@ -36,7 +30,7 @@ jobs:
           dotnet run \
             -c Release \
             --project Jace.Benchmark \
-            -- --exporters JSON --join -d -j Short
+            -- -j Short
 
       - name: Export Benchmark Results to Bencher
         shell: bash
@@ -48,7 +42,7 @@ jobs:
           bencher run \
             --project jace \
             --branch ${{ github.ref_name }} \
-            --testbed ${{ matrix.os }} \
+            --testbed windows-latest \
             --threshold-measure latency \
             --threshold-test t_test \
             --threshold-max-sample-size 64 \
@@ -63,7 +57,7 @@ jobs:
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: results-${{ matrix.os }}
+          name: results-windows-latest
           path: '**/*'
           
       - name: Read Benchmark Results
