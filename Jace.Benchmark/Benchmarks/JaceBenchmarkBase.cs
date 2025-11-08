@@ -1,39 +1,20 @@
-﻿using System.Globalization;
-using BenchmarkDotNet.Attributes;
+﻿using BenchmarkDotNet.Diagnostics.dotTrace;
 using Jace.Execution;
 
-// ReSharper disable UnassignedField.Global
-
 namespace Jace.Benchmark.Benchmarks;
-
+[DotTraceDiagnoser]
+[DisassemblyDiagnoser]
 public abstract class JaceBenchmarkBase
 {
-    private static readonly JaceOptions _baseOptions = new()
-    {
-        CultureInfo = CultureInfo.InvariantCulture,
-    };
+    private static readonly ExpressionInfo[] _expressions =
+    [
+        new("logn(var1, (2+3) * 500)",
+            new ParameterInfo("var1")),
+        new("(var1 + var2 * 3)/(2+3) - something",
+            new ParameterInfo("var1"),
+            new ParameterInfo("var2"),
+            new ParameterInfo("something"))
+    ];
 
-    [Params(true, false)]
-    public bool CaseSensitive;
-
-    [Params(ExecutionMode.Interpreted, ExecutionMode.Compiled)]
-    public ExecutionMode Mode;
-
-    [Params(true, false)]
-    public bool CacheEnabled;
-    [Params(true, false)]
-    public bool OptimizerEnabled;
-
-    protected EngineWrapper Engine { get; set; } = null!;
-
-    protected void GlobalSetup_Engine()
-    {
-        Engine = new EngineWrapper(_baseOptions with
-        {
-            ExecutionMode = Mode,
-            CaseSensitive = CaseSensitive,
-            CacheEnabled = CacheEnabled,
-            OptimizerEnabled = OptimizerEnabled
-        });
-    }
+    public ExpressionInfo[] Expressions { get; } = _expressions;
 }

@@ -2,7 +2,7 @@
 
 namespace Jace.Benchmark;
 
-public class EngineWrapper(JaceOptions options)
+public sealed class EngineWrapper(JaceOptions options)
 {
     public CalculationEngine Engine { get; } = new(options);
     private ExecutionMode ExecutionMode { get; } = options.ExecutionMode;

@@ -1,47 +1,72 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Diagnostics.dotTrace;
+using Jace.Execution;
 
-namespace Jace.Benchmark.Benchmarks;
+namespace Jace.Benchmark;
 
 [DotTraceDiagnoser]
 [DisassemblyDiagnoser]
-[RPlotExporter]
 // ReSharper disable once ClassCanBeSealed.Global
-public class RandomFormulaBenchmarks : JaceBenchmarkBase
+// ReSharper disable UnassignedField.Global
+public class RandomFormulaBenchmarks
 {
     private const int MaxFormulae = 1000;
     private const int RandomSeed = ':' + '3'; // :3 // (109)
 
-    private static string[]? _randomFormulae = null!;
+    private static string[]? _randomFormulae;
     private static Func<int, int, int, double>[]? _randomFormulaeCompiled = null!;
     private static int _formulaIndex = 0;
 
     private static int globalCounter = 0;
 
-    private Random? _random = null!;
+    private readonly Random _random = new(RandomSeed);
 
     private static string RandomFormula => _randomFormulae![++_formulaIndex % MaxFormulae];
 
     private static Func<int, int, int, double> RandomFormulaCompiled => _randomFormulaeCompiled![++_formulaIndex % MaxFormulae];
 
+    private static readonly JaceOptions _baseOptions = new()
+    {
+        CultureInfo = CultureInfo.InvariantCulture,
+    };
+
+    [Params(true, false)]
+    public bool CaseSensitive;
+
+    [Params(ExecutionMode.Interpreted, ExecutionMode.Compiled)]
+    public ExecutionMode Mode;
+
+    [Params(true, false)]
+    public bool CacheEnabled;
+    [Params(true, false)]
+    public bool OptimizerEnabled;
+
+    private EngineWrapper Engine { get; set; } = null!;
+
     [GlobalSetup]
     public void GlobalSetup()
     {
         globalCounter++;
-        GlobalSetup_Engine();
-        _random = new Random(RandomSeed);
-        _randomFormulae ??= new FunctionGenerator().Next(MaxFormulae).ToArray();
-        _randomFormulaeCompiled ??= _randomFormulae.Select(f => Engine.Engine.Formula(f)
-                                                                     .Parameter("var1", DataType.Integer)
-                                                                     .Parameter("var2", DataType.Integer)
-                                                                     .Parameter("var3", DataType.Integer)
-                                                                     .Result(DataType.FloatingPoint)
-                                                                     .Build())
+        Engine = new EngineWrapper(_baseOptions with
+        {
+            ExecutionMode = Mode,
+            CaseSensitive = CaseSensitive,
+            CacheEnabled = CacheEnabled,
+            OptimizerEnabled = OptimizerEnabled
+        });
+        _randomFormulae = FunctionGenerator.GenerateMany(MaxFormulae)
+                                           .ToArray();
+        _randomFormulaeCompiled = _randomFormulae.Select(f => Engine.Engine.Formula(f)
+                                                                    .Parameter("var1", DataType.Integer)
+                                                                    .Parameter("var2", DataType.Integer)
+                                                                    .Parameter("var3", DataType.Integer)
+                                                                    .Result(DataType.FloatingPoint)
+                                                                    .Build())
                                                   .Cast<Func<int, int, int, double>>()
                                                   .ToArray();
         var formulaDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)
@@ -50,11 +75,9 @@ public class RandomFormulaBenchmarks : JaceBenchmarkBase
         Console.WriteLine($"Saving generated formulae to {formulaDir}");
 
         var formulaeFile = Path.Combine(formulaDir, $"formulae-run{globalCounter}.txt");
-        var counter = 1;
-        while (File.Exists(formulaeFile))
+        for (var counter = 1; File.Exists(formulaeFile); counter++)
         {
             formulaeFile = Path.Combine(formulaDir, $"formulae-run{globalCounter} ({counter}).txt");
-            counter++;
         }
 
         File.WriteAllLines(formulaeFile, _randomFormulae);
@@ -80,7 +103,7 @@ public class RandomFormulaBenchmarks : JaceBenchmarkBase
     [BenchmarkCategory("Random Formula")]
     public double RandomFunctionRunCompiled()
     {
-        return RandomFormulaCompiled(_random!.Next(), _random.Next(), _random.Next());
+        return RandomFormulaCompiled(_random.Next(), _random.Next(), _random.Next());
     }
 
     [Benchmark]
@@ -95,17 +118,17 @@ public class RandomFormulaBenchmarks : JaceBenchmarkBase
             .Result(DataType.FloatingPoint)
             .Build();
 
-        return function(_random!.Next(), _random.Next(), _random.Next());
+        return function(_random.Next(), _random.Next(), _random.Next());
     }
 
     [Benchmark]
-    [MaxIterationCount(1000)]
+    [MaxIterationCount(MaxFormulae)]
     [BenchmarkCategory("Random Formula")]
     public double RandomFunctionCalculate()
     {
         return Engine.Engine.Calculate(RandomFormula, new Dictionary<string, double>()
         {
-            { "var1", _random!.Next() },
+            { "var1", _random.Next() },
             { "var2", _random.Next() },
             { "var3", _random.Next() }
         });

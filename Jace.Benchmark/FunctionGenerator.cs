@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Jace.Benchmark;
 
-public class FunctionGenerator(CultureInfo cultureInfo)
+public sealed class FunctionGenerator(CultureInfo cultureInfo)
 {
     private const int NumberOfVariables = 3;
 
@@ -61,20 +61,14 @@ public class FunctionGenerator(CultureInfo cultureInfo)
                         continue;
                     break;
                 default:
-                    if (variables.Count > 0)
-                    {
-                        result.Append('(');
-                        Generate(result, variables);
-                        result.Append(')');
-                        result.Append(GetRandomOperator());
-
-                        if (variables.Count > 0)
-                            continue;
-                    }
-
+                    if (variables.Count == 0) break;
+                    result.Append('(');
+                    Generate(result, variables);
+                    result.Append(')');
+                    result.Append(GetRandomOperator());
+                    if (variables.Count > 0) continue;
                     break;
             }
-
             result.Append(GetRandomValue());
             break;
         }

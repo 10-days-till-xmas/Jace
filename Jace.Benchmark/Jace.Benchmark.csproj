@@ -11,6 +11,10 @@
   </PropertyGroup>
   
   <ItemGroup>
+    <Using Include="BenchmarkDotNet.Attributes"/>
+  </ItemGroup>
+    
+  <ItemGroup>
     <ProjectReference Include="..\Jace\Jace.csproj" />
   </ItemGroup>
 
