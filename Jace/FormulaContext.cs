@@ -3,19 +3,13 @@ using Jace.Execution;
 
 namespace Jace;
 
-public class FormulaContext
+public sealed class FormulaContext(
+    IDictionary<string, double> variables,
+    IFunctionRegistry functionRegistry,
+    IConstantRegistry constantRegistry)
 {
-    public FormulaContext(IDictionary<string, double> variables,
-                          IFunctionRegistry functionRegistry,
-                          IConstantRegistry constantRegistry)
-    {
-        Variables = variables;
-        FunctionRegistry = functionRegistry;
-        ConstantRegistry = constantRegistry;
-    }
+    public IDictionary<string, double> Variables { get; } = variables;
 
-    public IDictionary<string, double> Variables { get; private set; }
-
-    public IFunctionRegistry FunctionRegistry { get; private set; }
-    public IConstantRegistry ConstantRegistry { get; private set; }
+    public IFunctionRegistry FunctionRegistry { get; } = functionRegistry;
+    public IConstantRegistry ConstantRegistry { get; } = constantRegistry;
 }

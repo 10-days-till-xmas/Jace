@@ -8,35 +8,21 @@ using Jace.Util;
 
 namespace Jace.Execution;
 
-public class FunctionRegistry : IFunctionRegistry
+public sealed class FunctionRegistry(bool caseSensitive) : IFunctionRegistry
 {
     private const string DynamicFuncName = "Jace.DynamicFunc";
 
-    public bool CaseSensitive { get; }
-    private readonly Dictionary<string, FunctionInfo> functions;
+    public bool CaseSensitive { get; } = caseSensitive;
+    private readonly Dictionary<string, FunctionInfo> functions = new();
 
-    public FunctionRegistry(bool caseSensitive)
-    {
-        CaseSensitive = caseSensitive;
-        functions = new Dictionary<string, FunctionInfo>();
-    }
+    public IEnumerator<FunctionInfo> GetEnumerator() => functions.Values.GetEnumerator();
 
-    public IEnumerator<FunctionInfo> GetEnumerator()
-    {
-        return functions.Values.GetEnumerator();
-    }
-
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public FunctionInfo GetFunctionInfo(string functionName)
-    {
-        return TryGetFunctionInfo(functionName, out var functionInfo)
-                   ? functionInfo
-                   : throw new KeyNotFoundException(functionName);
-    }
+        => TryGetFunctionInfo(functionName, out var functionInfo)
+               ? functionInfo
+               : throw new KeyNotFoundException(functionName);
 
     public bool TryGetFunctionInfo(string functionName, [NotNullWhen(true)] out FunctionInfo? functionInfo)
     {
@@ -47,7 +33,7 @@ public class FunctionRegistry : IFunctionRegistry
 
     public void RegisterFunction(string functionName, Delegate function, bool isIdempotent = true, bool isOverWritable = true)
     {
-        if (string.IsNullOrEmpty(functionName))
+        if (string.IsNullOrWhiteSpace(functionName))
             throw new ArgumentNullException(nameof(functionName));
 
         if (function == null)

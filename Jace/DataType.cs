@@ -1,6 +1,6 @@
 ﻿namespace Jace;
 
-public enum DataType
+public enum DataType : byte
 {
     Integer,
     FloatingPoint

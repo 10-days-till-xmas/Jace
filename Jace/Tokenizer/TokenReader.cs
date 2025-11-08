@@ -37,7 +37,7 @@ public sealed class TokenReader(CultureInfo cultureInfo)
         var isFormulaSubPart = true;
         var isScientific = false;
 
-        for (uint i = 0; i < characters.Length; i++)
+        for (ushort i = 0; i < characters.Length; i++)
         {
             if (IsPartOfNumeric(characters[i], true, isFormulaSubPart))
             {
@@ -66,16 +66,15 @@ public sealed class TokenReader(CultureInfo cultureInfo)
                 // Verify if we don't have an int
                 if (int.TryParse(buffer.ToString(), out var intValue))
                 {
-                    tokens.Add(new Token(value: intValue, tokenType: TokenType.Integer,
-                                         startPosition: startPosition, length: i - startPosition));
+                    tokens.Add(new Token(value: intValue,
+                                         startPosition, (ushort)(i - startPosition)));
                     isFormulaSubPart = false;
                 }
                 else if (double.TryParse(buffer.ToString(), NumberStyles.Float | NumberStyles.AllowThousands,
                                          cultureInfo, out var doubleValue))
                 {
-                    tokens.Add(new Token(value: doubleValue,
-                                         tokenType: TokenType.FloatingPoint, startPosition: startPosition,
-                                         length: i - startPosition));
+                    tokens.Add(new Token(value: doubleValue, startPosition,
+                                         (ushort)(i - startPosition)));
                     isScientific = false;
                     isFormulaSubPart = false;
                 }
@@ -101,8 +100,8 @@ public sealed class TokenReader(CultureInfo cultureInfo)
                     buffer += characters[i];
                 }
 
-                tokens.Add(new Token(value: buffer, tokenType: TokenType.Text,
-                                     startPosition: startPosition, length: i - startPosition));
+                tokens.Add(new Token(value: buffer,
+                                     startPosition, (ushort)(i - startPosition)));
                 isFormulaSubPart = false;
 
                 if (i == characters.Length)

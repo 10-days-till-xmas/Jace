@@ -106,7 +106,7 @@ public sealed class FormulaBuilder : IUsesText
             if(!CaseSensitive)
                 variables = EngineUtil.ConvertVariableNamesToLowerCase(variables);
 
-            engine.VerifyVariableNames(variables);
+            engine.VerifyVariableNames_Throws(variables);
 
             // Add the reserved variables to the dictionary
             // foreach (var constant in constantRegistry)
