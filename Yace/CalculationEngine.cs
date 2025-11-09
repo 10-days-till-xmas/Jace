@@ -109,12 +109,20 @@ public sealed partial class CalculationEngine : IUsesText
     {
         if (string.IsNullOrWhiteSpace(formulaText))
             throw new ArgumentNullException(nameof(formulaText));
-
-        variables ??= new Dictionary<string, double>();
-
-        if (!CaseSensitive)
+        switch ((variables, CaseSensitive))
         {
-            variables = EngineUtil.ConvertVariableNamesToLowerCase(variables);
+            case (null, true):
+                variables = new Dictionary<string, double>();
+                break;
+            case (null, false):
+                variables = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
+                break;
+            case (not null, true):
+                variables = new Dictionary<string, double>(variables);
+                break;
+            case (not null, false):
+                variables = new Dictionary<string, double>(variables, StringComparer.OrdinalIgnoreCase);
+                break;
         }
         VerifyVariableNames_Throws(variables);
 

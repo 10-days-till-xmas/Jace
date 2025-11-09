@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 
-namespace Yace.Benchmark;
+namespace Yace.Benchmark.Unused;
 
 public sealed class FunctionGenerator(CultureInfo cultureInfo)
 {

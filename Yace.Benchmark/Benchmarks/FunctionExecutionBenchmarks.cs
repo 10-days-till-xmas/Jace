@@ -20,7 +20,7 @@ public class FunctionExecutionBenchmarks : YaceBenchmarkBase
     [Benchmark]
     [ArgumentsSource(nameof(Expressions))]
     public double Calculate_Dynamic_Optimized(ExpressionInfo expressionInfo) =>
-        expressionInfo.CompiledFunction_Dynamic switch
+        expressionInfo.CompiledFunction_Dynamic_Optimized switch
         {
             Func<double> f0 => f0(),
             Func<double, double> f1 => f1(1.0),

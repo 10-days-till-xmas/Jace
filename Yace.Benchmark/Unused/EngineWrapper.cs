@@ -1,6 +1,6 @@
 ﻿using Yace.Execution;
 
-namespace Yace.Benchmark;
+namespace Yace.Benchmark.Unused;
 
 public sealed class EngineWrapper(YaceOptions options)
 {

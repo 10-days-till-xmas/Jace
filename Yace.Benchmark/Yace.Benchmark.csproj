@@ -8,17 +8,30 @@
     <Nullable>enable</Nullable>
     <OutputType>Exe</OutputType>
     <IncludeSatelliteAssemblies>false</IncludeSatelliteAssemblies>
+    <Configurations>Release;BenchJace</Configurations>
+    <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
-  
+
+  <PropertyGroup Condition="'$(Configuration)' == 'BenchJace'">
+    <Optimize>true</Optimize>
+    <DebugType>portable</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <DefineConstants>TRACE;BENCHJACE</DefineConstants>
+  </PropertyGroup>
+
+
   <ItemGroup>
     <Using Include="BenchmarkDotNet.Attributes"/>
   </ItemGroup>
     
   <ItemGroup>
-    <ProjectReference Include="..\Yace\Yace.csproj" />
+    <ProjectReference Include="..\Yace\Yace.csproj" >
+      <SetConfiguration>Configuration=Release</SetConfiguration>
+    </ProjectReference>
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Jace" Version="1.0.0" />
     <PackageReference Include="BenchmarkDotNet" Version="0.15.2" />
     <PackageReference Include="BenchmarkDotNet.Annotations" Version="0.15.2" />
     <PackageReference Include="BenchmarkDotNet.Diagnostics.dotTrace" Version="0.15.2" />
@@ -40,5 +53,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
+  
+    
 
 </Project>

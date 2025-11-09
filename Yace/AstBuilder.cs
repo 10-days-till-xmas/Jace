@@ -105,6 +105,8 @@ public sealed class AstBuilder(
 
                     operatorStack.Push(token);
                     break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(tokens), $"Unknown token type \"{token.TokenType}\".");
             }
         }
 
@@ -112,7 +114,7 @@ public sealed class AstBuilder(
 
         VerifyResultStack();
 
-        return resultStack.First();
+        return resultStack.Peek();
     }
 
     private void PopOperations(bool untilLeftBracket, Token? currentToken)
@@ -230,18 +232,15 @@ public sealed class AstBuilder(
     {
         if (resultStack.Count <= 1) return;
         var operations = resultStack.ToArray();
-
-        for (var i = 1; i < operations.Length; i++)
-        {
-            switch (operations[i])
+        // wait this doesn't make sense
+        foreach (var operation in operations)
+            switch (operation)
             {
                 case IntegerConstant integerConstant:
                     throw new ParseException($"Unexpected integer constant \"{integerConstant.Value}\" found.");
                 case FloatingPointConstant floatConstant:
                     throw new ParseException($"Unexpected floating point constant \"{floatConstant.Value}\" found.");
             }
-        }
-
         throw new ParseException("The syntax of the provided formula is not valid.");
     }
 

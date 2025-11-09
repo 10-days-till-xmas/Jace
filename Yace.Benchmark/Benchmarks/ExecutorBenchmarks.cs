@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+#if BENCHJACE
+using Jace.Execution;
+#else
 using Yace.Execution;
+#endif
 
 namespace Yace.Benchmark.Benchmarks;
 

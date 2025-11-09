@@ -33,7 +33,7 @@ public static class Profiler
     private static void ProfileAstBuilder()
     {
         foreach (var expression in _astBuilderBenchmarks.Expressions)
-            _astBuilderBenchmarks.BuildAst(expression);
+            _astBuilderBenchmarks.BenchBuildAst(expression);
     }
 
     private static void ProfileExecutors()

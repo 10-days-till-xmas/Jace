@@ -4,7 +4,10 @@ end_of_line = crlf
 trim_trailing_whitespace = false
 insert_final_newline = true
 indent_style = space
-indent_size = 4  
+indent_size = 4
+tab_width = 4
+csharp_indent_size = 4
+resharper_csharp_indent_size = 4
 
 # Microsoft .NET properties
 csharp_new_line_before_members_in_object_initializers = false
@@ -196,11 +199,6 @@ resharper_web_config_type_not_resolved_highlighting = warning
 resharper_web_config_wrong_module_highlighting = warning
 resharper_xaml_dynamic_resource_error_highlighting = warning
 
-[{*.ant,*.appxmanifest,*.axml,*.cscfg,*.csdef,*.disco,*.dotsettings,*.filelayout,*.fxml,*.jhm,*.jnlp,*.jrxml,*.manifest,*.myapp,*.nuspec,*.rng,*.stylecop,*.svcmap,*.tld,*.wadcfgx,*.webref,*.wsdl,*.xml,*.xsd,*.xsl,*.xslt,*.xul,StyleCop.Cache}]
-indent_size = 2  # A property with the same name was updated with a value 4 in a section [*]; with a value 4 in a section [*.{appxmanifest,asax,ascx,aspx,axaml,blockshader,c,c++,c++m,cc,ccm,cginc,compute,cp,cpp,cppm,cs,cshtml,cu,cuh,cxx,cxxm,dtd,fs,fsi,fsscript,fsx,fx,fxh,h,h++,hh,hlsl,hlsli,hlslinc,hp,hpp,hxx,icc,inc,inl,ino,ipp,ixx,master,ml,mli,mpp,mq4,mq5,mqh,mxx,nuspec,paml,razor,resw,resx,shader,shaderFoundry,skin,tcc,tpp,urtshader,usf,ush,uxml,vb,xaml,xamlx,xoml,xsd}]
+[{*.{ant,androidproj,appxmanifest,axml,cscfg,csdef,ccproj,csproj,disco,dotsettings,filelayout,fxml,jhm,jnlp,jrxml,manifest,myapp,nuspec,rng,stylecop,svcmap,tld,wadcfgx,webref,wsdl,xml,xsd,xsl,xslt,xul},StyleCop.Cache}]
+indent_size = 2
 
-[{*.androidproj,*.ccproj,*.csproj}]
-indent_size = 2  # A property with the same name was updated with a value 4 in a section [*]; with a value 4 in a section [*.{appxmanifest,asax,ascx,aspx,axaml,blockshader,c,c++,c++m,cc,ccm,cginc,compute,cp,cpp,cppm,cs,cshtml,cu,cuh,cxx,cxxm,dtd,fs,fsi,fsscript,fsx,fx,fxh,h,h++,hh,hlsl,hlsli,hlslinc,hp,hpp,hxx,icc,inc,inl,ino,ipp,ixx,master,ml,mli,mpp,mq4,mq5,mqh,mxx,nuspec,paml,razor,resw,resx,shader,shaderFoundry,skin,tcc,tpp,urtshader,usf,ush,uxml,vb,xaml,xamlx,xoml,xsd}]
-
-[*.{appxmanifest,asax,ascx,aspx,axaml,blockshader,c,c++,c++m,cc,ccm,cginc,compute,cp,cpp,cppm,cs,cshtml,cu,cuh,cxx,cxxm,dtd,fs,fsi,fsscript,fsx,fx,fxh,h,h++,hh,hlsl,hlsli,hlslinc,hp,hpp,hxx,icc,inc,inl,ino,ipp,ixx,master,ml,mli,mpp,mq4,mq5,mqh,mxx,nuspec,paml,razor,resw,resx,shader,shaderFoundry,skin,tcc,tpp,urtshader,usf,ush,uxml,vb,xaml,xamlx,xoml,xsd}]
-tab_width = 4
