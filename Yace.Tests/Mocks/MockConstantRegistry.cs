@@ -8,6 +8,7 @@ namespace Yace.Tests.Mocks;
 // I'm not sure how this'll be tested. TODO: Add tests for MockConstantRegistry
 public sealed class MockConstantRegistry(bool caseSensitive, Dictionary<string, ConstantInfo> constants) : IConstantRegistry
 {
+    public StringComparer Comparer => StringComparer.OrdinalIgnoreCase;
     public MockConstantRegistry(bool caseSensitive = false)
         : this(caseSensitive, new Dictionary<string, ConstantInfo>
         {
@@ -20,13 +21,13 @@ public sealed class MockConstantRegistry(bool caseSensitive, Dictionary<string, 
     public bool CaseSensitive { get; } = caseSensitive;
     public ConstantInfo GetConstantInfo(string constantName)
     {
-        return constants[ConvertConstantName(constantName)];
+        return constants[constantName];
     }
 #pragma warning disable CS8767 // Nullability of reference types in type of parameter doesn't match implicitly implemented member (possibly because of nullability attributes).
     public bool TryGetConstantInfo(string constantName, out ConstantInfo? constantInfo)
 #pragma warning restore CS8767 // Nullability of reference types in type of parameter doesn't match implicitly implemented member (possibly because of nullability attributes).
     {
-        return constants.TryGetValue(ConvertConstantName(constantName), out constantInfo);
+        return constants.TryGetValue(constantName, out constantInfo);
     }
 
     public IEnumerator<ConstantInfo> GetEnumerator()
@@ -36,7 +37,7 @@ public sealed class MockConstantRegistry(bool caseSensitive, Dictionary<string, 
 
     public bool ContainsConstantName(string constantName)
     {
-        return constants.ContainsKey(ConvertConstantName(constantName));
+        return constants.ContainsKey(constantName);
     }
 
     public void RegisterConstant(ConstantInfo constantInfo)
@@ -48,8 +49,7 @@ public sealed class MockConstantRegistry(bool caseSensitive, Dictionary<string, 
     {
         if(string.IsNullOrEmpty(constantName))
             throw new ArgumentNullException(nameof(constantName));
-
-        constantName = ConvertConstantName(constantName);
+        
 
         var constantInfo = new ConstantInfo(constantName, value, isOverWritable);
 
@@ -66,9 +66,5 @@ public sealed class MockConstantRegistry(bool caseSensitive, Dictionary<string, 
     {
         return GetEnumerator();
     }
-
-    private string ConvertConstantName(string constantName)
-    {
-        return CaseSensitive ? constantName : constantName.ToLower();
-    }
+    
 }

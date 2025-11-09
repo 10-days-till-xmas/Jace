@@ -32,7 +32,7 @@ public sealed class DynamicCompiler(bool caseSensitive) : IExecutor
                    ? variables => func(new FormulaContext(variables, functionRegistry, constantRegistry))
                    : variables =>
                    {
-                       variables = EngineUtil.ConvertVariableNamesToLowerCase(variables);
+                       variables = new Dictionary<string, double>(variables, StringComparer.OrdinalIgnoreCase);
                        var context = new FormulaContext(variables, functionRegistry, constantRegistry);
                        return func(context);
                    };

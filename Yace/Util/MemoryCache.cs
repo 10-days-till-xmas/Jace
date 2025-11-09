@@ -24,7 +24,8 @@ public sealed class MemoryCache<TKey, TValue> where TKey : notnull
     /// </summary>
     /// <param name="maximumSize">The maximum allowed number of items in the cache.</param>
     /// <param name="reductionSize">The number of items to be deleted per cleanup of the cache.</param>
-    public MemoryCache(uint maximumSize, uint reductionSize)
+    /// <param name="comparer">The equality comparer to use for the keys.</param>
+    public MemoryCache(uint maximumSize, uint reductionSize, IEqualityComparer<TKey>? comparer = null)
     {
         if (maximumSize < 1)
             throw new ArgumentOutOfRangeException(nameof(maximumSize),
@@ -37,11 +38,11 @@ public sealed class MemoryCache<TKey, TValue> where TKey : notnull
         this.maximumSize = maximumSize;
         this.reductionSize = reductionSize;
 
-        dictionary = new Dictionary<TKey, LinkedListNode<TValue>>();
+        dictionary = new Dictionary<TKey, LinkedListNode<TValue>>(comparer);
         lruList = [];
     }
 
-    public MemoryCache(int maximumSize, int reductionSize)
+    public MemoryCache(int maximumSize, int reductionSize, IEqualityComparer<TKey>? comparer = null)
         : this(maximumSize >= 1
                    ? (uint)maximumSize
                    : throw new ArgumentOutOfRangeException(nameof(maximumSize),
@@ -49,8 +50,8 @@ public sealed class MemoryCache<TKey, TValue> where TKey : notnull
             reductionSize >= 1
                 ? (uint)reductionSize
                 : throw new ArgumentOutOfRangeException(nameof(reductionSize),
-                      "The cache reduction size must be at least one."))
-
+                      "The cache reduction size must be at least one."),
+            comparer)
     { }
 
     /// <summary>

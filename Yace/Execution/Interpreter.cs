@@ -19,7 +19,8 @@ public sealed class Interpreter(bool caseSensitive) : IExecutor
         constantRegistry = new ReadOnlyConstantRegistry(constantRegistry ?? new ConstantRegistry(CaseSensitive));
         return CaseSensitive
                    ? variables => Execute(operation, functionRegistry, constantRegistry, variables)
-                   : variables => Execute(operation, functionRegistry, constantRegistry, EngineUtil.ConvertVariableNamesToLowerCase(variables));
+                   : variables => Execute(operation, functionRegistry, constantRegistry,
+                       new Dictionary<string, double>(variables, StringComparer.OrdinalIgnoreCase));
     }
 
     public double Execute_old(Operation operation,

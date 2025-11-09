@@ -13,7 +13,7 @@ public sealed class FormulaBuilder : IUsesText
     public bool CaseSensitive { get; }
     private DataType? resultDataType;
     private readonly List<ParameterInfo> parameters = [];
-    private readonly IConstantRegistry constantRegistry;
+    private readonly ConstantRegistry constantRegistry;
 
     /// <summary>
     /// Creates a new instance of the FormulaBuilder class.
@@ -101,10 +101,11 @@ public sealed class FormulaBuilder : IUsesText
         var constants = new ReadOnlyConstantRegistry(constantRegistry);
         var formula = engine.Build(formulaText, constants);
         
-        return FuncAdapter.Wrap(parameters, variables => {
+        return FuncAdapter.Wrap(parameters, variables =>
+        {
 
-            if(!CaseSensitive)
-                variables = EngineUtil.ConvertVariableNamesToLowerCase(variables);
+            if (!CaseSensitive)
+                variables = new Dictionary<string, double>(variables, StringComparer.OrdinalIgnoreCase);
 
             engine.VerifyVariableNames_Throws(variables);
 

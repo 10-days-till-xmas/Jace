@@ -12,12 +12,18 @@ namespace Yace.Execution;
 public sealed class ReadOnlyConstantRegistry : IConstantRegistry
 {
     public bool CaseSensitive { get; }
+    public StringComparer Comparer { get; }
     private readonly ReadOnlyDictionary<string, ConstantInfo> constants;
 
     public ReadOnlyConstantRegistry(IConstantRegistry innerRegistry)
     {
         CaseSensitive = innerRegistry.CaseSensitive;
-        constants = new ReadOnlyDictionary<string, ConstantInfo>(innerRegistry.ToDictionary(c => c.ConstantName, c => c));
+        Comparer = innerRegistry.Comparer;
+        constants = new ReadOnlyDictionary<string, ConstantInfo>(
+            innerRegistry.ToDictionary(
+                static c => c.ConstantName,
+                static c => c,
+                Comparer));
     }
 
     public IEnumerator<ConstantInfo> GetEnumerator()
@@ -42,14 +48,14 @@ public sealed class ReadOnlyConstantRegistry : IConstantRegistry
     {
         return string.IsNullOrEmpty(constantName)
                    ? throw new ArgumentNullException(nameof(constantName))
-                   : constants.TryGetValue(ConvertConstantName(constantName), out constantInfo);
+                   : constants.TryGetValue(constantName, out constantInfo);
     }
 
     public bool ContainsConstantName(string constantName)
     {
         return string.IsNullOrEmpty(constantName)
                    ? throw new ArgumentNullException(nameof(constantName))
-                   : constants.ContainsKey(ConvertConstantName(constantName));
+                   : constants.ContainsKey(constantName);
     }
 
     public void RegisterConstant(string constantName, double value, bool isOverWritable = true)
@@ -60,12 +66,5 @@ public sealed class ReadOnlyConstantRegistry : IConstantRegistry
     public void RegisterConstant(ConstantInfo constantInfo)
     {
         throw new ReadOnlyException("This ConstantRegistry is read-only.");
-    }
-
-    private string ConvertConstantName(string constantName)
-    {
-        return CaseSensitive
-                   ? constantName
-                   : constantName.ToLowerFast();
     }
 }

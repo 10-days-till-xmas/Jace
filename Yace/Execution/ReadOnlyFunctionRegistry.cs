@@ -12,12 +12,18 @@ namespace Yace.Execution;
 public sealed class ReadOnlyFunctionRegistry : IFunctionRegistry
 {
     public bool CaseSensitive { get; }
+
+    public StringComparer Comparer { get; }
     private readonly ReadOnlyDictionary<string, FunctionInfo> functions;
 
     public ReadOnlyFunctionRegistry(IFunctionRegistry innerFunctionRegistry)
     {
         CaseSensitive = innerFunctionRegistry.CaseSensitive;
-        functions = new ReadOnlyDictionary<string, FunctionInfo>(innerFunctionRegistry.ToDictionary(f => f.FunctionName, f => f));
+        Comparer = innerFunctionRegistry.Comparer;
+        functions = new ReadOnlyDictionary<string, FunctionInfo>(
+            innerFunctionRegistry.ToDictionary(
+                static f => f.FunctionName,
+                static f => f, Comparer));
     }
 
     public IEnumerator<FunctionInfo> GetEnumerator()
@@ -42,7 +48,7 @@ public sealed class ReadOnlyFunctionRegistry : IFunctionRegistry
     {
         return string.IsNullOrEmpty(functionName)
                    ? throw new ArgumentNullException(nameof(functionName))
-                   : functions.TryGetValue(ConvertFunctionName(functionName), out functionInfo);
+                   : functions.TryGetValue(functionName, out functionInfo);
     }
 
     public void RegisterFunction(string functionName, Delegate function, bool isIdempotent = true, bool isOverWritable = true)
@@ -60,11 +66,6 @@ public sealed class ReadOnlyFunctionRegistry : IFunctionRegistry
         if (string.IsNullOrEmpty(functionName))
             throw new ArgumentNullException(nameof(functionName));
 
-        return functions.ContainsKey(ConvertFunctionName(functionName));
-    }
-
-    private string ConvertFunctionName(string functionName)
-    {
-        return CaseSensitive ? functionName : functionName.ToLowerFast();
+        return functions.ContainsKey(functionName);
     }
 }

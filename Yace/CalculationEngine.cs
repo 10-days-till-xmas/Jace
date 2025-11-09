@@ -71,13 +71,17 @@ public sealed partial class CalculationEngine : IUsesText
     /// <param name="options">The <see cref="YaceOptions"/> to configure the behaviour of the engine.</param>
     public CalculationEngine(YaceOptions options)
     {
-        executionFormulaCache = new MemoryCache<string, Func<IDictionary<string, double>, double>>(options.CacheMaximumSize, options.CacheReductionSize);
-
         cultureInfo = options.CultureInfo;
         cacheEnabled = options.CacheEnabled;
         optimizerEnabled = options.OptimizerEnabled;
         CaseSensitive = options.CaseSensitive;
-        FunctionRegistry = new FunctionRegistry(CaseSensitive);
+        var comparer = StringComparer.Create(cultureInfo, !CaseSensitive);
+        executionFormulaCache = new MemoryCache<string, Func<IDictionary<string, double>, double>>(
+            options.CacheMaximumSize,
+            options.CacheReductionSize,
+            comparer
+        );
+        FunctionRegistry = new FunctionRegistry(CaseSensitive, comparer);
         ConstantRegistry = new ConstantRegistry(CaseSensitive);
 
         executor = options.ExecutionMode switch

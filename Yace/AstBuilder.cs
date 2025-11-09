@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using Yace.Util;
 using JetBrains.Annotations;
 using Yace.Execution;
 using Yace.Operations;
@@ -52,17 +50,10 @@ public sealed class AstBuilder(
                         operatorStack.Push(token);
                         parameterCount.Push(1);
                     }
+                    else if (localConstantRegistry.TryGetConstantInfo(tokenValue, out var info))
+                        resultStack.Push(new FloatingPointConstant(info.Value));
                     else
-                    {
-                        if (localConstantRegistry.TryGetConstantInfo(tokenValue, out var info))
-                            resultStack.Push(new FloatingPointConstant(info.Value));
-                        else
-                        {
-                            if (!CaseSensitive)
-                                tokenValue = tokenValue.ToLowerFast();
-                            resultStack.Push(new Variable(tokenValue));
-                        }
-                    }
+                        resultStack.Push(new Variable(tokenValue));
                     break;
                 case TokenType.LeftBracket:
                     operatorStack.Push(token);
@@ -200,7 +191,7 @@ public sealed class AstBuilder(
             throw new ArgumentException("The provided token is not a function token.", nameof(functionToken));
         try
         {
-            var functionName = (functionToken.StringValue).ToLowerInvariant();
+            var functionName = functionToken.StringValue;
 
             if (!functionRegistry.ContainsFunctionName(functionName))
                 throw new ArgumentException($"Unknown function \"{functionToken.StringValue}\".", nameof(functionToken));

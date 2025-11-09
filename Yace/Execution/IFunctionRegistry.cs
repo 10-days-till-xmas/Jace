@@ -8,6 +8,7 @@ namespace Yace.Execution;
 [PublicAPI]
 public interface IFunctionRegistry : IEnumerable<FunctionInfo>, IUsesText
 {
+    StringComparer Comparer { get; }
     FunctionInfo GetFunctionInfo(string functionName);
     bool TryGetFunctionInfo(string functionName, [NotNullWhen(true)] out FunctionInfo? functionInfo);
     bool ContainsFunctionName(string functionName);

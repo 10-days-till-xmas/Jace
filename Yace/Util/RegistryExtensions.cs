@@ -6,7 +6,7 @@ public static class RegistryExtensions
 {
     public static FunctionRegistry Clone(this IFunctionRegistry source)
     {
-        var clone = new FunctionRegistry(source.CaseSensitive);
+        var clone = new FunctionRegistry(source.CaseSensitive, source.Comparer);
 
         foreach (var function in source)
             clone.RegisterFunction(function);

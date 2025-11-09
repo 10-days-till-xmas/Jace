@@ -8,8 +8,8 @@ namespace Yace.Tests.Mocks;
 public sealed class MockFunctionRegistry(IEnumerable<string> functionNames) : IFunctionRegistry
 {
     public bool CaseSensitive => false;
-    private HashSet<string> functionNames = [..functionNames];
-
+    private readonly HashSet<string> functionNames = [..functionNames];
+    public StringComparer Comparer => StringComparer.OrdinalIgnoreCase;
     public MockFunctionRegistry()
         : this(["sin", "cos", "csc", "sec", "asin", "acos", "tan", "cot", "atan", "acot", "loge", "log10", "logn", "sqrt", "abs"
                ])

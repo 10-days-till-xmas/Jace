@@ -7,17 +7,20 @@ using Yace.Util;
 
 namespace Yace.Execution;
 
-public sealed class ConstantRegistry(bool caseSensitive) : IConstantRegistry
+public sealed class ConstantRegistry(bool caseSensitive, StringComparer? comparer = null) : IConstantRegistry
 {
     public bool CaseSensitive { get; } = caseSensitive;
+    public StringComparer Comparer { get; } = comparer ?? (caseSensitive
+                                                               ? StringComparer.Ordinal
+                                                               : StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, ConstantInfo> constants = new();
 
-    public ConstantRegistry(IConstantRegistry constantRegistry) : this(constantRegistry.CaseSensitive)
+    public ConstantRegistry(IConstantRegistry constantRegistry) : this(constantRegistry.CaseSensitive, constantRegistry.Comparer)
     {
-        constants = new Dictionary<string, ConstantInfo>(constantRegistry.ToDictionary(ci=> ci.ConstantName, ci=> ci));
+        constants = new Dictionary<string, ConstantInfo>(constantRegistry.ToDictionary(ci => ci.ConstantName, ci => ci, constantRegistry.Comparer));
     }
 
-    public ConstantRegistry(ConstantRegistry constantRegistry) : this(constantRegistry.CaseSensitive)
+    public ConstantRegistry(ConstantRegistry constantRegistry) : this(constantRegistry.CaseSensitive, constantRegistry.Comparer)
     {
         constants = new Dictionary<string, ConstantInfo>(constantRegistry.constants);
     }
@@ -43,14 +46,14 @@ public sealed class ConstantRegistry(bool caseSensitive) : IConstantRegistry
     {
         return string.IsNullOrEmpty(constantName)
                    ? throw new ArgumentNullException(nameof(constantName))
-                   : constants.TryGetValue(ConvertConstantName(constantName), out constantInfo);
+                   : constants.TryGetValue(constantName, out constantInfo);
     }
 
     public bool ContainsConstantName(string constantName)
     {
         return string.IsNullOrEmpty(constantName)
                    ? throw new ArgumentNullException(nameof(constantName))
-                   : constants.ContainsKey(ConvertConstantName(constantName));
+                   : constants.ContainsKey(constantName);
     }
 
     public void RegisterConstant(string constantName, double value, bool isOverWritable = true)
@@ -71,9 +74,7 @@ public sealed class ConstantRegistry(bool caseSensitive) : IConstantRegistry
         var constantName = constantInfo.ConstantName;
         if (string.IsNullOrEmpty(constantName))
             throw new ArgumentNullException(nameof(constantName));
-
-        if (TryConvertConstantName(ref constantName))
-            constantInfo = constantInfo with { ConstantName = constantName };
+        
 
         if (constants.TryGetValue(constantName, out var oldConstantInfo) && !oldConstantInfo.IsOverWritable)
             throw new Exception($"The constant \"{constantName}\" cannot be overwritten.");
@@ -83,15 +84,13 @@ public sealed class ConstantRegistry(bool caseSensitive) : IConstantRegistry
 
     private string ConvertConstantName(string constantName)
     {
-        return CaseSensitive
-                   ? constantName
-                   : constantName.ToLowerFast();
+        return constantName;
     }
 
     private bool TryConvertConstantName(ref string constantName)
     {
         if (CaseSensitive) return false;
-        constantName = constantName.ToLowerFast();
+        constantName = constantName;
         return true;
     }
 }

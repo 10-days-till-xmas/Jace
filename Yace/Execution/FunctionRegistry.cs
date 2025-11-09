@@ -8,12 +8,14 @@ using Yace.Util;
 
 namespace Yace.Execution;
 
-public sealed class FunctionRegistry(bool caseSensitive) : IFunctionRegistry
+public sealed class FunctionRegistry(bool caseSensitive, StringComparer? comparer = null) : IFunctionRegistry
 {
     private const string DynamicFuncName = "Yace.DynamicFunc";
-
+    public StringComparer Comparer { get; } = comparer ?? (caseSensitive
+                                                               ? StringComparer.Ordinal
+                                                               : StringComparer.OrdinalIgnoreCase);
     public bool CaseSensitive { get; } = caseSensitive;
-    private readonly Dictionary<string, FunctionInfo> functions = new();
+    private readonly Dictionary<string, FunctionInfo> functions = new(comparer);
 
     public IEnumerator<FunctionInfo> GetEnumerator() => functions.Values.GetEnumerator();
 
@@ -28,7 +30,7 @@ public sealed class FunctionRegistry(bool caseSensitive) : IFunctionRegistry
     {
         return string.IsNullOrEmpty(functionName)
                    ? throw new ArgumentNullException(nameof(functionName))
-                   : functions.TryGetValue(ConvertFunctionName(functionName), out functionInfo);
+                   : functions.TryGetValue(functionName, out functionInfo);
     }
 
     public void RegisterFunction(string functionName, Delegate function, bool isIdempotent = true, bool isOverWritable = true)
@@ -58,8 +60,6 @@ public sealed class FunctionRegistry(bool caseSensitive) : IFunctionRegistry
         else
             throw new ArgumentException("Only System.Func and " + DynamicFuncName + " delegates are permitted.", nameof(function));
 
-        functionName = ConvertFunctionName(functionName);
-
         if (functions.TryGetValue(functionName, out var funcInfo))
         {
             if (!funcInfo.IsOverWritable)
@@ -80,8 +80,6 @@ public sealed class FunctionRegistry(bool caseSensitive) : IFunctionRegistry
         var functionName = functionInfo.FunctionName;
         if (string.IsNullOrEmpty(functionName))
             throw new ArgumentNullException(nameof(functionInfo));
-        if (TryConvertFunctionName(ref functionName))
-            functionInfo = functionInfo with { FunctionName = functionName };
 
         if (functions.TryGetValue(functionName, out var oldFunctionInfo) && !oldFunctionInfo.IsOverWritable)
             throw new Exception($"The function \"{functionName}\" cannot be overwritten.");
@@ -94,18 +92,6 @@ public sealed class FunctionRegistry(bool caseSensitive) : IFunctionRegistry
         if (string.IsNullOrEmpty(functionName))
             throw new ArgumentNullException(nameof(functionName));
 
-        return functions.ContainsKey(ConvertFunctionName(functionName));
-    }
-
-    private string ConvertFunctionName(string functionName)
-    {
-        return CaseSensitive ? functionName : functionName.ToLowerFast();
-    }
-
-    private bool TryConvertFunctionName(ref string functionName)
-    {
-        if (CaseSensitive) return false;
-        functionName = functionName.ToLowerFast();
-        return true;
+        return functions.ContainsKey(functionName);
     }
 }
