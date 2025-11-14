@@ -9,7 +9,7 @@ public static class RegistryExtensions
         var clone = new FunctionRegistry(source.CaseSensitive, source.Comparer);
 
         foreach (var function in source)
-            clone.RegisterFunction(function);
+            clone.Register(function);
         return clone;
     }
     public static ConstantRegistry Clone(this IConstantRegistry source)

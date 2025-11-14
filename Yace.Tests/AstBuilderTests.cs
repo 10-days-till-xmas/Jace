@@ -1,10 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Yace.Execution;
 using Yace.Operations;
 using Yace.Tests.Mocks;
 using Yace.Tokenizer;
 using Xunit;
+using Yace.Tests.Helpers;
 
 namespace Yace.Tests;
 
@@ -397,6 +400,30 @@ public sealed class AstBuilderTests
             {
                 new(value: 42, startPosition: 0),
                 new(value: '+', TokenType.Operation, startPosition: 2),
+                new(value: 8, startPosition: 3),
+                new(value: 5, startPosition: 4)
+            });
+        });
+    }
+
+    [Fact]
+    public void TestBuildInvalidFormula6()
+    {
+        IFunctionRegistry registry = new MockFunctionRegistry();
+
+        var builder = new AstBuilder(registry, false);
+        object token = new Token(value: '+', TokenType.Operation, startPosition: 2);
+        var f_TokenType = token.GetType().GetField("<TokenType>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic)!;
+
+        f_TokenType.SetValue(token, (TokenType)10); // Invalid TokenType
+
+        Assert.Equal(10, (int)((Token)token).TokenType);
+        Assert.Throws<ArgumentOutOfRangeException>(() =>
+        {
+            builder.Build(new List<Token>
+            {
+                new(value: 42, startPosition: 0),
+                (Token)token,
                 new(value: 8, startPosition: 3),
                 new(value: 5, startPosition: 4)
             });

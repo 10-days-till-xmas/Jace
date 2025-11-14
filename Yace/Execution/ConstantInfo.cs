@@ -1,3 +1,6 @@
 ﻿namespace Yace.Execution;
 
-public sealed record ConstantInfo(string ConstantName, double Value, bool IsOverWritable);
+public sealed record ConstantInfo(
+    string Name,
+    double Value,
+    bool IsOverWritable) : RegistryItem(Name, IsOverWritable);

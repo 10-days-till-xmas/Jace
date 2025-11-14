@@ -5,12 +5,12 @@ using System.Collections.ObjectModel;
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using Yace.Util;
 
 namespace Yace.Execution;
 
 public sealed class ReadOnlyFunctionRegistry : IFunctionRegistry
 {
+    public static ReadOnlyFunctionRegistry Empty { get; } = new(new FunctionRegistry(true));
     public bool CaseSensitive { get; }
 
     public StringComparer Comparer { get; }
@@ -22,7 +22,7 @@ public sealed class ReadOnlyFunctionRegistry : IFunctionRegistry
         Comparer = innerFunctionRegistry.Comparer;
         functions = new ReadOnlyDictionary<string, FunctionInfo>(
             innerFunctionRegistry.ToDictionary(
-                static f => f.FunctionName,
+                static f => f.Name,
                 static f => f, Comparer));
     }
 
@@ -37,31 +37,31 @@ public sealed class ReadOnlyFunctionRegistry : IFunctionRegistry
         return GetEnumerator();
     }
 
-    public FunctionInfo GetFunctionInfo(string functionName)
+    public FunctionInfo GetInfo(string functionName)
     {
-        return TryGetFunctionInfo(functionName, out var functionInfo)
+        return TryGetInfo(functionName, out var functionInfo)
                    ? functionInfo
                    : throw new KeyNotFoundException(functionName);
     }
 
-    public bool TryGetFunctionInfo(string functionName, [NotNullWhen(true)] out FunctionInfo? functionInfo)
+    public bool TryGetInfo(string functionName, [NotNullWhen(true)] out FunctionInfo? functionInfo)
     {
         return string.IsNullOrEmpty(functionName)
                    ? throw new ArgumentNullException(nameof(functionName))
                    : functions.TryGetValue(functionName, out functionInfo);
     }
 
-    public void RegisterFunction(string functionName, Delegate function, bool isIdempotent = true, bool isOverWritable = true)
+    public void Register(string functionName, Delegate function, bool isIdempotent = true, bool isOverWritable = true)
     {
         throw new ReadOnlyException("This FunctionRegistry is read-only.");
     }
 
-    public void RegisterFunction(FunctionInfo functionInfo)
+    public void Register(FunctionInfo functionInfo)
     {
         throw new ReadOnlyException("This FunctionRegistry is read-only.");
     }
 
-    public bool ContainsFunctionName(string functionName)
+    public bool ContainsName(string functionName)
     {
         if (string.IsNullOrEmpty(functionName))
             throw new ArgumentNullException(nameof(functionName));

@@ -14,12 +14,12 @@ public sealed class FunctionRegistryTests
         var registry = new FunctionRegistry(false);
 
         Func<double, double, double> testFunction = (a, b) => a * b;
-        registry.RegisterFunction("test", testFunction);
+        registry.Register("test", testFunction);
 
-        var functionInfo = registry.GetFunctionInfo("test");
+        var functionInfo = registry.GetInfo("test");
 
         Assert.NotNull(functionInfo);
-        Assert.Equal("test", functionInfo.FunctionName);
+        Assert.Equal("test", functionInfo.Name);
         Assert.Equal(2, functionInfo.NumberOfParameters);
         Assert.Equal(testFunction, functionInfo.Function);
     }
@@ -31,8 +31,8 @@ public sealed class FunctionRegistryTests
 
         Func<double, double, double> testFunction1 = (a, b) => a * b;
         Func<double, double, double> testFunction2 = (a, b) => a * b;
-        registry.RegisterFunction("test", testFunction1);
-        registry.RegisterFunction("test", testFunction2);
+        registry.Register("test", testFunction1);
+        registry.Register("test", testFunction2);
     }
 
     [Fact]
@@ -43,8 +43,8 @@ public sealed class FunctionRegistryTests
         Func<double, double, double> testFunction1 = (a, b) => a * b;
         Func<double, double, double> testFunction2 = (a, b) => a * b;
 
-        registry.RegisterFunction("test", testFunction1, true, false);
+        registry.Register("test", testFunction1, true, false);
 
-        Assert.Throws<Exception>(() => { registry.RegisterFunction("test", testFunction2, true, false); });
+        Assert.Throws<Exception>(() => { registry.Register("test", testFunction2, true, false); });
     }
 }

@@ -5,12 +5,12 @@ using System.Collections.ObjectModel;
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using Yace.Util;
 
 namespace Yace.Execution;
 
 public sealed class ReadOnlyConstantRegistry : IConstantRegistry
 {
+    public static ReadOnlyConstantRegistry Empty { get; } = new(new ConstantRegistry(true));
     public bool CaseSensitive { get; }
     public StringComparer Comparer { get; }
     private readonly ReadOnlyDictionary<string, ConstantInfo> constants;
@@ -21,7 +21,7 @@ public sealed class ReadOnlyConstantRegistry : IConstantRegistry
         Comparer = innerRegistry.Comparer;
         constants = new ReadOnlyDictionary<string, ConstantInfo>(
             innerRegistry.ToDictionary(
-                static c => c.ConstantName,
+                static c => c.Name,
                 static c => c,
                 Comparer));
     }

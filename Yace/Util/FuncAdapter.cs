@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Execution_ParameterInfo = Yace.Execution.ParameterInfo;
 using ParameterInfo = Yace.Execution.ParameterInfo;
 
 namespace Yace.Util;
@@ -29,7 +28,7 @@ public static class FuncAdapter
     /// <param name="parameters">The required parameters of the wrapping function delegate.</param>
     /// <param name="function">The function that must be wrapped.</param>
     /// <returns>A delegate instance of the required type.</returns>
-    public static Delegate Wrap(IEnumerable<Execution_ParameterInfo> parameters,
+    public static Delegate Wrap(IEnumerable<ParameterInfo> parameters,
                                 Func<IDictionary<string, double>, double> function)
     {
         var parameterArray = parameters.ToArray();
@@ -37,7 +36,7 @@ public static class FuncAdapter
         return GenerateDelegate(parameterArray, function);
     }
 
-    private static Delegate GenerateDelegate(Execution_ParameterInfo[] parameterArray,
+    private static Delegate GenerateDelegate(ParameterInfo[] parameterArray,
                                              Func<Dictionary<string, double>, double> function)
     {
         var delegateType = GetDelegateType(parameterArray);
@@ -72,7 +71,7 @@ public static class FuncAdapter
         return lambdaExpression.Compile();
     }
 
-    private static Type GetDelegateType(Execution_ParameterInfo[] parameters)
+    private static Type GetDelegateType(ParameterInfo[] parameters)
     {
         var funcTypeName = $"System.Func`{parameters.Length + 1}";
         var funcType = Type.GetType(funcTypeName);

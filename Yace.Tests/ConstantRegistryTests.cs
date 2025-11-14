@@ -16,7 +16,7 @@ public sealed class ConstantRegistryTests
         var functionInfo = registry.GetConstantInfo("test");
 
         Assert.NotNull(functionInfo);
-        Assert.Equal("test", functionInfo.ConstantName);
+        Assert.Equal("test", functionInfo.Name);
         Assert.Equal(42.0, functionInfo.Value);
     }
 

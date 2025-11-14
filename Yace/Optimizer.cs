@@ -10,10 +10,11 @@ public sealed class Optimizer(IExecutor executor)
     {
         // TODO: Consider adding more optimization rules here.
         // TODO: Refactor to make it non-recursive
+        var context = new FormulaContext(functionRegistry, constantRegistry);
         switch (operation)
         {
             case { DependsOnVariables: false, IsIdempotent: true } and (not IntegerConstant or FloatingPointConstant):
-                var result = executor.Execute(operation, functionRegistry, constantRegistry);
+                var result = executor.Execute(operation, context);
                 return new FloatingPointConstant(result);
             case Function function:
                 function.Arguments = function.Arguments

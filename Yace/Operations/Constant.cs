@@ -1,8 +1,12 @@
-﻿namespace Yace.Operations;
+﻿using System.Linq.Expressions;
+
+namespace Yace.Operations;
 
 public abstract class Constant(DataType dataType) : Operation(dataType, false, true)
 {
     public abstract double DoubleValue { get; }
+    public override Expression ExecuteDynamic(ParameterExpression contextParameter) => Expression.Constant(DoubleValue);
+    public override double Execute(FormulaContext context) => DoubleValue;
 }
 
 public abstract class Constant<T>(DataType dataType, T value)

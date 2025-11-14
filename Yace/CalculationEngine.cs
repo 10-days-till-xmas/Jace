@@ -13,6 +13,8 @@ namespace Yace;
 
 public delegate TResult DynamicFunc<in T, out TResult>(params T[] values);
 
+// TODO: make a generic CalculationEngine where the types are the types for the executor, optimizer, etc
+
 /// <summary>
 /// The CalculationEngine class is the main class of Yace.NET to convert strings containing
 /// mathematical formulas into .NET Delegates and to calculate the result.
@@ -134,7 +136,7 @@ public sealed partial class CalculationEngine : IUsesText
         var compiledConstants = new ReadOnlyConstantRegistry(ConstantRegistry);
         var compiledFunctions = new ReadOnlyFunctionRegistry(FunctionRegistry);
         foreach (var constant in ConstantRegistry)
-            variables.Add(constant.ConstantName, constant.Value);
+            variables.Add(constant.Name, constant.Value);
 
         var function = GetCachedFormulaOrBuild(formulaText, compiledConstants, compiledFunctions);
         return function(variables);
@@ -218,38 +220,38 @@ public sealed partial class CalculationEngine : IUsesText
 
     private static void RegisterDefaultFunctions(IFunctionRegistry functionRegistry)
     {
-        functionRegistry.RegisterFunction("sin", (Func<double, double>)Math.Sin, true, false);
-        functionRegistry.RegisterFunction("cos", (Func<double, double>)Math.Cos, true, false);
-        functionRegistry.RegisterFunction("csc", (Func<double, double>)MathUtil.Csc, true, false);
-        functionRegistry.RegisterFunction("sec", (Func<double, double>)MathUtil.Sec, true, false);
-        functionRegistry.RegisterFunction("asin", (Func<double, double>)Math.Asin, true, false);
-        functionRegistry.RegisterFunction("acos", (Func<double, double>)Math.Acos, true, false);
-        functionRegistry.RegisterFunction("tan", (Func<double, double>)Math.Tan, true, false);
-        functionRegistry.RegisterFunction("cot", (Func<double, double>)MathUtil.Cot, true, false);
-        functionRegistry.RegisterFunction("atan", (Func<double, double>)Math.Atan, true, false);
-        functionRegistry.RegisterFunction("acot", (Func<double, double>)MathUtil.Acot, true, false);
-        functionRegistry.RegisterFunction("loge", (Func<double, double>)Math.Log, true, false);
-        functionRegistry.RegisterFunction("log10", (Func<double, double>)Math.Log10, true, false);
-        functionRegistry.RegisterFunction("logn", (Func<double, double, double>)(Math.Log), true, false);
-        functionRegistry.RegisterFunction("sqrt", (Func<double, double>)Math.Sqrt, true, false);
-        functionRegistry.RegisterFunction("abs", (Func<double, double>)Math.Abs, true, false);
-        functionRegistry.RegisterFunction("if", (Func<double, double, double, double>)((a, b, c) => (a != 0.0 ? b : c)), true, false);
-        functionRegistry.RegisterFunction("ifless", (Func<double, double, double, double, double>)((a, b, c, d) => (a < b ? c : d)), true, false);
-        functionRegistry.RegisterFunction("ifmore", (Func<double, double, double, double, double>)((a, b, c, d) => (a > b ? c : d)), true, false);
-        functionRegistry.RegisterFunction("ifequal", (Func<double, double, double, double, double>)((a, b, c, d) => (a.Equals(b) ? c : d)), true, false);
-        functionRegistry.RegisterFunction("ceiling", (Func<double, double>)Math.Ceiling, true, false);
-        functionRegistry.RegisterFunction("floor", (Func<double, double>)Math.Floor, true, false);
-        functionRegistry.RegisterFunction("truncate", (Func<double, double>)Math.Truncate, true, false);
-        functionRegistry.RegisterFunction("round", (Func<double, double>)Math.Round, true, false);
+        functionRegistry.Register("sin", (Func<double, double>)Math.Sin, true, false);
+        functionRegistry.Register("cos", (Func<double, double>)Math.Cos, true, false);
+        functionRegistry.Register("csc", (Func<double, double>)MathUtil.Csc, true, false);
+        functionRegistry.Register("sec", (Func<double, double>)MathUtil.Sec, true, false);
+        functionRegistry.Register("asin", (Func<double, double>)Math.Asin, true, false);
+        functionRegistry.Register("acos", (Func<double, double>)Math.Acos, true, false);
+        functionRegistry.Register("tan", (Func<double, double>)Math.Tan, true, false);
+        functionRegistry.Register("cot", (Func<double, double>)MathUtil.Cot, true, false);
+        functionRegistry.Register("atan", (Func<double, double>)Math.Atan, true, false);
+        functionRegistry.Register("acot", (Func<double, double>)MathUtil.Acot, true, false);
+        functionRegistry.Register("loge", (Func<double, double>)Math.Log, true, false);
+        functionRegistry.Register("log10", (Func<double, double>)Math.Log10, true, false);
+        functionRegistry.Register("logn", (Func<double, double, double>)(Math.Log), true, false);
+        functionRegistry.Register("sqrt", (Func<double, double>)Math.Sqrt, true, false);
+        functionRegistry.Register("abs", (Func<double, double>)Math.Abs, true, false);
+        functionRegistry.Register("if", (Func<double, double, double, double>)((a, b, c) => (a != 0.0 ? b : c)), true, false);
+        functionRegistry.Register("ifless", (Func<double, double, double, double, double>)((a, b, c, d) => (a < b ? c : d)), true, false);
+        functionRegistry.Register("ifmore", (Func<double, double, double, double, double>)((a, b, c, d) => (a > b ? c : d)), true, false);
+        functionRegistry.Register("ifequal", (Func<double, double, double, double, double>)((a, b, c, d) => (a.Equals(b) ? c : d)), true, false);
+        functionRegistry.Register("ceiling", (Func<double, double>)Math.Ceiling, true, false);
+        functionRegistry.Register("floor", (Func<double, double>)Math.Floor, true, false);
+        functionRegistry.Register("truncate", (Func<double, double>)Math.Truncate, true, false);
+        functionRegistry.Register("round", (Func<double, double>)Math.Round, true, false);
 
         // Dynamic-based arguments Functions
-        functionRegistry.RegisterFunction("max", (DynamicFunc<double, double>)(a => a.Max()), true, false);
-        functionRegistry.RegisterFunction("min", (DynamicFunc<double, double>)(a => a.Min()), true, false);
-        functionRegistry.RegisterFunction("avg", (DynamicFunc<double, double>)(a => a.Average()), true, false);
-        functionRegistry.RegisterFunction("median", (DynamicFunc<double, double>)(a => a.Median()), true, false);
+        functionRegistry.Register("max", (DynamicFunc<double, double>)(a => a.Max()), true, false);
+        functionRegistry.Register("min", (DynamicFunc<double, double>)(a => a.Min()), true, false);
+        functionRegistry.Register("avg", (DynamicFunc<double, double>)(a => a.Average()), true, false);
+        functionRegistry.Register("median", (DynamicFunc<double, double>)(a => a.Median()), true, false);
 
         // Non Idempotent Functions
-        functionRegistry.RegisterFunction("random", (Func<double>)random.NextDouble, false, false);
+        functionRegistry.Register("random", (Func<double>)random.NextDouble, false, false);
     }
 
     private static void RegisterDefaultConstants(IConstantRegistry constantRegistry)
@@ -301,7 +303,7 @@ public sealed partial class CalculationEngine : IUsesText
     private static string GenerateFormulaCacheKey(string formulaText, IConstantRegistry? compiledConstants)
     {
         return compiledConstants?.Any() == true
-                   ? $"{formulaText}@{string.Join(",", compiledConstants.Select(x => $"{x.ConstantName}:{x.Value}"))}"
+                   ? $"{formulaText}@{string.Join(",", compiledConstants.Select(x => $"{x.Name}:{x.Value}"))}"
                    : formulaText;
     }
 
@@ -318,7 +320,7 @@ public sealed partial class CalculationEngine : IUsesText
             if (ConstantRegistry.TryGetConstantInfo(variableName, out var constantInfo) && !constantInfo.IsOverWritable)
                 throw new ArgumentException($"The name \"{variableName}\" is a reserved variable name that cannot be overwritten.", nameof(variables));
 
-            if (FunctionRegistry.ContainsFunctionName(variableName))
+            if (FunctionRegistry.ContainsName(variableName))
                 throw new ArgumentException($"The name \"{variableName}\" is a function name. Parameters cannot have this name.", nameof(variables));
         }
     }

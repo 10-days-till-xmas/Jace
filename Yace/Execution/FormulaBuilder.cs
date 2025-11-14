@@ -38,7 +38,7 @@ public sealed class FormulaBuilder : IUsesText
         if (string.IsNullOrEmpty(name))
             throw new ArgumentNullException(nameof(name));
 
-        if (engine.FunctionRegistry.ContainsFunctionName(name))
+        if (engine.FunctionRegistry.ContainsName(name))
             throw new ArgumentException($"The name \"{name}\" is a function name. Parameters cannot have this name.", nameof(name));
         if (parameters.Any(p => p.Name == name))
             throw new ArgumentException($"A parameter with the name \"{name}\" was already defined.", nameof(name));
@@ -111,7 +111,7 @@ public sealed class FormulaBuilder : IUsesText
 
             // Add the reserved variables to the dictionary
             // foreach (var constant in constantRegistry)
-            //     variables.Add(constant.ConstantName, constant.Value);
+            //     variables.Add(constant.Name, constant.Value);
 
             return formula(variables);
         });

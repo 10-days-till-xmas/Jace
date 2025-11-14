@@ -12,61 +12,61 @@ public sealed partial class CalculationEngine
     /// <param name="isIdempotent">Whether the function provides the same result when it is executed multiple times.</param>
     public void AddFunction(string functionName, Func<double> function, bool isIdempotent = true)
     {
-        FunctionRegistry.RegisterFunction(functionName, function, isIdempotent, true);
+        FunctionRegistry.Register(functionName, function, isIdempotent, true);
     }
 
     /// <inheritdoc cref="CalculationEngine.AddFunction(string, Func{double}, bool)"/>
     public void AddFunction(string functionName, Func<double, double> function, bool isIdempotent = true)
     {
-        FunctionRegistry.RegisterFunction(functionName, function, isIdempotent, true);
+        FunctionRegistry.Register(functionName, function, isIdempotent, true);
     }
 
     /// <inheritdoc cref="CalculationEngine.AddFunction(string, Func{double}, bool)"/>
     public void AddFunction(string functionName, Func<double, double, double> function, bool isIdempotent = true)
     {
-        FunctionRegistry.RegisterFunction(functionName, function, isIdempotent, true);
+        FunctionRegistry.Register(functionName, function, isIdempotent, true);
     }
 
     /// <inheritdoc cref="CalculationEngine.AddFunction(string, Func{double}, bool)"/>
     public void AddFunction(string functionName, Func<double, double, double, double> function,
         bool isIdempotent = true)
     {
-        FunctionRegistry.RegisterFunction(functionName, function, isIdempotent, true);
+        FunctionRegistry.Register(functionName, function, isIdempotent, true);
     }
 
     /// <inheritdoc cref="CalculationEngine.AddFunction(string, Func{double}, bool)"/>
     public void AddFunction(string functionName, Func<double, double, double, double, double> function,
         bool isIdempotent = true)
     {
-        FunctionRegistry.RegisterFunction(functionName, function, isIdempotent, true);
+        FunctionRegistry.Register(functionName, function, isIdempotent, true);
     }
 
     /// <inheritdoc cref="CalculationEngine.AddFunction(string, Func{double}, bool)"/>
     public void AddFunction(string functionName, Func<double, double, double, double, double, double> function,
         bool isIdempotent = true)
     {
-        FunctionRegistry.RegisterFunction(functionName, function, isIdempotent, true);
+        FunctionRegistry.Register(functionName, function, isIdempotent, true);
     }
 
     /// <inheritdoc cref="CalculationEngine.AddFunction(string, Func{double}, bool)"/>
     public void AddFunction(string functionName, Func<double, double, double, double, double, double, double> function,
         bool isIdempotent = true)
     {
-        FunctionRegistry.RegisterFunction(functionName, function, isIdempotent, true);
+        FunctionRegistry.Register(functionName, function, isIdempotent, true);
     }
     
     /// <inheritdoc cref="CalculationEngine.AddFunction(string, Func{double}, bool)"/>
     public void AddFunction(string functionName,
         Func<double, double, double, double, double, double, double, double> function, bool isIdempotent = true)
     {
-        FunctionRegistry.RegisterFunction(functionName, function, isIdempotent, true);
+        FunctionRegistry.Register(functionName, function, isIdempotent, true);
     }
 
     /// <inheritdoc cref="CalculationEngine.AddFunction(string, Func{double}, bool)"/>
     public void AddFunction(string functionName,
         Func<double, double, double, double, double, double, double, double, double> function, bool isIdempotent = true)
     {
-        FunctionRegistry.RegisterFunction(functionName, function, isIdempotent, true);
+        FunctionRegistry.Register(functionName, function, isIdempotent, true);
     }
 
     /// <inheritdoc cref="CalculationEngine.AddFunction(string, Func{double}, bool)"/>
@@ -74,7 +74,7 @@ public sealed partial class CalculationEngine
         Func<double, double, double, double, double, double, double, double, double, double> function,
         bool isIdempotent = true)
     {
-        FunctionRegistry.RegisterFunction(functionName, function, isIdempotent, true);
+        FunctionRegistry.Register(functionName, function, isIdempotent, true);
     }
 
     /// <inheritdoc cref="CalculationEngine.AddFunction(string, Func{double}, bool)"/>
@@ -82,7 +82,7 @@ public sealed partial class CalculationEngine
         Func<double, double, double, double, double, double, double, double, double, double, double> function,
         bool isIdempotent = true)
     {
-        FunctionRegistry.RegisterFunction(functionName, function, isIdempotent, true);
+        FunctionRegistry.Register(functionName, function, isIdempotent, true);
     }
 
     /// <inheritdoc cref="CalculationEngine.AddFunction(string, Func{double}, bool)"/>
@@ -90,7 +90,7 @@ public sealed partial class CalculationEngine
         Func<double, double, double, double, double, double, double, double, double, double, double, double> function,
         bool isIdempotent = true)
     {
-        FunctionRegistry.RegisterFunction(functionName, function, isIdempotent, true);
+        FunctionRegistry.Register(functionName, function, isIdempotent, true);
     }
 
     /// <inheritdoc cref="CalculationEngine.AddFunction(string, Func{double}, bool)"/>
@@ -98,7 +98,7 @@ public sealed partial class CalculationEngine
         Func<double, double, double, double, double, double, double, double, double, double, double, double, double>
             function, bool isIdempotent = true)
     {
-        FunctionRegistry.RegisterFunction(functionName, function, isIdempotent, true);
+        FunctionRegistry.Register(functionName, function, isIdempotent, true);
     }
 
     /// <inheritdoc cref="CalculationEngine.AddFunction(string, Func{double}, bool)"/>
@@ -106,7 +106,7 @@ public sealed partial class CalculationEngine
         Func<double, double, double, double, double, double, double, double, double, double, double, double, double,
             double> function, bool isIdempotent = true)
     {
-        FunctionRegistry.RegisterFunction(functionName, function, isIdempotent, true);
+        FunctionRegistry.Register(functionName, function, isIdempotent, true);
     }
 
     /// <inheritdoc cref="CalculationEngine.AddFunction(string, Func{double}, bool)"/>
@@ -114,7 +114,7 @@ public sealed partial class CalculationEngine
         Func<double, double, double, double, double, double, double, double, double, double, double, double, double,
             double, double> function, bool isIdempotent = true)
     {
-        FunctionRegistry.RegisterFunction(functionName, function, isIdempotent, true);
+        FunctionRegistry.Register(functionName, function, isIdempotent, true);
     }
 
     /// <inheritdoc cref="CalculationEngine.AddFunction(string, Func{double}, bool)"/>
@@ -122,7 +122,7 @@ public sealed partial class CalculationEngine
         Func<double, double, double, double, double, double, double, double, double, double, double, double, double,
             double, double, double> function, bool isIdempotent = true)
     {
-        FunctionRegistry.RegisterFunction(functionName, function, isIdempotent, true);
+        FunctionRegistry.Register(functionName, function, isIdempotent, true);
     }
 
     /// <inheritdoc cref="CalculationEngine.AddFunction(string, Func{double}, bool)"/>
@@ -130,12 +130,12 @@ public sealed partial class CalculationEngine
         Func<double, double, double, double, double, double, double, double, double, double, double, double, double,
             double, double, double, double> function, bool isIdempotent = true)
     {
-        FunctionRegistry.RegisterFunction(functionName, function, isIdempotent, true);
+        FunctionRegistry.Register(functionName, function, isIdempotent, true);
     }
 
     /// <inheritdoc cref="CalculationEngine.AddFunction(string, Func{double}, bool)"/>
     public void AddFunction(string functionName, DynamicFunc<double, double> functionDelegate, bool isIdempotent = true)
     {
-        FunctionRegistry.RegisterFunction(functionName, functionDelegate, isIdempotent, true);
+        FunctionRegistry.Register(functionName, functionDelegate, isIdempotent, true);
     }
 }

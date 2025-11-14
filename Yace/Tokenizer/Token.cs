@@ -84,17 +84,17 @@ public readonly record struct Token
     }
 
     /// <summary>The value of the token</summary>
-    public object Value { get; init; }
+    public object Value { get; }
 
     /// <summary>The type of the token</summary>
-    public TokenType TokenType { get; init; }
+    public TokenType TokenType { get; }
 
     /// <summary>The start position of the token in the input function text</summary>
-    public ushort StartPosition { get; init; }
+    public ushort StartPosition { get; }
 
     /// <summary>The length of token in the input function text</summary>
-    public ushort Length { get; init; }
-    
+    public ushort Length { get; }
+
     public int IntValue => (int)Value;
     public string StringValue => (string)Value;
     public double FloatValue => (double)Value;

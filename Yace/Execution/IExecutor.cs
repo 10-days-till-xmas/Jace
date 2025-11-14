@@ -6,7 +6,7 @@ namespace Yace.Execution;
 
 public interface IExecutor : IUsesText
 {
-    double Execute(Operation operation, IFunctionRegistry? functionRegistry, IConstantRegistry? constantRegistry, IDictionary<string, double>? variables = null);
+    double Execute(Operation operation, FormulaContext context);
 
     Func<IDictionary<string, double>, double> BuildFormula(Operation operation, IFunctionRegistry? functionRegistry, IConstantRegistry? constantRegistry);
 }

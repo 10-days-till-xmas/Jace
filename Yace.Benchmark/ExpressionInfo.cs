@@ -61,13 +61,13 @@ public sealed class ExpressionInfo
     {
         var jaceEngine = new Jace.CalculationEngine(new JaceOptions { DefaultFunctions = true });
         foreach (var fi in jaceEngine.Functions) // this is so hacky...
-            functionRegistry.RegisterFunction(fi.FunctionName, fi.Function, fi.IsIdempotent, fi.IsOverWritable);
+            functionRegistry.Register(fi.Name, fi.Function, fi.IsIdempotent, fi.IsOverWritable);
     };
     private static readonly Action<IConstantRegistry> m_CalculationEngine_RegisterDefaultConstants = (constantRegistry) =>
     {
         var jaceEngine = new Jace.CalculationEngine(new JaceOptions { DefaultConstants = true });
         foreach (var ci in jaceEngine.Constants)
-            constantRegistry.RegisterConstant(ci.ConstantName, ci.Value, ci.IsOverWritable);
+            constantRegistry.RegisterConstant(ci.Name, ci.Value, ci.IsOverWritable);
     };
     #else
     private static readonly Action<IFunctionRegistry> m_CalculationEngine_RegisterDefaultFunctions =

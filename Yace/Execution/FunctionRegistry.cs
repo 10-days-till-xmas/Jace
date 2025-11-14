@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
-using Yace.Util;
 
 namespace Yace.Execution;
 
@@ -21,19 +20,19 @@ public sealed class FunctionRegistry(bool caseSensitive, StringComparer? compare
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public FunctionInfo GetFunctionInfo(string functionName)
-        => TryGetFunctionInfo(functionName, out var functionInfo)
+    public FunctionInfo GetInfo(string functionName)
+        => TryGetInfo(functionName, out var functionInfo)
                ? functionInfo
                : throw new KeyNotFoundException(functionName);
 
-    public bool TryGetFunctionInfo(string functionName, [NotNullWhen(true)] out FunctionInfo? functionInfo)
+    public bool TryGetInfo(string functionName, [NotNullWhen(true)] out FunctionInfo? functionInfo)
     {
         return string.IsNullOrEmpty(functionName)
                    ? throw new ArgumentNullException(nameof(functionName))
                    : functions.TryGetValue(functionName, out functionInfo);
     }
 
-    public void RegisterFunction(string functionName, Delegate function, bool isIdempotent = true, bool isOverWritable = true)
+    public void Register(string functionName, Delegate function, bool isIdempotent = true, bool isOverWritable = true)
     {
         if (string.IsNullOrWhiteSpace(functionName))
             throw new ArgumentNullException(nameof(functionName));
@@ -75,9 +74,9 @@ public sealed class FunctionRegistry(bool caseSensitive, StringComparer? compare
         functions[functionName] = newFuncInfo;
     }
 
-    public void RegisterFunction(FunctionInfo functionInfo)
+    public void Register(FunctionInfo functionInfo)
     {
-        var functionName = functionInfo.FunctionName;
+        var functionName = functionInfo.Name;
         if (string.IsNullOrEmpty(functionName))
             throw new ArgumentNullException(nameof(functionInfo));
 
@@ -87,7 +86,7 @@ public sealed class FunctionRegistry(bool caseSensitive, StringComparer? compare
         functions[functionName] = functionInfo;
     }
 
-    public bool ContainsFunctionName(string functionName)
+    public bool ContainsName(string functionName)
     {
         if (string.IsNullOrEmpty(functionName))
             throw new ArgumentNullException(nameof(functionName));

@@ -48,7 +48,7 @@ public partial class MainWindow : Window
             }
 
             var executor = new Interpreter();
-            var result = executor.Execute(operation, null, null, variables);
+            var result = executor.Execute(operation, new FormulaContext(null, null, variables));
 
             resultTextBox.Text = result.ToString(CultureInfo.CurrentCulture);
         }

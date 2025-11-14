@@ -19,7 +19,7 @@ public sealed class OptimizerTests
         IList<Token> tokens = tokenReader.Read("test(var1, (2+3) * 500)");
 
         IFunctionRegistry functionRegistry = new FunctionRegistry(true);
-        functionRegistry.RegisterFunction("test", (Func<double, double, double>)((a, b) => a + b));
+        functionRegistry.Register("test", (Func<double, double, double>)((a, b) => a + b));
 
         var astBuilder = new AstBuilder(functionRegistry, true);
         var operation = astBuilder.Build(tokens);
@@ -38,7 +38,7 @@ public sealed class OptimizerTests
         IList<Token> tokens = tokenReader.Read("test(500)");
 
         IFunctionRegistry functionRegistry = new FunctionRegistry(true);
-        functionRegistry.RegisterFunction("test", (Func<double, double>)(a => a), false, true);
+        functionRegistry.Register("test", (Func<double, double>)(a => a), false, true);
 
         var astBuilder = new AstBuilder(functionRegistry, true);
         var operation = astBuilder.Build(tokens);

@@ -45,7 +45,7 @@ public sealed class AstBuilder(
                     break;
                 case TokenType.Text:
                     var tokenValue = token.StringValue;
-                    if (functionRegistry.ContainsFunctionName(tokenValue))
+                    if (functionRegistry.ContainsName(tokenValue))
                     {
                         operatorStack.Push(token);
                         parameterCount.Push(1);
@@ -96,7 +96,7 @@ public sealed class AstBuilder(
 
                     operatorStack.Push(token);
                     break;
-                default:
+                default: // Never happens due to Token implementation
                     throw new ArgumentOutOfRangeException(nameof(tokens), $"Unknown token type \"{token.TokenType}\".");
             }
         }
@@ -118,6 +118,7 @@ public sealed class AstBuilder(
         {
             var token = operatorStack.Pop();
 
+            // ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault
             switch (token.TokenType)
             {
                 case TokenType.Operation:
@@ -193,10 +194,10 @@ public sealed class AstBuilder(
         {
             var functionName = functionToken.StringValue;
 
-            if (!functionRegistry.ContainsFunctionName(functionName))
+            if (!functionRegistry.ContainsName(functionName))
                 throw new ArgumentException($"Unknown function \"{functionToken.StringValue}\".", nameof(functionToken));
 
-            var functionInfo = functionRegistry.GetFunctionInfo(functionName);
+            var functionInfo = functionRegistry.GetInfo(functionName);
             var numberOfParameters = parameterCount.Pop();
 
             if (!functionInfo.IsDynamicFunc)

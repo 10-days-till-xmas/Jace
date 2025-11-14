@@ -18,7 +18,7 @@ public sealed class BasicInterpreterTests
         var result = executor.Execute(new Subtraction(
             DataType.Integer,
             new IntegerConstant(6),
-            new IntegerConstant(9)), functionRegistry, constantRegistry);
+            new IntegerConstant(9)), new FormulaContext(functionRegistry, constantRegistry, null));
 
         Assert.Equal(-3.0, result);
     }
@@ -38,7 +38,7 @@ public sealed class BasicInterpreterTests
                 new Multiplication(
                     DataType.Integer,
                     new IntegerConstant(2),
-                    new IntegerConstant(4))), functionRegistry, constantRegistry);
+                    new IntegerConstant(4))), new FormulaContext(functionRegistry, constantRegistry, null));
 
         Assert.Equal(14.0, result);
     }
@@ -66,7 +66,8 @@ public sealed class BasicInterpreterTests
                     new Multiplication(
                         DataType.FloatingPoint,
                         new IntegerConstant(3),
-                        new Variable("age")))), functionRegistry, constantRegistry, variables);
+                        new Variable("age")))),
+            new FormulaContext(functionRegistry, constantRegistry, variables) );
 
         Assert.Equal(26.0, result);
     }

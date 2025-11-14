@@ -17,3 +17,4 @@ public interface IConstantRegistry : IEnumerable<ConstantInfo>, IUsesText
 
     void RegisterConstant(ConstantInfo constantInfo);
 }
+

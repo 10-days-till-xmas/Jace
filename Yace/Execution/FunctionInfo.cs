@@ -3,9 +3,9 @@
 namespace Yace.Execution;
 
 public sealed record FunctionInfo(
-    string FunctionName,
+    string Name,
     int NumberOfParameters,
     bool IsIdempotent,
     bool IsOverWritable,
     bool IsDynamicFunc,
-    Delegate Function);
+    Delegate Function) : RegistryItem(Name, IsOverWritable);

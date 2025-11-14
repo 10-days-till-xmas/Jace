@@ -42,7 +42,7 @@ public sealed class MockConstantRegistry(bool caseSensitive, Dictionary<string, 
 
     public void RegisterConstant(ConstantInfo constantInfo)
     {
-        RegisterConstant(constantInfo.ConstantName, constantInfo.Value, constantInfo.IsOverWritable);
+        RegisterConstant(constantInfo.Name, constantInfo.Value, constantInfo.IsOverWritable);
     }
 
     public void RegisterConstant(string constantName, double value, bool isOverWritable)

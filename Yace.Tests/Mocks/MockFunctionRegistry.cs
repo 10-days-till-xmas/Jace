@@ -21,17 +21,17 @@ public sealed class MockFunctionRegistry(IEnumerable<string> functionNames) : IF
         throw new NotImplementedException();
     }
 
-    public FunctionInfo GetFunctionInfo(string functionName)
+    public FunctionInfo GetInfo(string functionName)
     {
         return new FunctionInfo(functionName, 1, true, false, false, null!);
     }
 
-    public bool TryGetFunctionInfo(string functionName, out FunctionInfo functionInfo)
+    public bool TryGetInfo(string functionName, out FunctionInfo functionInfo)
     {
         throw new NotImplementedException();
     }
 
-    public bool ContainsFunctionName(string functionName)
+    public bool ContainsName(string functionName)
     {
         return functionNames.Contains(functionName);
     }
@@ -41,12 +41,12 @@ public sealed class MockFunctionRegistry(IEnumerable<string> functionNames) : IF
         throw new NotImplementedException();
     }
 
-    public void RegisterFunction(string functionName, Delegate function, bool isIdempotent, bool isOverWritable)
+    public void Register(string functionName, Delegate function, bool isIdempotent, bool isOverWritable)
     {
         throw new NotImplementedException();
     }
 
-    public void RegisterFunction(FunctionInfo functionInfo)
+    public void Register(FunctionInfo functionInfo)
     {
         throw new NotImplementedException();
     }
