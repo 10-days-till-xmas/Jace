@@ -11,9 +11,9 @@ public sealed class ConstantRegistryTests
     {
         var registry = new ConstantRegistry(false);
 
-        registry.RegisterConstant("test", 42.0);
+        registry.Register("test", 42.0);
 
-        var functionInfo = registry.GetConstantInfo("test");
+        var functionInfo = registry.GetInfo("test");
 
         Assert.NotNull(functionInfo);
         Assert.Equal("test", functionInfo.Name);
@@ -25,8 +25,8 @@ public sealed class ConstantRegistryTests
     {
         var registry = new ConstantRegistry(false);
 
-        registry.RegisterConstant("test", 42.0);
-        registry.RegisterConstant("test", 26.3);
+        registry.Register("test", 42.0);
+        registry.Register("test", 26.3);
     }
 
     [Fact]
@@ -34,8 +34,8 @@ public sealed class ConstantRegistryTests
     {
         var registry = new ConstantRegistry(false);
 
-        registry.RegisterConstant("test", 42.0, false);
+        registry.Register("test", 42.0, false);
 
-        Assert.Throws<Exception>(() => registry.RegisterConstant("test", 26.3, false));
+        Assert.Throws<Exception>(() => registry.Register("test", 26.3, false));
     }
 }

@@ -6,15 +6,9 @@ using JetBrains.Annotations;
 namespace Yace.Execution;
 
 [PublicAPI]
-public interface IConstantRegistry : IEnumerable<ConstantInfo>, IUsesText
+public interface IConstantRegistry : IRegistry<ConstantInfo>, IUsesText
 {
-    StringComparer Comparer { get; }
-    ConstantInfo GetConstantInfo(string constantName);
-    bool TryGetConstantInfo(string constantName, [NotNullWhen(true)] out ConstantInfo? constantInfo);
-    bool ContainsConstantName(string constantName);
 
-    void RegisterConstant(string constantName, double value, bool isOverWritable = true);
-
-    void RegisterConstant(ConstantInfo constantInfo);
+    void Register(string constantName, double value, bool isOverWritable = true);
 }
 

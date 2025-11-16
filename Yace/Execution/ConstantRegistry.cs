@@ -19,9 +19,13 @@ public sealed class ConstantRegistry(bool caseSensitive, StringComparer? compare
         constants = new Dictionary<string, ConstantInfo>(constantRegistry.ToDictionary(ci => ci.Name, ci => ci, constantRegistry.Comparer));
     }
 
-    public ConstantRegistry(ConstantRegistry constantRegistry) : this(constantRegistry.CaseSensitive, constantRegistry.Comparer)
+    private ConstantRegistry(ConstantRegistry constantRegistry) : this(constantRegistry.CaseSensitive, constantRegistry.Comparer)
     {
         constants = new Dictionary<string, ConstantInfo>(constantRegistry.constants);
+    }
+    public ConstantRegistry Clone()
+    {
+        return new ConstantRegistry(this);
     }
 
     public IEnumerator<ConstantInfo> GetEnumerator()
@@ -34,28 +38,28 @@ public sealed class ConstantRegistry(bool caseSensitive, StringComparer? compare
         return GetEnumerator();
     }
 
-    public ConstantInfo GetConstantInfo(string constantName)
+    public ConstantInfo GetInfo(string constantName)
     {
-        return TryGetConstantInfo(constantName, out var constantInfo)
+        return TryGetInfo(constantName, out var constantInfo)
                    ? constantInfo
                    : throw new KeyNotFoundException(constantName);
     }
 
-    public bool TryGetConstantInfo(string constantName, [NotNullWhen(true)] out ConstantInfo? constantInfo)
+    public bool TryGetInfo(string constantName, [NotNullWhen(true)] out ConstantInfo? constantInfo)
     {
         return string.IsNullOrEmpty(constantName)
                    ? throw new ArgumentNullException(nameof(constantName))
                    : constants.TryGetValue(constantName, out constantInfo);
     }
 
-    public bool ContainsConstantName(string constantName)
+    public bool ContainsName(string constantName)
     {
         return string.IsNullOrEmpty(constantName)
                    ? throw new ArgumentNullException(nameof(constantName))
                    : constants.ContainsKey(constantName);
     }
 
-    public void RegisterConstant(string constantName, double value, bool isOverWritable = true)
+    public void Register(string constantName, double value, bool isOverWritable = true)
     {
         if (string.IsNullOrEmpty(constantName))
             throw new ArgumentNullException(nameof(constantName));
@@ -66,7 +70,7 @@ public sealed class ConstantRegistry(bool caseSensitive, StringComparer? compare
         constants[constantName] = new ConstantInfo(constantName, value, isOverWritable);
     }
 
-    public void RegisterConstant(ConstantInfo constantInfo)
+    public void Register(ConstantInfo constantInfo)
     {
         var constantName = constantInfo.Name;
         if (string.IsNullOrEmpty(constantName))

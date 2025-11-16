@@ -37,7 +37,7 @@ public sealed class Variable(string name) : Operation(DataType.FloatingPoint, tr
     {
         if (context.Variables!.TryGetValue(variableName, out var variable))
             return variable;
-        if (context.ConstantRegistry!.TryGetConstantInfo(variableName, out var info))
+        if (context.ConstantRegistry!.TryGetInfo(variableName, out var info))
             return info.Value;
         throw new VariableNotDefinedException($"The variable \"{variableName}\" used is not defined.");
     }

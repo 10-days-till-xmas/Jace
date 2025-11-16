@@ -103,9 +103,9 @@ public sealed partial class CalculationEngine : IUsesText
             RegisterDefaultFunctions(FunctionRegistry);
     }
 
-    internal IFunctionRegistry FunctionRegistry { get; }
+    internal FunctionRegistry FunctionRegistry { get; }
 
-    internal IConstantRegistry ConstantRegistry { get; }
+    internal ConstantRegistry ConstantRegistry { get; }
 
     public IEnumerable<FunctionInfo> Functions => FunctionRegistry;
 
@@ -166,29 +166,6 @@ public sealed partial class CalculationEngine : IUsesText
         return GetCachedFormulaOrBuild(formulaText, compiledConstants, compiledFunctions);
     }
 
-    /// <summary>
-    /// Build a .NET func for the provided formula.
-    /// </summary>
-    /// <param name="formulaText">The formula that must be converted into a .NET func.</param>
-    /// <param name="constants">Constant values for variables defined into the formula. They variables will be replaced by the constant value at pre-compilation time.</param>
-    /// <returns>A .NET func for the provided formula.</returns>
-    [Obsolete("Please register the constants instead using CalculationEngine.AddConstant, or use the overload that takes an IConstantRegistry.")]
-    public Func<IDictionary<string, double>, double> Build(string formulaText, IDictionary<string, double>? constants)
-    {
-        if (string.IsNullOrEmpty(formulaText))
-            throw new ArgumentNullException(nameof(formulaText));
-
-
-        var compiledConstants = new ConstantRegistry(ConstantRegistry);
-        var compiledFunctions = new ReadOnlyFunctionRegistry(FunctionRegistry);
-        if (constants != null)
-            foreach (var constant in constants)
-                compiledConstants.RegisterConstant(constant.Key, constant.Value);
-        var readonlyConstants = new ReadOnlyConstantRegistry(compiledConstants);
-
-        return GetCachedFormulaOrBuild(formulaText, readonlyConstants, compiledFunctions);
-    }
-
 
     /// <summary>
     /// Build a .NET func for the provided formula.
@@ -212,7 +189,7 @@ public sealed partial class CalculationEngine : IUsesText
     /// <param name="value">The value of the constant.</param>
     public void AddConstant(string constantName, double value)
     {
-        ConstantRegistry.RegisterConstant(constantName, value);
+        ConstantRegistry.Register(constantName, value);
     }
 
     private static void RegisterDefaultFunctions(IFunctionRegistry functionRegistry)
@@ -253,8 +230,8 @@ public sealed partial class CalculationEngine : IUsesText
 
     private static void RegisterDefaultConstants(IConstantRegistry constantRegistry)
     {
-        constantRegistry.RegisterConstant("e", Math.E, false);
-        constantRegistry.RegisterConstant("pi", Math.PI, false);
+        constantRegistry.Register("e", Math.E, false);
+        constantRegistry.Register("pi", Math.PI, false);
     }
 
     /// <summary>
@@ -314,7 +291,7 @@ public sealed partial class CalculationEngine : IUsesText
     {
         foreach (var variableName in variables.Keys)
         {
-            if (ConstantRegistry.TryGetConstantInfo(variableName, out var constantInfo) && !constantInfo.IsOverWritable)
+            if (ConstantRegistry.TryGetInfo(variableName, out var constantInfo) && !constantInfo.IsOverWritable)
                 throw new ArgumentException($"The name \"{variableName}\" is a reserved variable name that cannot be overwritten.", nameof(variables));
 
             if (FunctionRegistry.ContainsName(variableName))

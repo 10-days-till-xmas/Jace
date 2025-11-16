@@ -14,22 +14,6 @@ public readonly record struct Token
     /// <param name="tokenType">The type of the token</param>
     /// <param name="startPosition">The start position of the token in the input function text</param>
     /// <param name="length">The length of token in the input function text</param>
-    [Obsolete("Use the other constructors instead")]
-    public Token(object value, TokenType tokenType, ushort startPosition = 0, ushort length = 0)
-    {
-        Value = value;
-        TokenType = tokenType;
-        StartPosition = startPosition;
-        Length = length;
-    }
-
-    /// <summary>
-    /// Represents an input token
-    /// </summary>
-    /// <param name="value">The value of the token</param>
-    /// <param name="tokenType">The type of the token</param>
-    /// <param name="startPosition">The start position of the token in the input function text</param>
-    /// <param name="length">The length of token in the input function text</param>
     public Token(char value, TokenType tokenType, ushort startPosition = 0, ushort length = 0)
     {
         if (tokenType is not (TokenType.ArgumentSeparator or TokenType.LeftBracket or TokenType.RightBracket

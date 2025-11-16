@@ -51,33 +51,33 @@ public sealed class ReadOnlyConstantRegistry : IConstantRegistry
         return GetEnumerator();
     }
 
-    public ConstantInfo GetConstantInfo(string constantName)
+    public ConstantInfo GetInfo(string constantName)
     {
-        return TryGetConstantInfo(constantName, out var constantInfo)
+        return TryGetInfo(constantName, out var constantInfo)
                    ? constantInfo
                    : throw new KeyNotFoundException(constantName);
     }
 
-    public bool TryGetConstantInfo(string constantName, [NotNullWhen(true)] out ConstantInfo? constantInfo)
+    public bool TryGetInfo(string constantName, [NotNullWhen(true)] out ConstantInfo? constantInfo)
     {
         return string.IsNullOrEmpty(constantName)
                    ? throw new ArgumentNullException(nameof(constantName))
                    : constants.TryGetValue(constantName, out constantInfo);
     }
 
-    public bool ContainsConstantName(string constantName)
+    public bool ContainsName(string constantName)
     {
         return string.IsNullOrEmpty(constantName)
                    ? throw new ArgumentNullException(nameof(constantName))
                    : constants.ContainsKey(constantName);
     }
 
-    public void RegisterConstant(string constantName, double value, bool isOverWritable = true)
+    public void Register(string constantName, double value, bool isOverWritable = true)
     {
         throw new ReadOnlyException("This ConstantRegistry is read-only.");
     }
 
-    public void RegisterConstant(ConstantInfo constantInfo)
+    public void Register(ConstantInfo constantInfo)
     {
         throw new ReadOnlyException("This ConstantRegistry is read-only.");
     }

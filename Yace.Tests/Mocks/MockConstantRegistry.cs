@@ -19,12 +19,12 @@ public sealed class MockConstantRegistry(bool caseSensitive, Dictionary<string, 
     }
 
     public bool CaseSensitive { get; } = caseSensitive;
-    public ConstantInfo GetConstantInfo(string constantName)
+    public ConstantInfo GetInfo(string constantName)
     {
         return constants[constantName];
     }
 #pragma warning disable CS8767 // Nullability of reference types in type of parameter doesn't match implicitly implemented member (possibly because of nullability attributes).
-    public bool TryGetConstantInfo(string constantName, out ConstantInfo? constantInfo)
+    public bool TryGetInfo(string constantName, out ConstantInfo? constantInfo)
 #pragma warning restore CS8767 // Nullability of reference types in type of parameter doesn't match implicitly implemented member (possibly because of nullability attributes).
     {
         return constants.TryGetValue(constantName, out constantInfo);
@@ -35,17 +35,17 @@ public sealed class MockConstantRegistry(bool caseSensitive, Dictionary<string, 
         return constants.Select(c=> c.Value).GetEnumerator();
     }
 
-    public bool ContainsConstantName(string constantName)
+    public bool ContainsName(string constantName)
     {
         return constants.ContainsKey(constantName);
     }
 
-    public void RegisterConstant(ConstantInfo constantInfo)
+    public void Register(ConstantInfo constantInfo)
     {
-        RegisterConstant(constantInfo.Name, constantInfo.Value, constantInfo.IsOverWritable);
+        Register(constantInfo.Name, constantInfo.Value, constantInfo.IsOverWritable);
     }
 
-    public void RegisterConstant(string constantName, double value, bool isOverWritable)
+    public void Register(string constantName, double value, bool isOverWritable)
     {
         if(string.IsNullOrEmpty(constantName))
             throw new ArgumentNullException(nameof(constantName));
@@ -53,7 +53,7 @@ public sealed class MockConstantRegistry(bool caseSensitive, Dictionary<string, 
 
         var constantInfo = new ConstantInfo(constantName, value, isOverWritable);
 
-        if (TryGetConstantInfo(constantName, out var oldInfo))
+        if (TryGetInfo(constantName, out var oldInfo))
             if (oldInfo!.IsOverWritable)
                 constants[constantName] = constantInfo;
             else

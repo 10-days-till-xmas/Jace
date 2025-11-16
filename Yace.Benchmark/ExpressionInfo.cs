@@ -71,7 +71,7 @@ public sealed class ExpressionInfo
     {
         var jaceEngine = new Jace.CalculationEngine(new JaceOptions { DefaultConstants = true });
         foreach (var ci in jaceEngine.Constants)
-            constantRegistry.RegisterConstant(ci.ConstantName, ci.Value, ci.IsOverWritable);
+            constantRegistry.Register(ci.ConstantName, ci.Value, ci.IsOverWritable);
     };
     #else
     private static readonly Action<IFunctionRegistry> m_CalculationEngine_RegisterDefaultFunctions =

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Globalization;
-using System.Linq;
 using System.Reflection;
 using BenchmarkDotNet.Columns;
 using BenchmarkDotNet.Configs;
@@ -9,7 +8,6 @@ using BenchmarkDotNet.Diagnostics.dotTrace;
 using BenchmarkDotNet.Exporters;
 using BenchmarkDotNet.Exporters.Json;
 using BenchmarkDotNet.Exporters.Xml;
-using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Running;
 using Yace.Benchmark;
 

@@ -1,5 +1,4 @@
-﻿using Yace.Execution;
-#if BENCHJACE
+﻿#if BENCHJACE
 using ExecutionMode = Jace.Execution.ExecutionMode;
 #else
 using ExecutionMode = Yace.Execution.ExecutionMode;

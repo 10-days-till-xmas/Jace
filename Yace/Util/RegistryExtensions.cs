@@ -1,23 +1,19 @@
-﻿using Yace.Execution;
+﻿using System.Collections.Generic;
+using Yace.Execution;
 
 namespace Yace.Util;
 
 public static class RegistryExtensions
 {
-    public static FunctionRegistry Clone(this IFunctionRegistry source)
+    public static ConstantRegistry ToRegistry(this IDictionary<string, double> source, bool isOverWritable = false)
     {
-        var clone = new FunctionRegistry(source.CaseSensitive, source.Comparer);
-
-        foreach (var function in source)
-            clone.Register(function);
-        return clone;
+        var registry = new ConstantRegistry(false);
+        foreach (var kvp in source)
+            registry.Register(new ConstantInfo(kvp.Key, kvp.Value, isOverWritable));
+        return registry;
     }
-    public static ConstantRegistry Clone(this IConstantRegistry source)
+    public static ReadOnlyConstantRegistry ToReadOnlyRegistry(this IDictionary<string, double> source, bool isOverWritable = false)
     {
-        var clone = new ConstantRegistry(source.CaseSensitive);
-
-        foreach (var constant in source)
-            clone.RegisterConstant(constant);
-        return clone;
+        return new ReadOnlyConstantRegistry(source.ToRegistry(isOverWritable));
     }
 }

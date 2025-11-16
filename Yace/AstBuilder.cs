@@ -50,7 +50,7 @@ public sealed class AstBuilder(
                         operatorStack.Push(token);
                         parameterCount.Push(1);
                     }
-                    else if (localConstantRegistry.TryGetConstantInfo(tokenValue, out var info))
+                    else if (localConstantRegistry.TryGetInfo(tokenValue, out var info))
                         resultStack.Push(new FloatingPointConstant(info.Value));
                     else
                         resultStack.Push(new Variable(tokenValue));

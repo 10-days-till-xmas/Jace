@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Yace.Execution;
 using Xunit;
+using Yace.Util;
 
 namespace Yace.Tests;
 
@@ -481,7 +482,7 @@ public static partial class CalculationEngineTests
         public void TestCalculationFormulaBuildingWithConstants1()
         {
             var engine = new CalculationEngine(executionModeOptions);
-            var fn = engine.Build("a+b+c", new Dictionary<string, double> { { "a", 1 } });
+            var fn = engine.Build("a+b+c", new Dictionary<string, double> { { "a", 1 } }.ToReadOnlyRegistry());
             var result = fn(new Dictionary<string, double> { { "b", 2 }, { "c", 2 } });
             Assert.Equal(5.0, result);
         }
@@ -522,7 +523,7 @@ public static partial class CalculationEngineTests
         {
             var engine = new CalculationEngine(executionModeOptions with { CacheEnabled = false });
 
-            var fn = engine.Build("a+b+c", new Dictionary<string, double> { { "a", 1 } });
+            var fn = engine.Build("a+b+c", new Dictionary<string, double> { { "a", 1 } }.ToReadOnlyRegistry());
             var result = fn(new Dictionary<string, double> { { "b", 2 }, { "c", 2 } });
             Assert.Equal(5.0, result);
 
@@ -542,7 +543,7 @@ public static partial class CalculationEngineTests
             Assert.Equal(5.0, result);
 
 
-            var fn1 = engine.Build("a+b+c", new Dictionary<string, double> { { "a", 2 } });
+            var fn1 = engine.Build("a+b+c", new Dictionary<string, double> { { "a", 2 } }.ToReadOnlyRegistry());
             var result1 = fn1(new Dictionary<string, double> { { "b", 2 }, { "c", 2 } });
             Assert.Equal(6.0, result1);
         }
@@ -577,11 +578,11 @@ public static partial class CalculationEngineTests
         public void TestCalculationFormulaBuildingWithConstantsCache4()
         {
             var engine = new CalculationEngine(executionModeOptions);
-            var fn = engine.Build("a+b+c", new Dictionary<string, double> { { "a", 1 } });
+            var fn = engine.Build("a+b+c", new Dictionary<string, double> { { "a", 1 } }.ToReadOnlyRegistry());
             var result = fn(new Dictionary<string, double> { { "b", 2 }, { "c", 2 } });
             Assert.Equal(5.0, result);
 
-            var fn1 = engine.Build("a+b+c", new Dictionary<string, double> { { "a", 2 } });
+            var fn1 = engine.Build("a+b+c", new Dictionary<string, double> { { "a", 2 } }.ToReadOnlyRegistry());
             var result1 = fn1(new Dictionary<string, double> { { "b", 2 }, { "c", 2 } });
             Assert.Equal(6.0, result1);
         }
@@ -596,7 +597,7 @@ public static partial class CalculationEngineTests
             Assert.Equal(5.0, result);
 
 
-            var fn1 = engine.Build("a+b+c", new Dictionary<string, double> { { "a", 2 } });
+            var fn1 = engine.Build("a+b+c", new Dictionary<string, double> { { "a", 2 } }.ToReadOnlyRegistry());
             var result1 = fn1(new Dictionary<string, double> { { "b", 3 }, { "c", 3 } });
             Assert.Equal(8.0, result1);
         }

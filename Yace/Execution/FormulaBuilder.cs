@@ -23,7 +23,7 @@ public sealed class FormulaBuilder : IUsesText
         this.formulaText = formulaText;
         this.engine = engine;
         CaseSensitive = engine.CaseSensitive;
-        constantRegistry = new ConstantRegistry(engine.ConstantRegistry);
+        constantRegistry = engine.ConstantRegistry.Clone();
     }
 
     /// <summary>
@@ -68,10 +68,10 @@ public sealed class FormulaBuilder : IUsesText
     {
         if (string.IsNullOrEmpty(name))
             throw new ArgumentNullException(nameof(name));
-        if (constantRegistry.ContainsConstantName(name))
+        if (constantRegistry.ContainsName(name))
             throw new ArgumentException($"A constant with the name \"{name}\" was already defined.", nameof(name));
 
-        constantRegistry.RegisterConstant(name, constantValue);
+        constantRegistry.Register(name, constantValue);
         return this;
     }
 
