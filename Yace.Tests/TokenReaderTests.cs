@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using Yace.Tokenizer;
 using Xunit;
+using Yace.Exceptions;
 
 namespace Yace.Tests;
 

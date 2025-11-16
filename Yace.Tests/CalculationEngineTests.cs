@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 using Yace.Execution;
 using Xunit;
 using Yace.Util;
+using Yace.Exceptions;
 
 namespace Yace.Tests;
 

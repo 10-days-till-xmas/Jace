@@ -7,6 +7,7 @@ using Yace.Tests.Mocks;
 using Yace.Tokenizer;
 using Xunit;
 using Yace.Interfaces;
+using Yace.Exceptions;
 
 namespace Yace.Tests;
 
