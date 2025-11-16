@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
+using Yace.Exceptions;
 
 namespace Yace.Tokenizer;
 

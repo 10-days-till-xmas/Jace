@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Yace;
+namespace Yace.Exceptions;
 
 /// <summary>
 /// The exception that is thrown when there is a syntax error in the formula provided

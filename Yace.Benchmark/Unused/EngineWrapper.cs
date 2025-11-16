@@ -1,4 +1,5 @@
-﻿using Yace.Execution;
+﻿#if !DISABLE_RANDOMFORMULABENCHMARKS
+using Yace.Execution;
 
 namespace Yace.Benchmark.Unused;
 
@@ -18,3 +19,4 @@ public sealed class EngineWrapper(YaceOptions options)
         return $"{ExecutionMode}, {(CaseSensitivity ? "CS:t" : "CS:f")}";
     }
 }
+#endif

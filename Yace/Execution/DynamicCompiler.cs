@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Yace.Interfaces;
 using Yace.Operations;
 
 namespace Yace.Execution;

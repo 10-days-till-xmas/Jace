@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Yace.Execution;
+using Yace.Interfaces;
 using Yace.Util;
 using static System.Linq.Expressions.Expression;
 namespace Yace.Operations;

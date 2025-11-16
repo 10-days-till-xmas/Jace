@@ -1,6 +1,6 @@
 ﻿using Yace.Operations;
 
-namespace Yace;
+namespace Yace.Interfaces;
 
 public interface IOptimizer
 {

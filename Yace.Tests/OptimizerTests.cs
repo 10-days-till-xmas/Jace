@@ -5,6 +5,7 @@ using Yace.Execution;
 using Yace.Operations;
 using Yace.Tokenizer;
 using Xunit;
+using Yace.Interfaces;
 
 namespace Yace.Tests;
 

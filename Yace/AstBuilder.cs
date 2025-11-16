@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using Yace.Exceptions;
 using Yace.Execution;
+using Yace.Interfaces;
 using Yace.Operations;
 using Yace.Tokenizer;
 

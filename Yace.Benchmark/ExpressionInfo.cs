@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using Yace.Interfaces;
 
 #if BENCHJACE
 using Jace;

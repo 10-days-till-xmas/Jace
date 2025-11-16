@@ -1,4 +1,4 @@
-﻿#if false // Doesn't provide meaningful information
+﻿#if !DISABLE_RANDOMFORMULABENCHMARKS // Doesn't provide meaningful information
 using System;
 using System.Collections.Generic;
 using System.Globalization;

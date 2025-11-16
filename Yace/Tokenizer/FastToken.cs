@@ -4,6 +4,8 @@ using System.Runtime.InteropServices;
 namespace Yace.Tokenizer;
 
 [StructLayout(LayoutKind.Explicit)]
+// ReSharper disable once UnusedType.Global
+// Planned to be used eventually
 public readonly record struct FastToken
 {
     /// <summary>The start position of the token in the input function text</summary>

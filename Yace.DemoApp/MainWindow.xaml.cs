@@ -5,6 +5,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using Yace.Execution;
+using Yace.Interfaces;
 using Yace.Operations;
 using Yace.Tokenizer;
 

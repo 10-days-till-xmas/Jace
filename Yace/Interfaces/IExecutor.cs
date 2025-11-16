@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using Yace.Execution;
 using Yace.Operations;
 
-namespace Yace.Execution;
+namespace Yace.Interfaces;
 
 public interface IExecutor : IUsesText
 {

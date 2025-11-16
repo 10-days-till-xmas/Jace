@@ -1,4 +1,4 @@
-﻿namespace Yace.Execution;
+﻿namespace Yace.Interfaces;
 
 public interface IUsesText
 {

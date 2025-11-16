@@ -3,6 +3,8 @@ using Xunit;
 #endif
 namespace Yace.Tests.Helpers;
 
+// ReSharper disable once UnusedType.Global
+// Used during debugging
 public static class OutputHelper
 {
     #if NET5_0

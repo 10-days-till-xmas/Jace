@@ -6,7 +6,7 @@
         <Label Content="Formula:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"
                RenderTransformOrigin="-0.705,-0.975" />
         <TextBox x:Name="formulaTextBox" Height="23" Margin="71,13,10,0" TextWrapping="Wrap" VerticalAlignment="Top" />
-        <Button x:Name="calculateButton" Content="Calculate" Margin="0,41,10,0" VerticalAlignment="Top"
+        <Button Content="Calculate" Margin="0,41,10,0" VerticalAlignment="Top"
                 HorizontalAlignment="Right" Width="75" Click="calculateButton_Click" />
         <Label Content="Tokens:" HorizontalAlignment="Left" Margin="10,68,0,0" VerticalAlignment="Top"
                RenderTransformOrigin="0.474,-0.038" />

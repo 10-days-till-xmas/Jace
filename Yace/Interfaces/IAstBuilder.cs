@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
-using Yace.Execution;
 using Yace.Operations;
 using Yace.Tokenizer;
 
-namespace Yace;
+namespace Yace.Interfaces;
 
 public interface IAstBuilder : IUsesText
 {

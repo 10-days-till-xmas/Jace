@@ -1,7 +1,8 @@
 ﻿using System;
 using JetBrains.Annotations;
+using Yace.Execution;
 
-namespace Yace.Execution;
+namespace Yace.Interfaces;
 
 [PublicAPI]
 public interface IFunctionRegistry : IRegistry<FunctionInfo>

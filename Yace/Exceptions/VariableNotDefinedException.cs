@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Yace;
+namespace Yace.Exceptions;
 
 /// <summary>
 /// An exception thrown when a formula must be executed with a variable that is not defined.

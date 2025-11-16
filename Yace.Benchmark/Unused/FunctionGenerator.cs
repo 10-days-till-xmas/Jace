@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !DISABLE_RANDOMFORMULABENCHMARKS
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
@@ -98,3 +99,4 @@ public sealed class FunctionGenerator(CultureInfo cultureInfo)
             .ToString(cultureInfo);
     }
 }
+#endif

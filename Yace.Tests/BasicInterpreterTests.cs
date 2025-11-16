@@ -3,6 +3,7 @@ using Yace.Execution;
 using Yace.Operations;
 using Yace.Tests.Mocks;
 using Xunit;
+using Yace.Interfaces;
 
 namespace Yace.Tests;
 

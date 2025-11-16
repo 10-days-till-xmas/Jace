@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Yace.Execution;
+using Yace.Interfaces;
 
 namespace Yace.Tests.Mocks;
 // I'm not sure how this'll be tested. TODO: Add tests for MockConstantRegistry

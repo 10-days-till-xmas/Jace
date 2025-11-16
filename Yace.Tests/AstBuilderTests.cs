@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Yace.Execution;
 using Yace.Operations;
 using Yace.Tests.Mocks;
 using Yace.Tokenizer;
 using Xunit;
+using Yace.Interfaces;
 
 namespace Yace.Tests;
 

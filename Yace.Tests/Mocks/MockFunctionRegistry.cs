@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Yace.Execution;
+using Yace.Interfaces;
 
 namespace Yace.Tests.Mocks;
 
@@ -36,27 +37,12 @@ public sealed class MockFunctionRegistry(IEnumerable<string> functionNames) : IF
         return functionNames.Contains(functionName);
     }
 
-    public void RegisterFunction(string functionName, Delegate function)
-    {
-        throw new NotImplementedException();
-    }
-
     public void Register(string functionName, Delegate function, bool isIdempotent, bool isOverWritable)
     {
         throw new NotImplementedException();
     }
 
     public void Register(FunctionInfo functionInfo)
-    {
-        throw new NotImplementedException();
-    }
-
-    public void RegisterFunction(string functionName, int numberOfParameters)
-    {
-        throw new NotImplementedException();
-    }
-
-    public void RegisterFunction(string functionName, Delegate function, int numberOfParameters)
     {
         throw new NotImplementedException();
     }

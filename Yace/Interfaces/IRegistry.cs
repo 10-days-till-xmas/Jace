@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using Yace.Execution;
 
-namespace Yace.Execution;
+namespace Yace.Interfaces;
 
 public interface IRegistry<T> : IEnumerable<T>, IUsesText
     where T : RegistryItem

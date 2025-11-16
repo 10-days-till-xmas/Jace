@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
+using Yace.Execution;
 
-namespace Yace.Execution;
+namespace Yace.Interfaces;
 
 [PublicAPI]
 public interface IConstantRegistry : IRegistry<ConstantInfo>, IUsesText

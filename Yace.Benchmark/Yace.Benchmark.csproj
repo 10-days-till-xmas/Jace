@@ -10,6 +10,7 @@
     <IncludeSatelliteAssemblies>false</IncludeSatelliteAssemblies>
     <Configurations>Release;BenchJace</Configurations>
     <Platforms>AnyCPU</Platforms>
+    <DefineConstants>DISABLE_RANDOMFORMULABENCHMARKS</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'BenchJace'">
