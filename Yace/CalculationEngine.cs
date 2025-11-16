@@ -196,16 +196,13 @@ public sealed partial class CalculationEngine : IUsesText
     /// <param name="formulaText">The formula that must be converted into a .NET func.</param>
     /// <param name="constantRegistryOverride">Overrides the Engine's ConstantRegistry</param>
     /// <returns>A .NET func for the provided formula.</returns>
-    internal Func<IDictionary<string, double>, double> Build(string formulaText, IConstantRegistry constantRegistryOverride)
+    internal Func<IDictionary<string, double>, double> Build(string formulaText, ReadOnlyConstantRegistry constantRegistryOverride)
     {
         if (string.IsNullOrEmpty(formulaText))
             throw new ArgumentNullException(nameof(formulaText));
-
-
-        var compiledConstants = new ReadOnlyConstantRegistry(constantRegistryOverride);
         var compiledFunctions = new ReadOnlyFunctionRegistry(FunctionRegistry);
 
-        return GetCachedFormulaOrBuild(formulaText, compiledConstants, compiledFunctions);
+        return GetCachedFormulaOrBuild(formulaText, constantRegistryOverride, compiledFunctions);
     }
 
     /// <summary>
@@ -278,19 +275,19 @@ public sealed partial class CalculationEngine : IUsesText
         var operation = astBuilder.Build(tokens);
 
         return optimizerEnabled
-                   ? optimizer.Optimize(operation, functions, constants)
+                   ? optimizer.Optimize(operation, new FormulaContext(functions, constants))
                    : operation;
     }
 
     private Func<IDictionary<string, double>, double> GetCachedFormulaOrBuild(string formulaText,
-        IConstantRegistry? compiledConstants,
-        IFunctionRegistry? functionRegistry)
+        ReadOnlyConstantRegistry? compiledConstants,
+        ReadOnlyFunctionRegistry? functionRegistry)
     {
         return executionFormulaCache.GetOrAdd(
             GenerateFormulaCacheKey(formulaText, compiledConstants), _ =>
             {
                 var operation = BuildAbstractSyntaxTree(formulaText, functionRegistry, compiledConstants);
-                return executor.BuildFormula(operation, FunctionRegistry, compiledConstants);
+                return executor.BuildFormula(operation, functionRegistry, compiledConstants);
             })!;
     }
 

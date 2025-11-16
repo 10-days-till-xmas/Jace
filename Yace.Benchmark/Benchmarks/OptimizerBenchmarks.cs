@@ -15,12 +15,13 @@ public class OptimizerBenchmarks : YaceBenchmarkBase
     {
         #if BENCHJACE
         var optimizer = new Jace.Optimizer(new Interpreter(expressionInfo.CaseSensitive));
+        return optimizer.Optimize(expressionInfo.RootOperation,
+            expressionInfo.FunctionRegistry, expressionInfo.ConstantRegistry);
         #else
         var optimizer = new Optimizer(new Interpreter(expressionInfo.CaseSensitive));
-        #endif
         return optimizer.Optimize(expressionInfo.RootOperation,
-            expressionInfo.FunctionRegistry,
-            expressionInfo.ConstantRegistry);
+            expressionInfo.Context);
+        #endif
     }
 
     [Benchmark]
@@ -29,11 +30,12 @@ public class OptimizerBenchmarks : YaceBenchmarkBase
     {
         #if BENCHJACE
         var optimizer = new Jace.Optimizer(new DynamicCompiler(expressionInfo.CaseSensitive));
+        return optimizer.Optimize(expressionInfo.RootOperation,
+            expressionInfo.FunctionRegistry, expressionInfo.ConstantRegistry);
         #else
         var optimizer = new Optimizer(new DynamicCompiler(expressionInfo.CaseSensitive));
-        #endif
         return optimizer.Optimize(expressionInfo.RootOperation,
-            expressionInfo.FunctionRegistry,
-            expressionInfo.ConstantRegistry);
+            expressionInfo.Context);
+        #endif
     }
 }

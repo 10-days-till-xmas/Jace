@@ -100,7 +100,7 @@ public sealed class FormulaBuilder : IUsesText
             throw new Exception("Please define a result data type for the formula.");
         var constants = new ReadOnlyConstantRegistry(constantRegistry);
         var formula = engine.Build(formulaText, constants);
-        
+
         return FuncAdapter.Wrap(parameters, variables =>
         {
 

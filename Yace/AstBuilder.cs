@@ -11,7 +11,7 @@ public sealed class AstBuilder(
     IFunctionRegistry? functionRegistry,
     bool caseSensitive,
     IConstantRegistry? compiledConstants = null)
-    : IUsesText
+    : IAstBuilder
 {
     private readonly IFunctionRegistry functionRegistry = functionRegistry ?? new FunctionRegistry(caseSensitive);
     private readonly IConstantRegistry localConstantRegistry = compiledConstants ?? new ConstantRegistry(caseSensitive);

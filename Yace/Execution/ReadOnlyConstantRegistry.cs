@@ -25,6 +25,20 @@ public sealed class ReadOnlyConstantRegistry : IConstantRegistry
                 static c => c,
                 Comparer));
     }
+    public ReadOnlyConstantRegistry(IConstantRegistry? innerRegistry, bool caseSensitive, StringComparer? comparer = null)
+    {
+        CaseSensitive = caseSensitive;
+        Comparer = comparer ?? (caseSensitive ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase);
+        constants = innerRegistry is null
+                        #if !NET9_0_OR_GREATER
+                        ? new ReadOnlyDictionary<string, ConstantInfo>(new Dictionary<string, ConstantInfo>(Comparer))
+                        #else
+                        ? ReadOnlyDictionary<string, ConstantInfo>.Empty
+                        #endif
+                        : new ReadOnlyDictionary<string, ConstantInfo>(innerRegistry.ToDictionary(
+                            static f => f.Name,
+                            static f => f, Comparer));
+    }
 
     public IEnumerator<ConstantInfo> GetEnumerator()
     {

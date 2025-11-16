@@ -15,7 +15,7 @@ public sealed class ReadOnlyFunctionRegistry : IFunctionRegistry
 
     public StringComparer Comparer { get; }
     private readonly ReadOnlyDictionary<string, FunctionInfo> functions;
-
+    public IDictionary<string, FunctionInfo> Items => functions;
     public ReadOnlyFunctionRegistry(IFunctionRegistry innerFunctionRegistry)
     {
         CaseSensitive = innerFunctionRegistry.CaseSensitive;
@@ -24,6 +24,20 @@ public sealed class ReadOnlyFunctionRegistry : IFunctionRegistry
             innerFunctionRegistry.ToDictionary(
                 static f => f.Name,
                 static f => f, Comparer));
+    }
+    public ReadOnlyFunctionRegistry(IFunctionRegistry? innerFunctionRegistry, bool caseSensitive, StringComparer? comparer = null)
+    {
+        CaseSensitive = caseSensitive;
+        Comparer = comparer ?? (caseSensitive ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase);
+        functions = innerFunctionRegistry is null
+                        #if !NET9_0_OR_GREATER
+                        ? new ReadOnlyDictionary<string, FunctionInfo>(new Dictionary<string, FunctionInfo>(Comparer))
+                        #else
+                        ? ReadOnlyDictionary<string, FunctionInfo>.Empty
+                        #endif
+                        : new ReadOnlyDictionary<string, FunctionInfo>(innerFunctionRegistry.ToDictionary(
+                            static f => f.Name,
+                            static f => f, Comparer));
     }
 
     public IEnumerator<FunctionInfo> GetEnumerator()
