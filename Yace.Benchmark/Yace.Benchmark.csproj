@@ -10,14 +10,14 @@
     <IncludeSatelliteAssemblies>false</IncludeSatelliteAssemblies>
     <Configurations>Release;BenchJace</Configurations>
     <Platforms>AnyCPU</Platforms>
-    <DefineConstants>DISABLE_RANDOMFORMULABENCHMARKS</DefineConstants>
+    <DefineConstants>$(DefineConstants);DISABLE_RANDOMFORMULABENCHMARKS</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'BenchJace'">
     <Optimize>true</Optimize>
     <DebugType>portable</DebugType>
     <DebugSymbols>true</DebugSymbols>
-    <DefineConstants>TRACE;BENCHJACE</DefineConstants>
+    <DefineConstants>$(DefineConstants);TRACE;BENCHJACE</DefineConstants>
   </PropertyGroup>
 
 

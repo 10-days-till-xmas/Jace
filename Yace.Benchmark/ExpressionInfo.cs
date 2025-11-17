@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Reflection;
-using Yace.Interfaces;
+
+
 
 #if BENCHJACE
 using Jace;
@@ -16,15 +16,19 @@ using _AstBuilder = Jace.AstBuilder;
 using _DataType = Jace.DataType;
 using _Optimizer = Jace.Optimizer;
 using _FormulaContext = Jace.FormulaContext;
+using IFunctionRegistry = Jace.Execution.IFunctionRegistry;
+using IConstantRegistry = Jace.Execution.IConstantRegistry;
 #else
 using Yace.Execution;
+using Yace.Interfaces;
 using Yace.Operations;
 using Yace.Tokenizer;
 using Yace.Util;
+using System.Reflection;
 using ParameterInfo = Yace.Execution.ParameterInfo;
 using _AstBuilder = Yace.AstBuilder;
-using _DataType = Yace.DataType;
 using _Optimizer = Yace.Optimizer;
+using _DataType = Yace.DataType;
 using _FormulaContext = Yace.FormulaContext;
 #endif
 namespace Yace.Benchmark;
@@ -60,6 +64,7 @@ public sealed class ExpressionInfo
     public ReadOnlyFunctionRegistry FunctionRegistry { get; }
     public ReadOnlyConstantRegistry ConstantRegistry { get; }
     #endif
+    // ReSharper disable once UnusedAutoPropertyAccessor.Global
     public _FormulaContext Context { get; }
     #if BENCHJACE
     private static readonly Action<IFunctionRegistry> m_CalculationEngine_RegisterDefaultFunctions = (functionRegistry) =>
@@ -72,7 +77,7 @@ public sealed class ExpressionInfo
     {
         var jaceEngine = new Jace.CalculationEngine(new JaceOptions { DefaultConstants = true });
         foreach (var ci in jaceEngine.Constants)
-            constantRegistry.Register(ci.ConstantName, ci.Value, ci.IsOverWritable);
+            constantRegistry.RegisterConstant(ci.ConstantName, ci.Value, ci.IsOverWritable);
     };
     #else
     private static readonly Action<IFunctionRegistry> m_CalculationEngine_RegisterDefaultFunctions =
@@ -87,7 +92,7 @@ public sealed class ExpressionInfo
         Expression = expression;
         ParameterInfos = parameterInfos;
         var random = new Random(RandomSeed);
-        ParameterDictionary = ParameterInfos.ToDictionary(static pi => pi.Name, pi => pi.DataType switch
+        _parameterDictionary = ParameterInfos.ToDictionary(static pi => pi.Name, pi => pi.DataType switch
         {
             _DataType.Integer => new IntDoubleUnion(random.Next()),
             _DataType.FloatingPoint => new IntDoubleUnion(random.NextDouble()),
@@ -97,7 +102,7 @@ public sealed class ExpressionInfo
         #if BENCHJACE
         FunctionRegistry = CreateDefaultFunctionRegistry(CaseSensitive);
         ConstantRegistry = CreateDefaultConstantRegistry(CaseSensitive);
-        Context = new Jace.FormulaContext(SimpleParameterDictionary, FunctionRegistry, ConstantRegistry);
+        Context = new _FormulaContext(SimpleParameterDictionary, FunctionRegistry, ConstantRegistry);
         #else
         FunctionRegistry = new ReadOnlyFunctionRegistry(CreateDefaultFunctionRegistry(CaseSensitive));
         ConstantRegistry = new ReadOnlyConstantRegistry(CreateDefaultConstantRegistry(CaseSensitive));
@@ -150,9 +155,10 @@ public sealed class ExpressionInfo
             m_CalculationEngine_RegisterDefaultConstants(registry);
             return registry;
     }
-    public Dictionary<string, IntDoubleUnion> ParameterDictionary { get; }
+
+    private readonly Dictionary<string, IntDoubleUnion> _parameterDictionary;
     public Dictionary<string, double> SimpleParameterDictionary =>
-        ParameterDictionary.ToDictionary(static kvp => kvp.Key, static kvp => kvp.Value.Type switch
+        _parameterDictionary.ToDictionary(static kvp => kvp.Key, static kvp => kvp.Value.Type switch
                                          {
                                              DataType.Integer => kvp.Value.IntValue,
                                              DataType.FloatingPoint => kvp.Value.DoubleValue,
