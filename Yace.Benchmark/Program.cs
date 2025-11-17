@@ -52,27 +52,22 @@ IColumn[] columns = [
     BaselineAllocationRatioColumn.RatioMean,
     BaselineColumn.Default
 ];
-var jobBase = args switch
-{
-    ["dry"] => Job.Dry,
-    ["short"] => Job.ShortRun,
-    ["long"]  => Job.LongRun,
-    ["veryLong"] or ["verylong"]  => Job.VeryLongRun,
-    _       => Job.Default
-};
-jobBase = jobBase.AsDefault();
-var jobs = new List<Job> { jobBase.AsDefault().WithId("Yace") };
+var jobs = new List<Job> { Job.Default
+                              .WithId("Yace")
+                              .WithCustomBuildConfiguration("Release") };
 #if BENCHJACE
 jobs.Add(Job.Default
             .WithId("Jace")
-            .AsBaseline()
-            .WithCustomBuildConfiguration("BenchJace"));
+            .WithCustomBuildConfiguration("BenchJace")
+            .AsBaseline());
 #endif
 IConfig config = ManualConfig.CreateEmpty()
                              .AddColumnProvider(DefaultColumnProviders.Descriptor,
                                                 DefaultColumnProviders.Params,
                                                 DefaultColumnProviders.Metrics)
                              .AddColumn(columns)
+                             .WithSummaryStyle(SummaryStyle.Default
+                                                           .WithMaxParameterColumnWidth(50))
                              .AddLogger(ConsoleLogger.Default)
                              .AddDiagnoser(MemoryDiagnoser.Default,
                                            ThreadingDiagnoser.Default,

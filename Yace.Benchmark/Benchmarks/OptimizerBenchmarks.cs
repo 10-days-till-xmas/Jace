@@ -1,41 +1,33 @@
-﻿#if BENCHJACE
-using Jace.Execution;
-using Jace.Operations;
-#else
-using Yace.Execution;
-using Yace.Operations;
-#endif
+﻿using Yace.Execution;
+
+using System;
+
 namespace Yace.Benchmark.Benchmarks;
 // ReSharper disable once ClassCanBeSealed.Global
 public class OptimizerBenchmarks : YaceBenchmarkBase
 {
     [Benchmark]
     [ArgumentsSource(nameof(Expressions))]
-    public Operation OptimizeOperation_Interpreter(ExpressionInfo expressionInfo)
+    public object OptimizeOperation_Interpreter(ExpressionInfo expressionInfo) => expressionInfo.Library switch
     {
-        #if BENCHJACE
-        var optimizer = new Jace.Optimizer(new Interpreter(expressionInfo.CaseSensitive));
-        return optimizer.Optimize(expressionInfo.RootOperation,
-            expressionInfo.FunctionRegistry, expressionInfo.ConstantRegistry);
-        #else
-        var optimizer = new Optimizer(new Interpreter(expressionInfo.CaseSensitive));
-        return optimizer.Optimize(expressionInfo.RootOperation,
-            expressionInfo.Context);
-        #endif
-    }
-
+        Library.Jace => new Jace.Optimizer(new Jace.Execution.Interpreter(expressionInfo.CaseSensitive))
+           .Optimize(expressionInfo.RootOperation_Jace, expressionInfo.FunctionRegistry_Jace,
+                expressionInfo.ConstantRegistry_Jace),
+        Library.Yace => new Optimizer(new Interpreter(expressionInfo.CaseSensitive))
+           .Optimize(expressionInfo.RootOperation, expressionInfo.Context),
+        _ => throw new NotSupportedException($"Library {expressionInfo.Library} is not supported.")
+    };
+    #if false // Disabled because it provides no useful data (I was curious)
     [Benchmark]
     [ArgumentsSource(nameof(Expressions))]
-    public Operation OptimizeOperation_DynamicCompiler(ExpressionInfo expressionInfo)
+    public object OptimizeOperation_DynamicCompiler(ExpressionInfo expressionInfo) => expressionInfo.Library switch
     {
-        #if BENCHJACE
-        var optimizer = new Jace.Optimizer(new DynamicCompiler(expressionInfo.CaseSensitive));
-        return optimizer.Optimize(expressionInfo.RootOperation,
-            expressionInfo.FunctionRegistry, expressionInfo.ConstantRegistry);
-        #else
-        var optimizer = new Optimizer(new DynamicCompiler(expressionInfo.CaseSensitive));
-        return optimizer.Optimize(expressionInfo.RootOperation,
-            expressionInfo.Context);
-        #endif
-    }
+        Library.Jace => new Jace.Optimizer(new Jace.Execution.DynamicCompiler(expressionInfo.CaseSensitive))
+           .Optimize(expressionInfo.RootOperation_Jace, expressionInfo.FunctionRegistry_Jace,
+                expressionInfo.ConstantRegistry_Jace),
+        Library.Yace => new Optimizer(new DynamicCompiler(expressionInfo.CaseSensitive))
+           .Optimize(expressionInfo.RootOperation, expressionInfo.Context),
+        _ => throw new NotSupportedException($"Library {expressionInfo.Library} is not supported.")
+    };
+    #endif
 }

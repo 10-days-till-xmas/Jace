@@ -52,7 +52,9 @@ public static class Profiler
         foreach (var expression in _optimizerBenchmarks.Expressions)
         {
             _optimizerBenchmarks.OptimizeOperation_Interpreter(expression);
+            #if false
             _optimizerBenchmarks.OptimizeOperation_DynamicCompiler(expression);
+            #endif
         }
     }
 
@@ -65,10 +67,10 @@ public static class Profiler
     {
         foreach (var expression in _functionExecutionBenchmarks.Expressions)
         {
-            _functionExecutionBenchmarks.Calculate_Dynamic_Unoptimized(expression);
-            _functionExecutionBenchmarks.Calculate_Dynamic_Optimized(expression);
-            _functionExecutionBenchmarks.Calculate_Interpreted_Unoptimized(expression);
-            _functionExecutionBenchmarks.Calculate_Interpreted_Optimized(expression);
+            _functionExecutionBenchmarks.Execute_Dynamic_Unoptimized(expression);
+            _functionExecutionBenchmarks.Execute_Dynamic_Optimized(expression);
+            _functionExecutionBenchmarks.Execute_Interpreted_Unoptimized(expression);
+            _functionExecutionBenchmarks.Execute_Interpreted_Optimized(expression);
         }
     }
 }

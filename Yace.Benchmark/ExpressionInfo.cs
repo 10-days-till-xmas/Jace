@@ -2,52 +2,22 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-
-
-
-#if BENCHJACE
 using Jace;
-using Jace.Execution;
-using Jace.Operations;
-using Jace.Tokenizer;
-using Jace.Util;
-using ParameterInfo = Jace.Execution.ParameterInfo;
-using _AstBuilder = Jace.AstBuilder;
-using _DataType = Jace.DataType;
-using _Optimizer = Jace.Optimizer;
-using _FormulaContext = Jace.FormulaContext;
-using IFunctionRegistry = Jace.Execution.IFunctionRegistry;
-using IConstantRegistry = Jace.Execution.IConstantRegistry;
-#else
-using Yace.Execution;
 using Yace.Interfaces;
-using Yace.Operations;
-using Yace.Tokenizer;
-using Yace.Util;
+
 using System.Reflection;
+using Yace.Execution;
 using ParameterInfo = Yace.Execution.ParameterInfo;
-using _AstBuilder = Yace.AstBuilder;
-using _Optimizer = Yace.Optimizer;
-using _DataType = Yace.DataType;
-using _FormulaContext = Yace.FormulaContext;
-#endif
+
 namespace Yace.Benchmark;
 
-public sealed class ExpressionInfo
-#if !BENCHJACE
-    : IUsesText
-#endif
+public sealed class ExpressionInfo : IUsesText
 {
-#pragma warning disable CA1822
+    #region Shared Properties
     public bool CaseSensitive => true;
-#pragma warning restore CA1822
     private const int RandomSeed = ':' + '3';
-
     public string Expression { get; }
-    public ParameterInfo[] ParameterInfos { get; }
-    public List<Token> Tokens { get; }
-    public Operation RootOperation { get; }
-    public Operation RootOperation_Optimized { get; }
+    public Library Library { get; }
     public Func<IDictionary<string, double>, double> Raw_CompiledFunction_Interpreted { get; }
     public Func<IDictionary<string, double>, double> Raw_CompiledFunction_Interpreted_Optimized { get; }
     public Delegate CompiledFunction_Interpreted { get; }
@@ -56,90 +26,128 @@ public sealed class ExpressionInfo
     public Func<IDictionary<string, double>, double> Raw_CompiledFunction_Dynamic_Optimized { get; }
     public Delegate CompiledFunction_Dynamic { get; }
     public Delegate CompiledFunction_Dynamic_Optimized { get; }
+    #endregion
 
-    #if BENCHJACE
-    public FunctionRegistry FunctionRegistry { get; }
-    public ConstantRegistry ConstantRegistry { get; }
-    #else
-    public ReadOnlyFunctionRegistry FunctionRegistry { get; }
-    public ReadOnlyConstantRegistry ConstantRegistry { get; }
-    #endif
-    // ReSharper disable once UnusedAutoPropertyAccessor.Global
-    public _FormulaContext Context { get; }
-    #if BENCHJACE
-    private static readonly Action<IFunctionRegistry> m_CalculationEngine_RegisterDefaultFunctions = (functionRegistry) =>
+    #region Yace Properties
+    public ParameterInfo[] ParameterInfos { get; }
+    public List<Tokenizer.Token> Tokens { get; }
+    public Operations.Operation RootOperation { get; }
+    public Operations.Operation RootOperation_Optimized { get; }
+    public Execution.ReadOnlyFunctionRegistry FunctionRegistry { get; }
+    public Execution.ReadOnlyConstantRegistry ConstantRegistry { get; }
+    public FormulaContext Context { get; }
+    #endregion
+
+    #region Jace Properties
+    public Jace.Execution.ParameterInfo[] ParameterInfos_Jace { get; }
+
+    public List<Jace.Tokenizer.Token> Tokens_Jace { get; }
+
+    public Jace.Operations.Operation RootOperation_Jace { get; }
+    public Jace.Operations.Operation RootOperation_Optimized_Jace { get; }
+
+    public Jace.Execution.FunctionRegistry FunctionRegistry_Jace { get; }
+    public Jace.Execution.ConstantRegistry ConstantRegistry_Jace { get; }
+    public Jace.FormulaContext Context_Jace { get; }
+    #endregion
+
+
+    private static readonly Action<Jace.Execution.IFunctionRegistry> m_CalculationEngine_RegisterDefaultFunctions_Jace = (functionRegistry) =>
     {
         var jaceEngine = new Jace.CalculationEngine(new JaceOptions { DefaultFunctions = true });
         foreach (var fi in jaceEngine.Functions) // this is so hacky...
             functionRegistry.RegisterFunction(fi.FunctionName, fi.Function, fi.IsIdempotent, fi.IsOverWritable);
     };
-    private static readonly Action<IConstantRegistry> m_CalculationEngine_RegisterDefaultConstants = (constantRegistry) =>
+    private static readonly Action<Jace.Execution.IConstantRegistry> m_CalculationEngine_RegisterDefaultConstants_Jace = (constantRegistry) =>
     {
         var jaceEngine = new Jace.CalculationEngine(new JaceOptions { DefaultConstants = true });
         foreach (var ci in jaceEngine.Constants)
             constantRegistry.RegisterConstant(ci.ConstantName, ci.Value, ci.IsOverWritable);
     };
-    #else
+
     private static readonly Action<IFunctionRegistry> m_CalculationEngine_RegisterDefaultFunctions =
         typeof(CalculationEngine).GetMethod("RegisterDefaultFunctions", BindingFlags.NonPublic | BindingFlags.Static)!
                                  .CreateDelegate<Action<IFunctionRegistry>>();
     private static readonly Action<IConstantRegistry> m_CalculationEngine_RegisterDefaultConstants =
         typeof(CalculationEngine).GetMethod("RegisterDefaultConstants", BindingFlags.NonPublic | BindingFlags.Static)!
                                  .CreateDelegate<Action<IConstantRegistry>>();
-    #endif
-    public ExpressionInfo(string expression, params ParameterInfo[] parameterInfos)
+
+    public ExpressionInfo(string expression, Library lib, params ParameterInfo[] parameterInfos)
     {
         Expression = expression;
         ParameterInfos = parameterInfos;
+        ParameterInfos_Jace = parameterInfos.Select(static pi => new Jace.Execution.ParameterInfo
+                                             {
+                                                 Name = pi.Name,
+                                                 DataType = (Jace.DataType)(int)pi.DataType
+                                             })
+                                            .ToArray();
+        Library = lib;
         var random = new Random(RandomSeed);
         _parameterDictionary = ParameterInfos.ToDictionary(static pi => pi.Name, pi => pi.DataType switch
         {
-            _DataType.Integer => new IntDoubleUnion(random.Next()),
-            _DataType.FloatingPoint => new IntDoubleUnion(random.NextDouble()),
+            DataType.Integer => new IntDoubleUnion(random.Next()),
+            DataType.FloatingPoint => new IntDoubleUnion(random.NextDouble()),
             _ => throw new NotSupportedException($"Unsupported parameter data type: {pi.DataType}")
         });
-        Tokens = new TokenReader(CultureInfo.CurrentCulture).Read(Expression);
-        #if BENCHJACE
-        FunctionRegistry = CreateDefaultFunctionRegistry(CaseSensitive);
-        ConstantRegistry = CreateDefaultConstantRegistry(CaseSensitive);
-        Context = new _FormulaContext(SimpleParameterDictionary, FunctionRegistry, ConstantRegistry);
-        #else
+        Tokens = new Tokenizer.TokenReader(CultureInfo.CurrentCulture).Read(Expression);
+        Tokens_Jace = new Jace.Tokenizer.TokenReader(CultureInfo.CurrentCulture).Read(Expression);
+
+        FunctionRegistry_Jace = CreateDefaultFunctionRegistry_Jace(CaseSensitive);
+        ConstantRegistry_Jace = CreateDefaultConstantRegistry_Jace(CaseSensitive);
+        Context_Jace = new Jace.FormulaContext(SimpleParameterDictionary, FunctionRegistry_Jace, ConstantRegistry_Jace);
+
         FunctionRegistry = new ReadOnlyFunctionRegistry(CreateDefaultFunctionRegistry(CaseSensitive));
         ConstantRegistry = new ReadOnlyConstantRegistry(CreateDefaultConstantRegistry(CaseSensitive));
-        Context = new _FormulaContext(FunctionRegistry, ConstantRegistry, SimpleParameterDictionary);
-        #endif
+        Context = new FormulaContext(FunctionRegistry, ConstantRegistry, SimpleParameterDictionary);
 
-        var functionRegistry = CreateDefaultFunctionRegistry(CaseSensitive);
-
-        RootOperation = new _AstBuilder(functionRegistry, CaseSensitive)
+        RootOperation = new AstBuilder(FunctionRegistry, CaseSensitive)
            .Build(Tokens);
-        #if BENCHJACE
-        RootOperation_Optimized = new _Optimizer(new Interpreter())
-                                     .Optimize(RootOperation, FunctionRegistry, ConstantRegistry);
-        #else
-        RootOperation_Optimized = new _Optimizer(new Interpreter())
-           .Optimize(RootOperation, Context);
-        #endif
-        Raw_CompiledFunction_Interpreted = new Interpreter(CaseSensitive)
-           .BuildFormula(RootOperation, FunctionRegistry, ConstantRegistry);
-        Raw_CompiledFunction_Interpreted_Optimized = new Interpreter(CaseSensitive)
-           .BuildFormula(RootOperation_Optimized, FunctionRegistry, ConstantRegistry);
-        Raw_CompiledFunction_Dynamic = new DynamicCompiler(CaseSensitive)
-           .BuildFormula(RootOperation, FunctionRegistry, ConstantRegistry);
-        Raw_CompiledFunction_Dynamic_Optimized = new DynamicCompiler(CaseSensitive)
-           .BuildFormula(RootOperation_Optimized, FunctionRegistry, ConstantRegistry);
+        RootOperation_Jace = new Jace.AstBuilder(FunctionRegistry_Jace, CaseSensitive)
+           .Build(Tokens_Jace);
 
-        #if BENCHJACE
-        CompiledFunction_Dynamic = new FuncAdapter().Wrap(ParameterInfos, Raw_CompiledFunction_Dynamic);
-        CompiledFunction_Dynamic_Optimized = new FuncAdapter().Wrap(ParameterInfos, Raw_CompiledFunction_Dynamic_Optimized);
-        CompiledFunction_Interpreted = new FuncAdapter().Wrap(ParameterInfos, Raw_CompiledFunction_Interpreted);
-        CompiledFunction_Interpreted_Optimized = new FuncAdapter().Wrap(ParameterInfos, Raw_CompiledFunction_Interpreted_Optimized);
-        #else
-        CompiledFunction_Dynamic = FuncAdapter.Wrap(ParameterInfos, Raw_CompiledFunction_Dynamic);
-        CompiledFunction_Dynamic_Optimized = FuncAdapter.Wrap(ParameterInfos, Raw_CompiledFunction_Dynamic_Optimized);
-        CompiledFunction_Interpreted = FuncAdapter.Wrap(ParameterInfos, Raw_CompiledFunction_Interpreted);
-        CompiledFunction_Interpreted_Optimized = FuncAdapter.Wrap(ParameterInfos, Raw_CompiledFunction_Interpreted_Optimized);
-        #endif
+        RootOperation_Optimized_Jace = new Jace.Optimizer(new Jace.Execution.Interpreter())
+           .Optimize(RootOperation_Jace, FunctionRegistry_Jace, ConstantRegistry_Jace);
+
+        RootOperation_Optimized = new Optimizer(new Interpreter())
+           .Optimize(RootOperation, Context);
+
+        // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
+        switch (lib)
+        {
+            case Library.Jace:
+                Raw_CompiledFunction_Interpreted = new Jace.Execution.Interpreter(CaseSensitive)
+                   .BuildFormula(RootOperation_Jace, FunctionRegistry_Jace, ConstantRegistry_Jace);
+                Raw_CompiledFunction_Interpreted_Optimized = new Jace.Execution.Interpreter(CaseSensitive)
+                   .BuildFormula(RootOperation_Optimized_Jace, FunctionRegistry_Jace, ConstantRegistry_Jace);
+                Raw_CompiledFunction_Dynamic = new Jace.Execution.DynamicCompiler(CaseSensitive)
+                   .BuildFormula(RootOperation_Jace, FunctionRegistry_Jace, ConstantRegistry_Jace);
+                Raw_CompiledFunction_Dynamic_Optimized = new Jace.Execution.DynamicCompiler(CaseSensitive)
+                   .BuildFormula(RootOperation_Optimized_Jace, FunctionRegistry_Jace, ConstantRegistry_Jace);
+
+                CompiledFunction_Dynamic = new Jace.Util.FuncAdapter().Wrap(ParameterInfos_Jace, Raw_CompiledFunction_Dynamic);
+                CompiledFunction_Dynamic_Optimized = new Jace.Util.FuncAdapter().Wrap(ParameterInfos_Jace, Raw_CompiledFunction_Dynamic_Optimized);
+                CompiledFunction_Interpreted = new Jace.Util.FuncAdapter().Wrap(ParameterInfos_Jace, Raw_CompiledFunction_Interpreted);
+                CompiledFunction_Interpreted_Optimized = new Jace.Util.FuncAdapter().Wrap(ParameterInfos_Jace, Raw_CompiledFunction_Interpreted_Optimized);
+                break;
+            case Library.Yace:
+                Raw_CompiledFunction_Interpreted = new Interpreter(CaseSensitive)
+                   .BuildFormula(RootOperation, FunctionRegistry, ConstantRegistry);
+                Raw_CompiledFunction_Interpreted_Optimized = new Interpreter(CaseSensitive)
+                   .BuildFormula(RootOperation_Optimized, FunctionRegistry, ConstantRegistry);
+                Raw_CompiledFunction_Dynamic = new DynamicCompiler(CaseSensitive)
+                   .BuildFormula(RootOperation, FunctionRegistry, ConstantRegistry);
+                Raw_CompiledFunction_Dynamic_Optimized = new DynamicCompiler(CaseSensitive)
+                   .BuildFormula(RootOperation_Optimized, FunctionRegistry, ConstantRegistry);
+
+                CompiledFunction_Dynamic = Util.FuncAdapter.Wrap(ParameterInfos, Raw_CompiledFunction_Dynamic);
+                CompiledFunction_Dynamic_Optimized = Util.FuncAdapter.Wrap(ParameterInfos, Raw_CompiledFunction_Dynamic_Optimized);
+                CompiledFunction_Interpreted = Util.FuncAdapter.Wrap(ParameterInfos, Raw_CompiledFunction_Interpreted);
+                CompiledFunction_Interpreted_Optimized = Util.FuncAdapter.Wrap(ParameterInfos, Raw_CompiledFunction_Interpreted_Optimized);
+                break;
+            default:
+                throw new NotSupportedException($"Unsupported library: {lib}");
+        }
     }
 
     private static FunctionRegistry CreateDefaultFunctionRegistry(bool caseSensitive)
@@ -148,12 +156,24 @@ public sealed class ExpressionInfo
         m_CalculationEngine_RegisterDefaultFunctions(registry);
         return registry;
     }
+    private static Jace.Execution.FunctionRegistry CreateDefaultFunctionRegistry_Jace(bool caseSensitive)
+    {
+        var registry = new Jace.Execution.FunctionRegistry(caseSensitive);
+        m_CalculationEngine_RegisterDefaultFunctions_Jace(registry);
+        return registry;
+    }
 
     private static ConstantRegistry CreateDefaultConstantRegistry(bool caseSensitive)
     {
             var registry = new ConstantRegistry(caseSensitive);
             m_CalculationEngine_RegisterDefaultConstants(registry);
             return registry;
+    }
+    private static Jace.Execution.ConstantRegistry CreateDefaultConstantRegistry_Jace(bool caseSensitive)
+    {
+        var registry = new Jace.Execution.ConstantRegistry(caseSensitive);
+        m_CalculationEngine_RegisterDefaultConstants_Jace(registry);
+        return registry;
     }
 
     private readonly Dictionary<string, IntDoubleUnion> _parameterDictionary;
@@ -165,5 +185,5 @@ public sealed class ExpressionInfo
                                              _ => throw new NotSupportedException($"Unsupported parameter data type: {kvp.Value.Type}")
                                          });
 
-    public override string ToString() => Expression;
+    public override string ToString() => $"{Library}-{Expression}";
 }

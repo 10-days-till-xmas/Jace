@@ -1,12 +1,7 @@
-﻿#if BENCHJACE
-using Jace.Operations;
-using _AstBuilder = Jace.AstBuilder;
-#else
-using Yace.Operations;
-using _AstBuilder = Yace.AstBuilder;
-#endif
+﻿using System;
 
 namespace Yace.Benchmark.Benchmarks;
+
 [BenchmarkCategory]
 // ReSharper disable once ClassCanBeSealed.Global
 public class AstBuilderBenchmarks : YaceBenchmarkBase
@@ -14,10 +9,14 @@ public class AstBuilderBenchmarks : YaceBenchmarkBase
     [Benchmark]
     [ArgumentsSource(nameof(Expressions))]
 
-    public Operation BenchBuildAst(ExpressionInfo expressionInfo)
+    public object BenchBuildAst(ExpressionInfo expressionInfo) => expressionInfo.Library switch
     {
-        var astBuilder = new _AstBuilder(expressionInfo.FunctionRegistry,
-            expressionInfo.CaseSensitive, expressionInfo.ConstantRegistry);
-        return astBuilder.Build(expressionInfo.Tokens);
-    }
+        Library.Jace => new Jace.AstBuilder(expressionInfo.FunctionRegistry_Jace,
+                expressionInfo.CaseSensitive, expressionInfo.ConstantRegistry_Jace)
+           .Build(expressionInfo.Tokens_Jace),
+        Library.Yace => new AstBuilder(expressionInfo.FunctionRegistry,
+                expressionInfo.CaseSensitive, expressionInfo.ConstantRegistry)
+           .Build(expressionInfo.Tokens),
+        _ => throw new NotSupportedException($"Library {expressionInfo.Library} is not supported.")
+    };
 }
