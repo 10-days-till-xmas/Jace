@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using BenchmarkDotNet.Diagnostics.dotTrace;
-using BenchmarkDotNet.Jobs;
-using BenchmarkDotNet.Running;
 using Yace.Execution;
-
-
 
 namespace Yace.Benchmark.Benchmarks;
 [DotTraceDiagnoser]
@@ -31,7 +25,6 @@ public abstract class YaceBenchmarkBase
             Library.Yace,
             #endif
             ed.parameters)).ToArray();
-    
 
 #pragma warning disable CA1822
     public ExpressionInfo[] Expressions => _expressions;

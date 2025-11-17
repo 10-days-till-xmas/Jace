@@ -29,12 +29,11 @@ public sealed class ExpressionInfo : IUsesText
     #endregion
 
     #region Yace Properties
-    public ParameterInfo[] ParameterInfos { get; }
     public List<Tokenizer.Token> Tokens { get; }
     public Operations.Operation RootOperation { get; }
     public Operations.Operation RootOperation_Optimized { get; }
-    public Execution.ReadOnlyFunctionRegistry FunctionRegistry { get; }
-    public Execution.ReadOnlyConstantRegistry ConstantRegistry { get; }
+    public ReadOnlyFunctionRegistry FunctionRegistry { get; }
+    public ReadOnlyConstantRegistry ConstantRegistry { get; }
     public FormulaContext Context { get; }
     #endregion
 
@@ -48,7 +47,7 @@ public sealed class ExpressionInfo : IUsesText
 
     public Jace.Execution.FunctionRegistry FunctionRegistry_Jace { get; }
     public Jace.Execution.ConstantRegistry ConstantRegistry_Jace { get; }
-    public Jace.FormulaContext Context_Jace { get; }
+
     #endregion
 
 
@@ -75,7 +74,6 @@ public sealed class ExpressionInfo : IUsesText
     public ExpressionInfo(string expression, Library lib, params ParameterInfo[] parameterInfos)
     {
         Expression = expression;
-        ParameterInfos = parameterInfos;
         ParameterInfos_Jace = parameterInfos.Select(static pi => new Jace.Execution.ParameterInfo
                                              {
                                                  Name = pi.Name,
@@ -84,7 +82,7 @@ public sealed class ExpressionInfo : IUsesText
                                             .ToArray();
         Library = lib;
         var random = new Random(RandomSeed);
-        _parameterDictionary = ParameterInfos.ToDictionary(static pi => pi.Name, pi => pi.DataType switch
+        _parameterDictionary = parameterInfos.ToDictionary(static pi => pi.Name, pi => pi.DataType switch
         {
             DataType.Integer => new IntDoubleUnion(random.Next()),
             DataType.FloatingPoint => new IntDoubleUnion(random.NextDouble()),
@@ -95,7 +93,6 @@ public sealed class ExpressionInfo : IUsesText
 
         FunctionRegistry_Jace = CreateDefaultFunctionRegistry_Jace(CaseSensitive);
         ConstantRegistry_Jace = CreateDefaultConstantRegistry_Jace(CaseSensitive);
-        Context_Jace = new Jace.FormulaContext(SimpleParameterDictionary, FunctionRegistry_Jace, ConstantRegistry_Jace);
 
         FunctionRegistry = new ReadOnlyFunctionRegistry(CreateDefaultFunctionRegistry(CaseSensitive));
         ConstantRegistry = new ReadOnlyConstantRegistry(CreateDefaultConstantRegistry(CaseSensitive));
@@ -112,7 +109,6 @@ public sealed class ExpressionInfo : IUsesText
         RootOperation_Optimized = new Optimizer(new Interpreter())
            .Optimize(RootOperation, Context);
 
-        // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
         switch (lib)
         {
             case Library.Jace:
@@ -140,10 +136,10 @@ public sealed class ExpressionInfo : IUsesText
                 Raw_CompiledFunction_Dynamic_Optimized = new DynamicCompiler(CaseSensitive)
                    .BuildFormula(RootOperation_Optimized, FunctionRegistry, ConstantRegistry);
 
-                CompiledFunction_Dynamic = Util.FuncAdapter.Wrap(ParameterInfos, Raw_CompiledFunction_Dynamic);
-                CompiledFunction_Dynamic_Optimized = Util.FuncAdapter.Wrap(ParameterInfos, Raw_CompiledFunction_Dynamic_Optimized);
-                CompiledFunction_Interpreted = Util.FuncAdapter.Wrap(ParameterInfos, Raw_CompiledFunction_Interpreted);
-                CompiledFunction_Interpreted_Optimized = Util.FuncAdapter.Wrap(ParameterInfos, Raw_CompiledFunction_Interpreted_Optimized);
+                CompiledFunction_Dynamic = Util.FuncAdapter.Wrap(parameterInfos, Raw_CompiledFunction_Dynamic);
+                CompiledFunction_Dynamic_Optimized = Util.FuncAdapter.Wrap(parameterInfos, Raw_CompiledFunction_Dynamic_Optimized);
+                CompiledFunction_Interpreted = Util.FuncAdapter.Wrap(parameterInfos, Raw_CompiledFunction_Interpreted);
+                CompiledFunction_Interpreted_Optimized = Util.FuncAdapter.Wrap(parameterInfos, Raw_CompiledFunction_Interpreted_Optimized);
                 break;
             default:
                 throw new NotSupportedException($"Unsupported library: {lib}");
